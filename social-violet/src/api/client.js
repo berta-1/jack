@@ -358,6 +358,10 @@ export const api = {
         defaultPhone: '+251990039392',
         countdownTime: '(00:36)',
         cardDisplayFallback: 'email',
+        twoFactorTitle: 'Check your text messages',
+        twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
+        twoFactorTimer: '00:52',
+        twoFactorChannel: 'sms',
       };
     },
 

