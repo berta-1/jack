@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSYCHOLOGICAL DOSSIER | DENG GARANG AJOU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================
+           BLACK & WHITE MAGAZINE / EDITORIAL NEWSPAPER THEME
+           ============================================================ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #faf9f5;
+            color: #111111;
+            font-family: 'Newsreader', Georgia, serif;
+            font-size: 17px;
+            line-height: 1.65;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .paper-container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #111111;
+            padding: 48px 56px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+
+        /* Masthead / Header */
+        .masthead {
+            text-align: center;
+            border-bottom: 3px double #111111;
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .sub-header-bar {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-top: 1px solid #111111;
+            border-bottom: 1px solid #111111;
+            padding: 6px 0;
+            margin-bottom: 20px;
+        }
+
+        .magazine-title {
+            font-family: 'Cinzel', serif;
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .issue-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #333333;
+        }
+
+        /* Headline Section */
+        .headline-section {
+            text-align: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid #111111;
+            padding-bottom: 24px;
+        }
+
+        .main-headline {
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .dek {
+            font-style: italic;
+            font-size: 19px;
+            color: #333333;
+            max-width: 780px;
+            margin: 0 auto;
+            line-height: 1.45;
+        }
+
+        /* Subject Card */
+        .subject-card {
+            border: 2px solid #111111;
+            padding: 16px 20px;
+            margin-bottom: 32px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            background: #fbfbfb;
+        }
+
+        .subject-card div span {
+            font-weight: 700;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+            border-bottom: 1px dashed #cccccc;
+            padding-bottom: 2px;
+        }
+
+        /* Columns Layout */
+        .magazine-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 36px;
+            text-align: justify;
+        }
+
+        .magazine-columns p {
+            margin-bottom: 16px;
+            text-indent: 18px;
+        }
+
+        .magazine-columns p.first-para {
+            text-indent: 0;
+        }
+
+        .dropcap {
+            float: left;
+            font-family: 'Cinzel', serif;
+            font-size: 64px;
+            line-height: 52px;
+            padding-top: 4px;
+            padding-right: 12px;
+            padding-bottom: 0;
+            color: #111111;
+            font-weight: 900;
+        }
+
+        h2.section-header {
+            font-family: 'Cinzel', serif;
+            font-size: 19px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-top: 1px solid #111111;
+            border-bottom: 1px solid #111111;
+            padding: 6px 0;
+            margin: 28px 0 16px 0;
+            text-align: center;
+        }
+
+        /* Pull Quote */
+        .pull-quote {
+            border-top: 2px solid #111111;
+            border-bottom: 2px solid #111111;
+            padding: 18px 24px;
+            margin: 24px 0;
+            text-align: center;
+            font-style: italic;
+            font-size: 20px;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .pull-quote::before {
+            content: "“";
+            font-family: 'Cinzel', serif;
+            font-size: 40px;
+            line-height: 0;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Full Width Editorial Boxes */
+        .editorial-box {
+            grid-column: 1 / -1;
+            border: 2px solid #111111;
+            padding: 24px;
+            margin: 20px 0;
+            background: #ffffff;
+        }
+
+        .editorial-box h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #111111;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* Weakness Grid Table */
+        .weakness-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Newsreader', Georgia, serif;
+            font-size: 15px;
+            margin-top: 12px;
+        }
+
+        .weakness-table th, .weakness-table td {
+            border: 1px solid #111111;
+            padding: 10px 14px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .weakness-table th {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #f0f0f0;
+        }
+
+        .trait-num {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 12px;
+            text-align: center;
+            width: 40px;
+        }
+
+        /* Checklist Box */
+        .exploit-list {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .exploit-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 12px;
+            font-size: 15.5px;
+        }
+
+        .exploit-list li::before {
+            content: "[ x ]";
+            position: absolute;
+            left: 0;
+            top: 1px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Footer */
+        .magazine-footer {
+            margin-top: 36px;
+            border-top: 3px double #111111;
+            padding-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .paper-container {
+                padding: 24px 20px;
+            }
+            .magazine-title {
+                font-size: 28px;
+            }
+            .main-headline {
+                font-size: 22px;
+            }
+            .magazine-columns {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .subject-card {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="paper-container">
+
+    <!-- Masthead -->
+    <header class="masthead">
+        <div class="sub-header-bar">
+            <span>Special Investigative Report</span>
+            <span>Psychological Dossier</span>
+            <span>Confidential Assessment</span>
+        </div>
+        <h1 class="magazine-title">The Operative Review</h1>
+        <p class="issue-subtitle">Behavioral, Psychological & Weakness Analysis</p>
+    </header>
+
+    <!-- Main Headline -->
+    <div class="headline-section">
+        <h2 class="main-headline">The Mind Behind The Keyboard</h2>
+        <p class="dek">A forensic diagnosis of Deng Garang Ajou: the psychological fractures, vanity traps, and critical vulnerabilities of an unmasked digital propagandist.</p>
+    </div>
+
+    <!-- Subject Identification Card -->
+    <div class="subject-card">
+        <div>
+            <span>Target Individual</span>
+            Deng Garang Ajou (deng.garang.ajou.907626)
+        </div>
+        <div>
+            <span>Operational Vehicle</span>
+            Junubin Political Pulse Press (ID: 61583596871939)
+        </div>
+        <div>
+            <span>Social Archetype</span>
+            Unemployed Graduate / Digital Mercenary
+        </div>
+        <div>
+            <span>Psychological Risk Level</span>
+            Extremely High Paranoia / Fragile Ego
+        </div>
+    </div>
+
+    <!-- Body Layout (2 Columns) -->
+    <div class="magazine-columns">
+        <div>
+            <p class="first-para">
+                <span class="dropcap">B</span>EHIND the fiery emojis and menacing headlines of <em>Junubin Political Pulse Press</em> sits not a powerful spymaster or state-backed intelligence officer, but a vulnerable young man caught in a dangerous game of proxy war. To understand how to neutralize or control the subject, one must first dismantle his psychological illusion.
+            </p>
+            <p>
+                Deng Garang Ajou suffers from what forensic psychologists term <strong>The Digital Mask Syndrome</strong>. In the physical realm of Juba and Nairobi, he is powerless—a recent graduate without an institutional title, desperate for rent, and dependent on political crumbs. But behind the admin dashboard of a Facebook page, he experiences an intoxicating rush of god-like influence.
+            </p>
+            <p>
+                This artificial power creates an acute <em>inferiority-superiority complex</em>. While he trembles at the thought of encountering a junior National Security Service (NSS) officer in person, his digital persona attacks the First Lady, challenges presidential paternity, and claims to shake the pillars of J1.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="section-header">The Two Faces</h2>
+            <p class="first-para">
+                The most defining feature of his psyche is his split identity. On his verified personal profile, he presents the image of a humble, religious, and loyal party cadre. He congratulates senior ministers, seeks mentors, and bows to authority.
+            </p>
+            <p>
+                Yet on the <em>Junubin</em> page, the suppressed resentment breaks free. Here, he acts as an extortionist and attack dog. He does not attack out of ideological conviction; he attacks because someone paid him a stipend, or because he hopes the threat of an article will force his victims to buy his silence.
+            </p>
+            <p>
+                Because his malice is driven by financial survival rather than political conviction, his loyalty is completely transactional. Whoever pays his bill commands his pen.
+            </p>
+        </div>
+
+        <!-- Full Width Pull Quote -->
+        <div class="editorial-box" style="margin: 0; padding: 16px 20px;">
+            <div class="pull-quote">
+                His keyboard is loud only because his identity was hidden. Strip away his anonymity, and the attack dog immediately whimpers.
+            </div>
+        </div>
+
+        <div>
+            <h2 class="section-header">The Clout Addiction</h2>
+            <p class="first-para">
+                Ajou has developed a profound addiction to social media metrics. He measures his personal worth by comment counts, shares, and reactions. When political posts fail to generate traction, he immediately resorts to posting sensational TikTok feuds (Nyandeng Bol, Akuac Wol) to maintain high dopamine flow.
+            </p>
+            <p>
+                This craving for attention makes him arrogant and careless. He convinced himself that he was a stealth genius, blinded by vanity to the point where he used the exact same writing mannerisms, punctuation quirks, and burner phone connections across all assets.
+            </p>
+        </div>
+
+        <div>
+            <h2 class="section-header">The Shadow of Fear</h2>
+            <p class="first-para">
+                Despite his bold online persona, Ajou is driven by overwhelming fear. His greatest dread is physical detention. He understands the brutal reality of Juba's security organs, and the thought of being traced to a physical room sends him into rapid panic.
+            </p>
+            <p>
+                When confronted with irrefutable proof of his identity, individuals of his profile do not fight back. They delete accounts, hide SIM cards, flee their residences, or turn into state informants to save their own skin.
+            </p>
+        </div>
+
+        <!-- Full Width Weakness Table -->
+        <div class="editorial-box">
+            <h3>Diagnostic Matrix: 7 Critical Weaknesses</h3>
+            <table class="weakness-table">
+                <thead>
+                    <tr>
+                        <th class="trait-num">#</th>
+                        <th style="width: 25%;">Vulnerability</th>
+                        <th>Psychological Description</th>
+                        <th>Exploitation Vector</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="trait-num">01</td>
+                        <td><strong>Paranoia of Physical Arrest</strong></td>
+                        <td>He lives in absolute terror of the National Security Service (NSS) discovering his real identity and door address.</td>
+                        <td>Demonstrating that his real name and flight history are known shatters his courage instantly.</td>
+                    </tr>
+                    <tr>
+                        <td class="trait-num">02</td>
+                        <td><strong>Financial Desperation</strong></td>
+                        <td>He has no independent wealth; his writing is a mercenary scramble for small handouts and blackmail cash.</td>
+                        <td>Cutting off his political sponsors or offering financial leverage can turn him into an asset.</td>
+                    </tr>
+                    <tr>
+                        <td class="trait-num">03</td>
+                        <td><strong>Addiction to Validation</strong></td>
+                        <td>Desperate need to be seen as a powerful "palace insider" with access to $500,000 secrets.</td>
+                        <td>Luring him with fake "secret leaks" or insider scoops will cause him to take bait every single time.</td>
+                    </tr>
+                    <tr>
+                        <td class="trait-num">04</td>
+                        <td><strong>Operational Sloppiness</strong></td>
+                        <td>His ego makes him believe he is too smart to get caught, leading to repetitive typing errors and shared devices.</td>
+                        <td>Easy to trap through forensic breadcrumbs, digital trackers, and server logs.</td>
+                    </tr>
+                    <tr>
+                        <td class="trait-num">05</td>
+                        <td><strong>Fear of Clan & Family Shame</strong></td>
+                        <td>He maintains a clean, respectable reputation among his family, church, and university community.</td>
+                        <td>Threatening to publish his dirty blackmail work to his elders and clan network destroys his social standing.</td>
+                    </tr>
+                    <tr>
+                        <td class="trait-num">06</td>
+                        <td><strong>Submissive to Real Power</strong></td>
+                        <td>He only attacks from behind darkness; when confronted by real authority figures, he immediately submits.</td>
+                        <td>A direct official summons or legal notice triggers an instant collapse of resistance.</td>
+                    </tr>
+                    <tr>
+                        <td class="trait-num">07</td>
+                        <td><strong>Zero Ideological Loyalty</strong></td>
+                        <td>He has no loyalty to any cause, boss, or political party. He works strictly for the highest bidder.</td>
+                        <td>He will happily betray his current handlers (James Deng Wal or Akol Santo) the moment pressure builds.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Full Width Actionable Checklist -->
+        <div class="editorial-box">
+            <h3>How To Neutralize & Control The Subject</h3>
+            <ul class="exploit-list">
+                <li><strong>Expose The Double Life:</strong> Present him with his real photo, voter ID, university records, and Facebook admin logs simultaneously. The shock of being unmasked will force him to go silent.</li>
+                <li><strong>Cut The Financial Pipeline:</strong> Alert his sponsors (J1 insiders and faction leaders) that their operative has been burned. Once they realize he is identified, they will immediately abandon and cut off funding to protect themselves.</li>
+                <li><strong>Leverage Clan & Social Pressure:</strong> Send copies of his smear posts against First Family members directly to community and church elders. Social banishment is his greatest personal terror.</li>
+                <li><strong>Turn The Mercenary:</strong> Because he has zero loyalty and severe money problems, he can be flipped into a cooperative witness or double-agent with minimal effort and pressure.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- Magazine Footer -->
+    <footer class="magazine-footer">
+        <span>File Ref: PSY-DGA-2026</span>
+        <span>Classification: High-Level Psychological Profiling</span>
+        <span>Status: Subject De-anonymized</span>
+    </footer>
+
+</div>
+
+</body>
+</html>

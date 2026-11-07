@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Fetcher Pro | Unlimited Post Harvester</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-branding">
+            <div class="logo-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1>Facebook Fetcher <span>PRO</span></h1>
+                <p>Pure JSON & Media Harvester • Unlimited Deep Scraper</p>
+            </div>
+        </div>
+        <div class="header-badges">
+            <span class="badge status-badge" id="systemStatus"><span class="pulse-dot"></span> Ready</span>
+            <span class="badge version-badge">v2.5 Full JSON</span>
+        </div>
+    </header>
+
+    <!-- Engine Selector Tabs -->
+    <div class="engine-tabs">
+        <button class="engine-tab active" id="tabApify">
+            <span class="tab-icon">⚡</span>
+            <span>Apify Cloud Engine (Recommended • 100% Full JSON)</span>
+        </button>
+        <button class="engine-tab" id="tabLocal">
+            <span class="tab-icon">💻</span>
+            <span>Local Chrome Browser Engine (Free)</span>
+        </button>
+    </div>
+
+    <!-- Main Control Panel -->
+    <section class="control-panel glass-card">
+        <!-- URL Input -->
+        <div class="input-row">
+            <div class="url-input-wrapper">
+                <span class="input-icon">🔗</span>
+                <input type="text" id="targetUrl" placeholder="Paste Facebook Profile or Page URL" value="https://web.facebook.com/profile.php?id=100092417213397">
+            </div>
+            <div class="btn-group">
+                <button id="startBtn" class="btn btn-primary">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-text">Fetch All Posts</span>
+                </button>
+                <button id="stopBtn" class="btn btn-danger" disabled>
+                    <span class="btn-icon">⏹</span>
+                    <span class="btn-text">Stop</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Apify Config Panel (Default) -->
+        <div id="apifyConfigPanel" class="config-panel">
+            <div class="apify-row">
+                <div class="option-item flex-2">
+                    <label for="apifyToken">
+                        Apify API Token 
+                        <a href="https://console.apify.com/account/integrations" target="_blank" class="helper-link">(Get it free here ↗)</a>
+                    </label>
+                    <input type="password" id="apifyToken" placeholder="Paste your Apify API Token (e.g. apify_api_...)" autocomplete="off">
+                </div>
+                <div class="option-item flex-1">
+                    <label for="apifyLimit">Fetch Limit (Overcomes the 20-post cap)</label>
+                    <select id="apifyLimit">
+                        <option value="100">100 Posts</option>
+                        <option value="500">500 Posts (Recent 7 Months)</option>
+                        <option value="1000">1,000 Posts (~1.5 Years)</option>
+                        <option value="2500" selected>2,500 Posts (All Posts Back to 2023)</option>
+                        <option value="5000">5,000 Posts (Complete Lifetime Archive)</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Cool Date Range Dropdown Selector -->
+            <div class="apify-row" style="margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: flex-end;">
+                <div class="option-item">
+                    <label for="datePresetSelect">📅 Target Time Era (Quick Preset)</label>
+                    <select id="datePresetSelect" style="font-weight: 600; color: #38bdf8; background: #0f172a; border: 1px solid #38bdf8;">
+                        <option value="all" selected>🌐 All Time (Complete History)</option>
+                        <option value="2023">⏳ 2023 Archive Only (Genesis / First Posts)</option>
+                        <option value="2024">📁 2024 Archive Only (Full Year)</option>
+                        <option value="2025">📁 2025 Archive Only (Full Year)</option>
+                        <option value="2026">⚡ 2026 Recent Era (Latest)</option>
+                        <option value="custom">⚙️ Custom Date Range...</option>
+                    </select>
+                </div>
+                <div class="option-item" id="customDateRangeBox" style="display: none;">
+                    <label>🎯 Custom Date Range</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="date" id="customStartDate" title="Start Date" style="flex: 1; padding: 7px 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 6px; color: #fff;">
+                        <input type="date" id="customEndDate" title="End Date" style="flex: 1; padding: 7px 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 6px; color: #fff;">
+                    </div>
+                </div>
+            </div>
+            <!-- Hidden Fields for Apify API -->
+            <input type="hidden" id="apifyOlderThan" value="">
+            <input type="hidden" id="apifyNewerThan" value="">
+        </div>
+
+        <!-- Local Chrome Config Panel -->
+        <div id="localConfigPanel" class="config-panel" style="display: none;">
+            <div class="options-grid">
+                <div class="option-item">
+                    <label for="maxScrolls">Scroll Depth</label>
+                    <select id="maxScrolls">
+                        <option value="50">50 Scrolls (~50-80 posts)</option>
+                        <option value="150" selected>150 Scrolls (~150-250 posts)</option>
+                        <option value="400">400 Scrolls (Full Feed)</option>
+                    </select>
+                </div>
+                <div class="option-item">
+                    <label for="browserMode">Browser Visibility</label>
+                    <select id="browserMode">
+                        <option value="visible" selected>Visible Window</option>
+                        <option value="headless">Headless (Background)</option>
+                    </select>
+                </div>
+                <div class="option-item">
+                    <label for="autoExpand">Expand 'See More'</label>
+                    <select id="autoExpand">
+                        <option value="true" selected>Yes, expand all text</option>
+                        <option value="false">No, fast scan</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Progress & Live Stats -->
+    <section class="stats-grid" id="statsSection">
+        <div class="stat-card glass-card">
+            <span class="stat-label">Posts Harvested</span>
+            <span class="stat-value" id="statPostsCount">0</span>
+            <span class="stat-sub" id="statStatus">Ready to harvest</span>
+        </div>
+        <div class="stat-card glass-card">
+            <span class="stat-label">Elapsed Time</span>
+            <span class="stat-value" id="statTimer">00:00</span>
+            <span class="stat-sub">Active session</span>
+        </div>
+        <div class="stat-card glass-card">
+            <span class="stat-label">Job Progress</span>
+            <span class="stat-value" id="statScrollProgress">0%</span>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Terminal Logs -->
+    <section class="terminal-card glass-card">
+        <div class="terminal-header">
+            <span>Activity Logs & Network Status</span>
+            <button class="btn-text-only" id="clearLogsBtn">Clear Logs</button>
+        </div>
+        <div class="terminal-body" id="logTerminal">
+            <div class="log-line info">[System] Facebook Fetcher v2.5 loaded. Ready for target input.</div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-toolbar glass-card" id="resultsToolbar">
+        <div class="results-summary">
+            <h3>Fetched Posts (<span id="resultsCount">0</span>)</h3>
+            <div class="view-switch">
+                <button class="view-btn active" id="viewJsonBtn">JSON Code View</button>
+                <button class="view-btn" id="viewCardsBtn">Cards View</button>
+            </div>
+        </div>
+            <button class="btn btn-export" id="loadSavedBtn" style="border: 1px solid #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.15); font-weight: 700;">
+                <span>📂</span> Load Saved (500 Posts)
+            </button>
+            <button class="btn btn-export" id="copyJsonBtn" disabled>
+                <span>📋</span> Copy JSON
+            </button>
+            <button class="btn btn-export" id="exportJsonBtn" disabled>
+                <span>📦</span> Download JSON
+            </button>
+            <button class="btn btn-export" id="exportCsvBtn" disabled>
+                <span>📊</span> Download CSV
+            </button>
+        </div>
+    </section>
+
+    <!-- Quick Search & Filter Bar -->
+    <section class="glass-card" style="padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.1rem;">🔍</span>
+        <input type="text" id="postSearchInput" placeholder="Quick Filter: search posts by name (e.g. Emmanuel, Akech, Kiir, Athiei), date, or keyword..." style="flex: 1; background: transparent; border: none; color: #fff; font-size: 0.95rem; outline: none;">
+        <span id="filterCount" style="color: var(--text-muted); font-size: 0.85rem;"></span>
+    </section>
+
+    <!-- Container 1: Pure JSON Code Viewer -->
+    <section class="json-container glass-card" id="jsonContainer">
+        <div class="json-header">
+            <span>Structured JSON Output</span>
+            <span id="jsonMeta">0 bytes</span>
+        </div>
+        <pre id="jsonCodeView" class="json-pre"><code>// Fetched JSON results will appear here with full media, links, dates and reactions.
+[ ]</code></pre>
+    </section>
+
+    <!-- Container 2: Visual Cards Feed -->
+    <section class="posts-feed" id="postsFeed" style="display: none;">
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">📂</div>
+            <h3>No Posts Fetched Yet</h3>
+            <p>Paste a Facebook profile or page link above and click <strong>"Fetch All Posts"</strong>.</p>
+        </div>
+    </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

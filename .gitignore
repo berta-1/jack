@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+*/node_modules/
+*/*/node_modules/
+
+# Python virtual environment
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+
+# Production build artifacts
+dist/
+dist-ssr/
+build/
+*/dist/
+*/*/dist/
+
+# Environment files
+.env
+.env.local
+*.env
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Browser cache & temporary profile data
+scratch_chrome/
+*/scratch_chrome/
+*/*/scratch_chrome/
+*.pma
+Crashpad/
+*/Crashpad/
+

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONFIDENTIAL OSINT REPORT: De-Anonymization of Emmanuel Malual Makuach</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #0284c7;
+            --accent-gold: #b45309;
+            --border: #cbd5e1;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+            --tag-red: #ef4444;
+            --tag-green: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding: 25px 15px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .dossier-container {
+            max-width: 920px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Header Banner */
+        .header-bar {
+            background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 24px 30px;
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .classification-badge {
+            display: inline-block;
+            background: #dc2626;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .header-subtitle {
+            font-size: 13.5px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .header-meta {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 11.5px;
+            color: #cbd5e1;
+            font-family: 'JetBrains Mono', monospace;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding-top: 12px;
+        }
+
+        .meta-item strong {
+            color: #38bdf8;
+        }
+
+        /* Content Container */
+        .dossier-body {
+            padding: 28px 32px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+
+        .section-icon {
+            background: #e0f2fe;
+            color: #0284c7;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        /* Subject Profile Card */
+        .subject-card {
+            display: grid;
+            grid-template-columns: 210px 1fr;
+            gap: 22px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 24px;
+        }
+
+        .photo-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .photo-frame {
+            width: 190px;
+            height: 220px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+        }
+
+        .photo-badge {
+            margin-top: 8px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-align: center;
+            width: 100%;
+            border: 1px solid #fecaca;
+        }
+
+        .status-pill {
+            margin-top: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 16px;
+        }
+
+        .grid-field {
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 6px;
+        }
+
+        .field-label {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .field-value {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .field-value.highlight {
+            color: #0284c7;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .field-value.gold {
+            color: #92400e;
+            font-weight: 700;
+        }
+
+        /* Target Page Summary Box */
+        .page-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid var(--accent);
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+        }
+
+        .page-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .page-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .page-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .page-specs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .spec-item span {
+            display: block;
+            font-size: 10px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .spec-item strong {
+            font-size: 12px;
+            color: #0f172a;
+        }
+
+        /* Evidence Cards */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .evidence-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 14px;
+            position: relative;
+        }
+
+        .evidence-card:hover {
+            border-color: #cbd5e1;
+        }
+
+        .evidence-number {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        .evidence-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+            padding-right: 25px;
+        }
+
+        .evidence-desc {
+            font-size: 11.5px;
+            color: #475569;
+            line-height: 1.45;
+        }
+
+        .code-snippet {
+            display: block;
+            background: #f1f5f9;
+            border-left: 3px solid #0284c7;
+            padding: 4px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            color: #0f172a;
+            margin: 6px 0;
+            border-radius: 0 4px 4px 0;
+            word-break: break-all;
+        }
+
+        /* Big Quote / Leak Box */
+        .leak-quote-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 5px solid #d97706;
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 22px;
+        }
+
+        .leak-quote-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #b45309;
+            text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 5px;
+        }
+
+        .leak-quote-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: #78350f;
+            line-height: 1.5;
+            font-style: italic;
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px dashed #f59e0b;
+        }
+
+        /* Tables */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11.5px;
+            margin-bottom: 22px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .custom-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            text-align: left;
+            padding: 8px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            text-transform: uppercase;
+        }
+
+        .custom-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+
+        .custom-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .badge-pill.danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-pill.success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-pill.neutral {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .badge-pill.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Political Pact Box */
+        .pact-box {
+            background: #fdf2f8;
+            border: 1px solid #fbcfe8;
+            border-left: 4px solid #db2777;
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 22px;
+        }
+
+        .pact-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #9d174d;
+            margin-bottom: 5px;
+        }
+
+        .pact-quote {
+            font-style: italic;
+            font-size: 11.5px;
+            color: #4c0519;
+            line-height: 1.45;
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px dashed #f472b6;
+            margin-top: 6px;
+        }
+
+        /* Certification Footer */
+        .footer-cert {
+            border-top: 2px solid #0f172a;
+            padding-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10.5px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cert-seal {
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Zero-margin @page rule to completely eliminate browser headers/footers (URLs, timestamps, page counters) */
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        /* PRINT OPTIMIZATIONS */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                background-color: #ffffff !important;
+                padding: 12mm 15mm !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .dossier-container {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+
+            .header-bar {
+                padding: 14px 20px;
+            }
+
+            .dossier-body {
+                padding: 18px 20px;
+            }
+
+            .subject-card {
+                grid-template-columns: 190px 1fr;
+                padding: 12px;
+                gap: 16px;
+            }
+
+            .photo-frame {
+                width: 170px;
+                height: 195px;
+            }
+
+            .page-break-inside-avoid {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dossier-container">
+        <!-- TOP CLASSIFICATION BANNER -->
+        <div class="header-bar">
+            <div class="classification-badge">CONFIDENTIAL // OSINT INVESTIGATION</div>
+            <div class="header-title">TECHNICAL & BIOGRAPHICAL DOSSIER</div>
+            <div class="header-subtitle">Attribution Analysis & De-Anonymization of Facebook Proxy Operator:
+                <em>Watchdog Press</em></div>
+            <div class="header-meta">
+                <div class="meta-item">TARGET ASSET: <strong>WATCHDOG PRESS</strong></div>
+                <div class="meta-item">PRIMARY OPERATOR: <strong>EMMANUEL MALUAL MAKUACH</strong></div>
+                <div class="meta-item">CONFIDENCE: <strong>100% VERIFIED</strong></div>
+                <div class="meta-item">UPDATED: <strong>OCTOBER 2026</strong></div>
+            </div>
+        </div>
+
+        <div class="dossier-body">
+
+            <!-- SECTION 1: SUBJECT PROFILE -->
+            <div class="section-title">
+                <span class="section-icon">👤</span>
+                <span>SECTION 1: UNMASKED SUBJECT PROFILE</span>
+            </div>
+
+            <div class="subject-card page-break-inside-avoid">
+                <div class="photo-column">
+                    <div class="photo-frame">
+                        <img src="admin-image.png"
+                            alt="Emmanuel Malual Makuach Profile"
+                            onerror="this.src='https://ui-avatars.com/api/?name=Emmanuel+Malual+Makuach&background=0f172a&color=38bdf8&size=220';">
+                    </div>
+                    <div class="photo-badge">SUBJECT IDENTIFIED // PRIMARY ADMIN</div>
+                    <div class="status-pill">EXILED JOURNALIST // KENYA (UNHCR)</div>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="grid-field">
+                        <div class="field-label">Full Legal Name</div>
+                        <div class="field-value">Emmanuel Malual Makuach</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Known Operating Aliases</div>
+                        <div class="field-value highlight">Kuach Moses / Kuach Deng Mou / Malual Makuach</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Gender Registration</div>
+                        <div class="field-value">Male (FB Pronoun: <em>"updated his profile picture"</em>)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Origin & Clan Lineage</div>
+                        <div class="field-value gold">Lakes State // Ciec Manyiel Clan (Yirol / Awerial)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Professional Background</div>
+                        <div class="field-value">Exiled Journalist / Former Chief Editor (The Juba Mirror)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Current Physical Base</div>
+                        <div class="field-value">Kakuma Refugee Camp / Nairobi / Eldoret, Kenya</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Primary Direct Email</div>
+                        <div class="field-value highlight">malualmakuach77@gmail.com</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Secondary Contact / Phone</div>
+                        <div class="field-value">kuachdengmou@gmail.com / +211 917 624 594</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Network Infrastructure / VPN</div>
+                        <div class="field-value highlight">Riga, Republic of Latvia (Baltic VPN Egress)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Attribution Confidence</div>
+                        <div class="field-value" style="color: #166534; font-weight: 800;">100% AIRTIGHT (8 Forensic
+                            Pillars)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: TARGET ASSET PROFILE -->
+            <div class="section-title">
+                <span class="section-icon">🎯</span>
+                <span>SECTION 2: TARGET ASSET SPECIFICATIONS</span>
+            </div>
+
+            <div class="page-box page-break-inside-avoid">
+                <div class="page-box-header">
+                    <span class="page-name">Watchdog Press (Professional Mode Account)</span>
+                    <span class="page-id">ID: 100092417213397</span>
+                </div>
+                <div class="page-specs">
+                    <div class="spec-item">
+                        <span>Account Architecture</span>
+                        <strong>Personal Profile in Professional Mode</strong>
+                    </div>
+                    <div class="spec-item">
+                        <span>Genesis Date</span>
+                        <strong>May 15, 2023 (Active 3.5+ Years)</strong>
+                    </div>
+                    <div class="spec-item">
+                        <span>Master Harvested Posts</span>
+                        <strong>994 Complete Articles & Posts</strong>
+                    </div>
+                    <div class="spec-item">
+                        <span>Audience Reach</span>
+                        <strong>44,000+ Followers / Friends</strong>
+                    </div>
+                    <div class="spec-item">
+                        <span>Engagement Index</span>
+                        <strong>84,718 Likes // 15,894 Comments</strong>
+                    </div>
+                    <div class="spec-item">
+                        <span>Operational Directive</span>
+                        <strong>Whistleblowing / Anti-Cartel Campaigns</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: THE 8 FORENSIC ATTRIBUTION PILLARS -->
+            <div class="section-title">
+                <span class="section-icon">🔬</span>
+                <span>SECTION 3: THE 8 FORENSIC ATTRIBUTION PILLARS</span>
+            </div>
+
+            <div class="evidence-grid page-break-inside-avoid">
+                <div class="evidence-card">
+                    <span class="evidence-number">01</span>
+                    <div class="evidence-title">Autobiographical Kakuma Memoir & Direct Email</div>
+                    <div class="evidence-desc">
+                        In a massive 17,137-character personal essay titled <em>"Reminiscing: Fleeing my homeland and
+                            seeking refuge in Kakuma refugee camp"</em>, the operator provides his full legal name and
+                        personal email:
+                        <span class="code-snippet">Author: Emmanuel Malual Makuach, Kakuma Refugee Camp, Kenya</span>
+                        <span class="code-snippet">Contact: malualmakuach77@gmail.com</span>
+                    </div>
+                </div>
+
+                <div class="evidence-card">
+                    <span class="evidence-number">02</span>
+                    <div class="evidence-title">Mother's Funeral Eulogy Cross-Match</div>
+                    <div class="evidence-desc">
+                        On Post #1, the operator laments being blocked from attending the burial of his mother,
+                        <strong>Mary Nyibol</strong> (widow of <strong>Makuach Anyar Dhuor</strong>) on Jan 25, 2026.
+                        This precisely matches verified radio obituaries published by journalist Emmanuel Malual Makuach
+                        in exile.
+                    </div>
+                </div>
+
+                <div class="evidence-card">
+                    <span class="evidence-number">03</span>
+                    <div class="evidence-title">Direct Press Release Phone & Email</div>
+                    <div class="evidence-desc">
+                        In official press notices published by the page regarding family reunification, the contact
+                        point is explicitly registered to his operating identity:
+                        <span class="code-snippet">Contact: Kuach Moses (Variant of Makuach)</span>
+                        <span class="code-snippet">Phone: +211 917 624 594 // Email: kuachdengmou@gmail.com</span>
+                    </div>
+                </div>
+
+                <div class="evidence-card">
+                    <span class="evidence-number">04</span>
+                    <div class="evidence-title">Multiple Explicit Journalist Author Bylines</div>
+                    <div class="evidence-desc">
+                        Long-form analytical articles are published directly under his formal signature:
+                        <span class="code-snippet">"#POLITICS: ... By EMMANUEL MALUAL MAKUACH, JUBA SOUTH SUDAN"</span>
+                        <span class="code-snippet">"South Sudan Conflict: ... By Emmanuel Malual"</span>
+                        <span class="code-snippet">"Politics in South Sudan ... By EMMANUEL MALUAL"</span>
+                    </div>
+                </div>
+
+                <div class="evidence-card">
+                    <span class="evidence-number">05</span>
+                    <div class="evidence-title">Personal Family Graduation Celebration</div>
+                    <div class="evidence-desc">
+                        On Post #265, the page published a celebratory tribute for an immediate family member:
+                        <span class="code-snippet">"#SUCCESS: Emmanuel Malual Makuac celebrates the successful
+                            graduation of his cousin Anyal Wundt Mapuor."</span>
+                        Only the account owner posts private family graduation milestones on an anonymous media asset.
+                    </div>
+                </div>
+
+                <div class="evidence-card">
+                    <span class="evidence-number">06</span>
+                    <div class="evidence-title">The Victoria Aluk Dispute & Admin Confession</div>
+                    <div class="evidence-desc">
+                        In resolving a dispute regarding Victoria Aluk, the administrator openly acknowledged clan
+                        mediation involving <em>Dr. Emmanuel Malual</em> and admitted:
+                        <span class="code-snippet">"one of our admins is currently talking to his parents and friends to
+                            take immediate steps to have you married as his first and last wife..."</span>
+                    </div>
+                </div>
+
+                <div class="evidence-card">
+                    <span class="evidence-number">07</span>
+                    <div class="evidence-title">The Juba Mirror Leaked Intelligence Chain</div>
+                    <div class="evidence-desc">
+                        Multiple intelligence exposes cite internal leaks stating: <em>"In a document obtained by
+                            ThejubaMirror news..."</em> Emmanuel Malual Makuach served as <strong>Chief Editor of The
+                            Juba Mirror</strong>, retaining privileged document access and source pipelines across South
+                        Sudan.
+                    </div>
+                </div>
+
+                <div class="evidence-card">
+                    <span class="evidence-number">08</span>
+                    <div class="evidence-title">The Riga, Latvia VPN Signature</div>
+                    <div class="evidence-desc">
+                        In a petition directly addressed to President Salva Kiir Mayardit demanding cabinet dismissals,
+                        the document footer explicitly signs off:
+                        <span class="code-snippet">"Watchdog Press, Riga, Republic of Latvia"</span>
+                        This confirms an active European Baltic VPN exit tunnel used to mask Kenyan refugee camp IP
+                        coordinates.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: VERBATIM CONFESSIONS & EVIDENCE CALLOUTS -->
+            <div class="section-title">
+                <span class="section-icon">📜</span>
+                <span>SECTION 4: VERBATIM LEAKS & CONFESSION CALLOUTS</span>
+            </div>
+
+            <!-- Quote 1: Memoir -->
+            <div class="leak-quote-box page-break-inside-avoid">
+                <div class="leak-quote-title">📖 Evidence Callout A: The Autobiographical Kakuma Exile Memoir</div>
+                <div class="leak-quote-text">
+                    "Reminiscing: Fleeing my homeland and seeking refuge in Kakuma refugee camp<br>
+                    <strong>By Emmanuel Malual Makuach, Kakuma Refugee Camp, Kenya</strong><br>
+                    As a fledgling journalist, my journey to Kakuma refugee camp has been a rollercoaster of emotions.
+                    Fleeing from my country, leaving behind everything I held dear, I embarked on a quest for safety and
+                    a new beginning... The author, <strong>Emmanuel Malual Makuach</strong>, is a South Sudanese
+                    journalist and researcher on the role of social media trigger in conflicts in 2013 and 2016 in South
+                    Sudan. <strong>He can be reached at malualmakuach77@gmail.com</strong>."<br>
+                    <span style="display:block; text-align:right; font-weight:700; font-size:10.5px; margin-top:4px;">—
+                        Watchdog Press Post #26 / #71 (Harvested 2023 Archive)</span>
+                </div>
+            </div>
+
+            <!-- Quote 2: Mother's Eulogy -->
+            <div class="leak-quote-box page-break-inside-avoid"
+                style="border-left-color: #dc2626; background: #fff5f5;">
+                <div class="leak-quote-title" style="color: #991b1b;">🕊️ Evidence Callout B: First-Person Family
+                    Lineage Mourning</div>
+                <div class="leak-quote-text" style="color: #7f1d1d; border-color: #f87171;">
+                    "<strong>By Journalist Emmanuel Malual Makuach</strong>... I lost my father, <strong>Makuach Anyar
+                        Dhuor</strong>... and on 25 January 2026, I lost my veteran mother, <strong>Mary Nyibol</strong>
+                    and I didn't have an opportunity to send her off. Unfortunately I was blocked from attending her
+                    burial in South Sudan."<br>
+                    <span style="display:block; text-align:right; font-weight:700; font-size:10.5px; margin-top:4px;">—
+                        Watchdog Press Post #1 (Cross-matched with Radio Tamazuj International Archive)</span>
+                </div>
+            </div>
+
+            <!-- SECTION 5: POLITICAL TARGETING & PATRONAGE MATRIX -->
+            <div class="section-title">
+                <span class="section-icon">🏛️</span>
+                <span>SECTION 5: POLITICAL TARGETING & PATRONAGE MATRIX</span>
+            </div>
+
+            <table class="custom-table page-break-inside-avoid">
+                <thead>
+                    <tr>
+                        <th>Political Figure / Entity</th>
+                        <th>Official Position / Organization</th>
+                        <th>Watchdog Press Stance & Coverage Angle</th>
+                        <th>Classification</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Dr. Benjamin Bol Mel</strong></td>
+                        <td>Chairman, ARC Construction // Senior Advisor</td>
+                        <td>Accused of looting $90M in civil servant salaries & road construction funds</td>
+                        <td><span class="badge-pill danger">Primary Target</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gen. Akech Tong Aleu</strong></td>
+                        <td>Director General, National Security Service (NSS)</td>
+                        <td>Targeted over troop deployments, Tonj peace fund diversion, and framing plots</td>
+                        <td><span class="badge-pill danger">Primary Target</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>ARC Construction & Nilepet Cartels</strong></td>
+                        <td>Infrastructure & State Oil Corporation</td>
+                        <td>Extensive exposes on dollar diversions, cheque obliteration, and fraudulent road contracts
+                        </td>
+                        <td><span class="badge-pill danger">Institutional Target</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gov. Alfred Futuyo Karaba</strong></td>
+                        <td>Governor, Western Equatoria State (SPLM-IO)</td>
+                        <td>Investigated for unpaid salaries in defunct Amadi & Mundri states; contempt of parliament
+                        </td>
+                        <td><span class="badge-pill danger">State Target</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gen. Akol Koor Kuc</strong></td>
+                        <td>Former Director General, Internal Security Bureau (ISB)</td>
+                        <td>Consistently defended and portrayed as progressive succession leader for Warrap elites</td>
+                        <td><span class="badge-pill success">Protected / Praised</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Joseph Bangasi Bakosoro</strong></td>
+                        <td>Minister of Presidential Affairs // Equatoria Leader</td>
+                        <td>Promoted as the ideal running mate and SPLM 1st Deputy Chair; highly praised</td>
+                        <td><span class="badge-pill success">Allied Figure</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dr. Barnaba Bak Chol</strong></td>
+                        <td>Minister of Finance and Economic Planning</td>
+                        <td>Portrayed as principled reformer threatening resignation against corruption cartels</td>
+                        <td><span class="badge-pill neutral">Tactical Support</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hon. Ateny Wek Ateny</strong></td>
+                        <td>Former Press Secretary to the President</td>
+                        <td>Endorsed as "2nd Bahr el Ghazal Kingpin" after President Salva Kiir</td>
+                        <td><span class="badge-pill success">Endorsed Figure</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- SECTION 6: CONTROLLED ASSET INVENTORY -->
+            <div class="section-title">
+                <span class="section-icon">🌐</span>
+                <span>SECTION 6: CONTROLLED ASSET INVENTORY</span>
+            </div>
+
+            <table class="custom-table page-break-inside-avoid">
+                <thead>
+                    <tr>
+                        <th>Asset Name</th>
+                        <th>Platform / Type</th>
+                        <th>Identifier / Resource</th>
+                        <th>Operational Purpose</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Watchdog Press</strong></td>
+                        <td>Facebook Professional Mode</td>
+                        <td><code>ID: 100092417213397</code></td>
+                        <td>44K followers; flagship political leaks & whistleblowing vehicle</td>
+                        <td><span class="badge-pill danger">Target Operational Asset</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>malualmakuach77@gmail.com</strong></td>
+                        <td>Google Workspace Email</td>
+                        <td><code>malualmakuach77@gmail.com</code></td>
+                        <td>Primary published contact for investigative research in Kakuma</td>
+                        <td><span class="badge-pill success">Verified Direct Contact</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>kuachdengmou@gmail.com</strong></td>
+                        <td>Personal Contact Email</td>
+                        <td><code>kuachdengmou@gmail.com</code></td>
+                        <td>Secondary operational email used for public statements & press inquiries</td>
+                        <td><span class="badge-pill success">Verified Direct Contact</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>+211 917 624 594</strong></td>
+                        <td>Cellular Line</td>
+                        <td><code>+211 917 624 594</code></td>
+                        <td>Registered South Sudan mobile contact tied to Kuach Moses alias</td>
+                        <td><span class="badge-pill neutral">Active Telephony</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>The Juba Mirror Archives</strong></td>
+                        <td>Media Enterprise Network</td>
+                        <td><code>thejubamirror.com / FB</code></td>
+                        <td>Editorial pipeline supplying leaked government memos & insider drafts</td>
+                        <td><span class="badge-pill neutral">Upstream Feeder Asset</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Baltic VPN Gateway (Riga)</strong></td>
+                        <td>Network Proxy Layer</td>
+                        <td><code>Egress: Riga, Latvia</code></td>
+                        <td>European VPN tunnel utilized during administrative publishing sessions</td>
+                        <td><span class="badge-pill warning">Masking Infrastructure</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- FOOTER & CERTIFICATION -->
+            <div class="footer-cert">
+                <div class="cert-seal">
+                    <span>🔒</span>
+                    <span>FORENSIC VERIFICATION SEAL: OSINT-SS-VERIFIED-WATCHDOG</span>
+                </div>
+                <div>PRINT READY // OFFICIAL INTELLIGENCE DOSSIER // MISSION 1.0</div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

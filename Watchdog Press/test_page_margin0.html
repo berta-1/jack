@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@page {
+    size: A4 portrait;
+    margin: 0;
+}
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+    body {
+        margin: 0 !important;
+        padding: 15mm !important;
+    }
+}
+body { 
+    margin: 0;
+    padding: 15mm;
+    font-family: sans-serif; 
+    background-color: #ffffff;
+}
+.box {
+    background: #0f172a;
+    color: white;
+    padding: 25px;
+    border-radius: 8px;
+}
+</style>
+</head>
+<body>
+<div class="box">
+    <h1>Header & Footer Suppressed</h1>
+    <p>Check bottom edge: no file:/// URL, no page numbers.</p>
+</div>
+</body>
+</html>

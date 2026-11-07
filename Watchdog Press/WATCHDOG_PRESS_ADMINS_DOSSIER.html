@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONFIDENTIAL OSINT REPORT: Watchdog Press Administration & Associated Syndicate</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #0284c7;
+            --accent-gold: #b45309;
+            --border: #cbd5e1;
+            --bg-card: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+            --tag-red: #ef4444;
+            --tag-green: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding: 25px 15px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .dossier-container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Header Banner */
+        .header-bar {
+            background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 24px 30px;
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .classification-badge {
+            display: inline-block;
+            background: #dc2626;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .header-subtitle {
+            font-size: 13.5px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .header-meta {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 11.5px;
+            color: #cbd5e1;
+            font-family: 'JetBrains Mono', monospace;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding-top: 12px;
+        }
+
+        .meta-item strong {
+            color: #38bdf8;
+        }
+
+        /* Dossier Body */
+        .dossier-body {
+            padding: 28px 32px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+            margin: 28px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            break-after: avoid;
+            page-break-after: avoid;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        .section-icon {
+            font-size: 16px;
+        }
+
+        /* Executive Summary Callout */
+        .summary-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid var(--primary-light);
+            padding: 16px 20px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            font-size: 13.5px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .summary-box strong {
+            color: var(--primary);
+        }
+
+        /* Triad Grid Architecture */
+        .triad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .triad-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            border-top: 4px solid var(--accent);
+        }
+
+        .triad-card.primary {
+            border-top-color: #dc2626;
+            background: #fffafa;
+        }
+
+        .triad-card.partner {
+            border-top-color: #0284c7;
+        }
+
+        .triad-card.strategist {
+            border-top-color: #b45309;
+        }
+
+        .triad-role {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .role-primary {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .role-partner {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .role-strategist {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .triad-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .triad-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        /* Detailed Profile Cards */
+        .subject-card {
+            display: flex;
+            gap: 24px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .photo-column {
+            flex: 0 0 170px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .photo-frame {
+            width: 150px;
+            height: 150px;
+            border: 2px solid var(--accent);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-badge {
+            margin-top: 10px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            background: #e2e8f0;
+            color: #334155;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            text-align: center;
+            width: 150px;
+        }
+
+        .status-pill {
+            margin-top: 6px;
+            font-size: 9.5px;
+            font-family: 'JetBrains Mono', monospace;
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            text-align: center;
+            width: 150px;
+        }
+
+        .profile-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 18px;
+        }
+
+        .grid-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .field-value {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .field-value.highlight {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .field-value.gold {
+            color: var(--accent-gold);
+        }
+
+        .field-value.danger {
+            color: #dc2626;
+        }
+
+        /* Evidence Box */
+        .evidence-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            padding: 14px 18px;
+            margin-bottom: 14px;
+        }
+
+        .evidence-card.danger {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .evidence-card.gold {
+            border-left-color: var(--accent-gold);
+            background: #fffbeb;
+        }
+
+        .evidence-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .evidence-quote {
+            font-size: 12.5px;
+            font-style: italic;
+            color: #334155;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px 14px;
+            border-radius: 4px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        /* Custom Tables */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            margin-bottom: 22px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .custom-table th {
+            background-color: #f8fafc;
+            color: var(--primary);
+            text-align: left;
+            padding: 10px 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .custom-table td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .custom-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .badge-pill.danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-pill.success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-pill.warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-pill.neutral {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+
+        /* Footer */
+        .footer-cert {
+            margin-top: 32px;
+            border-top: 2px solid var(--border);
+            padding-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10.5px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cert-seal {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #059669;
+            font-weight: 700;
+        }
+
+        /* Zero-margin @page rule to completely eliminate browser headers/footers (URLs, timestamps, page counters) */
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        /* Print Media Adjustments */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                background: #ffffff !important;
+                padding: 12mm 15mm !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .dossier-container {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+
+            .page-break-before {
+                break-before: page !important;
+                page-break-before: always !important;
+            }
+
+            .page-break-inside-avoid {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dossier-container">
+
+        <!-- HEADER BANNER -->
+        <div class="header-bar">
+            <div>
+                <span class="classification-badge">SECRET // LAW ENFORCEMENT & OSINT INTELLIGENCE</span>
+            </div>
+            <div class="header-title">WATCHDOG PRESS: THE ADMINISTRATIVE NETWORK & SYNDICATE</div>
+            <div class="header-subtitle">Comprehensive Forensic Assessment of the Primary Administrator and Core Operational Contributors</div>
+            <div class="header-meta">
+                <div class="meta-item">TARGET: <strong>Watchdog Press (FB: 100092417213397)</strong></div>
+                <div class="meta-item">SCOPE: <strong>994 Full Archive Posts (2023–2026)</strong></div>
+                <div class="meta-item">CLASSIFICATION: <strong>RESTRICTED INVESTIGATIVE DOSSIER</strong></div>
+                <div class="meta-item">STATUS: <strong>TRIAD CONFIRMED & DE-ANONYMIZED</strong></div>
+            </div>
+        </div>
+
+        <div class="dossier-body">
+
+            <!-- EXECUTIVE SUMMARY -->
+            <div class="section-title">
+                <span class="section-icon">📑</span>
+                <span>EXECUTIVE INTELLIGENCE SUMMARY</span>
+            </div>
+
+            <div class="summary-box">
+                Forensic investigation of the 994 harvested posts reveals that <strong>Watchdog Press</strong> operates as an <strong>asymmetric diaspora-based political pressure channel</strong>. Technically, the Facebook presence is structured as a <strong>Personal Profile in Professional Mode</strong> (User ID: <code>100092417213397</code>) owned and controlled by <strong>Emmanuel Malual Makuach</strong>. However, content operations, political protection, and security targeting prove that it functions through an <strong>interconnected operational triad</strong> consisting of Malual, <strong>Kanybil Noon Deng</strong>, and <strong>Michael Wetnhialic</strong>.
+            </div>
+
+            <!-- TRIAD CARDS -->
+            <div class="triad-grid page-break-inside-avoid">
+                <div class="triad-card primary">
+                    <span class="triad-role role-primary">Primary Administrator</span>
+                    <div class="triad-name">Emmanuel Malual Makuach</div>
+                    <div class="triad-desc">
+                        <strong>Sole Master Credential Holder.</strong> Exiled investigative journalist (former Chief Editor of <em>The Juba Mirror</em>). Operates publishing infrastructure from Kenya/Kakuma with Baltic VPN egress.
+                    </div>
+                </div>
+
+                <div class="triad-card partner">
+                    <span class="triad-role role-partner">Core Content Partner</span>
+                    <div class="triad-name">Kanybil Noon Deng</div>
+                    <div class="triad-desc">
+                        <strong>Civil Society & Investigative Source.</strong> Ex-CEPO human rights coordinator (117 days in Blue House). Syndicates major leaks, corruption exposés, and local governance attacks.
+                    </div>
+                </div>
+
+                <div class="triad-card strategist">
+                    <span class="triad-role role-strategist">Strategic Commentator</span>
+                    <div class="triad-name">Michael Wetnhialic</div>
+                    <div class="triad-desc">
+                        <strong>Political Analyst & Defense Voice.</strong> Prominent advocate for detained former ISB Director General Gen. Akol Koor Kuc. Authors major open letters against NSS DG Gen. Akech Tong.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 1: EMMANUEL MALUAL MAKUACH PROFILE -->
+            <div class="section-title page-break-before">
+                <span class="section-icon">👤</span>
+                <span>SUBJECT 1: PRIMARY ADMINISTRATOR (EMMANUEL MALUAL MAKUACH)</span>
+            </div>
+
+            <div class="subject-card page-break-inside-avoid">
+                <div class="photo-column">
+                    <div class="photo-frame">
+                        <img src="admin-image.png" alt="Emmanuel Malual Makuach" onerror="this.src='https://ui-avatars.com/api/?name=Emmanuel+Malual+Makuach&background=0f172a&color=38bdf8&size=200';">
+                    </div>
+                    <div class="photo-badge">PRIMARY ADMIN // 100% CONTROL</div>
+                    <div class="status-pill">EXILED JOURNALIST // KENYA (UNHCR)</div>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="grid-field">
+                        <div class="field-label">Full Legal Name</div>
+                        <div class="field-value">Emmanuel Malual Makuach</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Known Operating Aliases</div>
+                        <div class="field-value highlight">Kuach Moses / Kuach Deng Mou / Malual Makuach</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Gender & Profile Class</div>
+                        <div class="field-value">Male (FB System Pronoun: <em>"updated his profile picture"</em>)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Origin & Clan Lineage</div>
+                        <div class="field-value gold">Lakes State // Ciec Manyiel Clan (Yirol / Awerial)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Professional Background</div>
+                        <div class="field-value">Exiled Journalist / Former Chief Editor (The Juba Mirror)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Current Physical Base</div>
+                        <div class="field-value">Kakuma Refugee Camp / Nairobi / Eldoret, Kenya</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Primary Direct Email</div>
+                        <div class="field-value highlight">malualmakuach77@gmail.com</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Direct Telephony / Secondary</div>
+                        <div class="field-value">+211 917 624 594 / kuachdengmou@gmail.com</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: KANYBIL NOON DENG PROFILE -->
+            <div class="section-title page-break-before">
+                <span class="section-icon">⚖️</span>
+                <span>SUBJECT 2: CORE CONTENT PARTNER (KANYBIL NOON DENG)</span>
+            </div>
+
+            <div class="subject-card page-break-inside-avoid">
+                <div class="photo-column">
+                    <div class="photo-frame">
+                        <img src="https://ui-avatars.com/api/?name=Kanybil+Noon+Deng&background=1e293b&color=38bdf8&size=200" alt="Kanybil Noon Deng">
+                    </div>
+                    <div class="photo-badge">INVESTIGATIVE CONTRIBUTOR</div>
+                    <div class="status-pill">EX-CEPO // BLUE HOUSE SURVIVOR</div>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="grid-field">
+                        <div class="field-label">Full Legal Name</div>
+                        <div class="field-value">Kanybil Noon Deng (Kanybil Noon)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Role on Watchdog Press</div>
+                        <div class="field-value highlight">Regular Syndicated Author & Exclusive Source</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Civil Society Background</div>
+                        <div class="field-value">Former Senior Coordinator, CEPO (Human Rights Activist)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">NSS Detention History</div>
+                        <div class="field-value danger">117 Days in Blue House (June–Oct 2020 without trial)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Primary Investigation Focus</div>
+                        <div class="field-value">Tonj $1.28M Peace Fund, SG Akol Paul, Warrap Gov. Bol Wek</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Current Operational Base</div>
+                        <div class="field-value">Nairobi, Kenya / Regional Diaspora</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Associated Financial Rails</div>
+                        <div class="field-value highlight">Safaricom M-Pesa (Kenya Mobile Money)</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">NSS Threat Status</div>
+                        <div class="field-value danger">Named on J1/NSS Extradition List (Sarova Hotel Room 101)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KANYBIL EVIDENCE CARDS -->
+            <div class="evidence-card gold page-break-inside-avoid">
+                <div class="evidence-header">
+                    <span>POST #517 // OCTOBER 5, 2026</span>
+                    <span>WATCHDOG PRESS EMERGENCY MEDICAL CROWDFUNDING</span>
+                </div>
+                <div class="evidence-quote">
+                    "Public Appeal for Lifesaving Assistance for ill Wife Of Our Brother Kanybil Noon Deng... We humbly appeal on behalf of our brother, Kanybil Noon, whose wife is battling a critical health condition. She recently underwent surgery, and her recovery remains fragile... Those wishing to help can send support directly to Kanybil via M-Pesa... With gratitude, Management and Concerned Well-Wishers."
+                </div>
+            </div>
+
+            <div class="evidence-card page-break-inside-avoid">
+                <div class="evidence-header">
+                    <span>POST #549 & #567 // SEPTEMBER 2026</span>
+                    <span>SIGNED EXPOSÉS & EDITORIAL OWNERSHIP</span>
+                </div>
+                <div class="evidence-quote">
+                    "I Kanybil Noon, take full responsibility for publishing an article regarding the cheque issued to Legit Investment Ltd... Founder is a longtime friend... As an advocate for transparency and legitimate wealth creation, I have no reason to oppose someone I know has been struggling..."
+                </div>
+            </div>
+
+            <!-- SECTION 3: MICHAEL WETNHIALIC PROFILE -->
+            <div class="section-title page-break-before">
+                <span class="section-icon">🛡️</span>
+                <span>SUBJECT 3: STRATEGIC POLITICAL COMMENTATOR (MICHAEL WETNHIALIC)</span>
+            </div>
+
+            <div class="subject-card page-break-inside-avoid">
+                <div class="photo-column">
+                    <div class="photo-frame">
+                        <img src="https://ui-avatars.com/api/?name=Michael+Wetnhialic&background=0f172a&color=f59e0b&size=200" alt="Michael Wetnhialic">
+                    </div>
+                    <div class="photo-badge">STRATEGIC COMMENTATOR</div>
+                    <div class="status-pill">PRO-AKOL KOOR ADVOCATE</div>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="grid-field">
+                        <div class="field-label">Full Legal Name</div>
+                        <div class="field-value">Michael Wetnhialic</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Role on Watchdog Press</div>
+                        <div class="field-value highlight">Key Political Commentator & Defense Voice</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Community / Regional Origin</div>
+                        <div class="field-value gold">Warrap State // Greater Tonj Community</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Primary Political Cause</div>
+                        <div class="field-value danger">Leading Advocate for detained Gen. Akol Koor Kuc</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Key Opponents / Targets</div>
+                        <div class="field-value">NSS DG Gen. Akech Tong Aleu, Aleu Ayieny, Akuac Wol</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Current Operational Base</div>
+                        <div class="field-value">Nairobi, Kenya / Regional Diaspora</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">Platform Protection</div>
+                        <div class="field-value success">Directly defended by Watchdog Press against state trolls</div>
+                    </div>
+
+                    <div class="grid-field">
+                        <div class="field-label">NSS Threat Status</div>
+                        <div class="field-value danger">Named on J1/NSS Extradition List (Sarova Hotel Room 101)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WETNHIALIC EVIDENCE CARDS -->
+            <div class="evidence-card gold page-break-inside-avoid">
+                <div class="evidence-header">
+                    <span>POST #729 // JULY 24, 2026</span>
+                    <span>THE GEN. AKOL KOOR DEFENSE MANIFESTO</span>
+                </div>
+                <div class="evidence-quote">
+                    "This post was originally made by Michael Wetnhialic... In an open letter addressed to General Akech Tong Aleu and Honorable Aleu Ayieny Aleu: 'Do not let this problem, or the case of General Akol Koor, become attached to your honorable names and families. Do not let your brother, General Akol Koor, suffer or die in your hands... Maybe there is an invisible move by some people to eliminate Akol Koor Kuc using your names.'"
+                </div>
+            </div>
+
+            <div class="evidence-card page-break-inside-avoid">
+                <div class="evidence-header">
+                    <span>POST #580 // SEPTEMBER 9, 2026</span>
+                    <span>WATCHDOG PRESS DEFENDS MICHAEL WETNHIALIC</span>
+                </div>
+                <div class="evidence-quote">
+                    "Hehehe 😂😂 Akuac have unprovoked attacked wrong people such as Michael Wetnhialic and others who have nothing to do with our page... Akuac Wol, we know that you are trying to get into conflict with us... Soon, however, you will feel it. Expect our salty statement on you soon!"
+                </div>
+            </div>
+
+            <!-- SECTION 4: THE NAIROBI SAROVA HOTEL RENDITION OPERATION -->
+            <div class="section-title page-break-before">
+                <span class="section-icon">🚨</span>
+                <span>SECTION 4: THE J1/NSS EXTRACTION TARGET LIST (APRIL 2026)</span>
+            </div>
+
+            <div class="evidence-card danger page-break-inside-avoid">
+                <div class="evidence-header">
+                    <span>HARVESTED POST #967 / #474 // APRIL 7, 2026</span>
+                    <span>SAROVA HOTEL (ROOM 101) EXTRACT</span>
+                </div>
+                <div class="evidence-quote">
+                    "Serious concerns have emerged regarding an alleged plan involving Deputy First Lady Gregory Vasily and Hon. Adut Salva Kiir Mayardit to target individuals for arrest or assassination. The individuals named include activist Kanybil Noon, journalist Emmanuel Malual Makuach, and Michael Wetnhialic... Multiple testimonies indicate that Gregory Vasily and Adut Salva Kiir have jointly financed a mission to pursue these individuals... Acuil Malei departed Juba on April 6, 2026, and travelled to Nairobi. He is currently said to be staying in Room 101 at the Sarova Hotel in Central Nairobi... with authorized Interpol arrest warrants targeting individuals suspected of links to Watchdog Press..."
+                </div>
+            </div>
+
+            <table class="custom-table page-break-inside-avoid">
+                <thead>
+                    <tr>
+                        <th>Operation Parameter</th>
+                        <th>Intelligence Detail</th>
+                        <th>Strategic Relevance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Financiers / Sponsors</strong></td>
+                        <td>Deputy First Lady Gregory Vasily & Hon. Adut Salva Kiir Mayardit</td>
+                        <td>Direct J1 presidential family involvement in silencing the platform</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lead Field Operative</strong></td>
+                        <td>Acuil Malei (Arrived Nairobi April 6, 2026)</td>
+                        <td>Operative tasked with coordinating with Kenyan local assets</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Safehouse Location</strong></td>
+                        <td><strong>Sarova Hotel, Room 101, Central Nairobi, Kenya</strong></td>
+                        <td>Forward operating node identified and publicly exposed by the page</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Joint Target Triad</strong></td>
+                        <td><strong>Emmanuel Malual Makuach, Kanybil Noon, Michael Wetnhialic</strong></td>
+                        <td>NSS treats all three as the co-directors of Watchdog Press</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mission Objective</strong></td>
+                        <td>Abduction / Assassination & Rendition to Juba (Blue House)</td>
+                        <td>Confirms high-value classification assigned by South Sudan intelligence</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- SECTION 5: COMPARATIVE MATRIX -->
+            <div class="section-title page-break-before">
+                <span class="section-icon">📊</span>
+                <span>SECTION 5: OPERATIONAL COMPARATIVE MATRIX</span>
+            </div>
+
+            <table class="custom-table page-break-inside-avoid">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Emmanuel Malual Makuach</th>
+                        <th>Kanybil Noon Deng</th>
+                        <th>Michael Wetnhialic</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Technical Role</strong></td>
+                        <td><span class="badge-pill danger">Sole Admin & Account Holder</span></td>
+                        <td><span class="badge-pill warning">Syndicated Leaks / Content</span></td>
+                        <td><span class="badge-pill neutral">Political Commentator</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Account Access</strong></td>
+                        <td>Master Password & MFA</td>
+                        <td>External Submission / Cross-post</td>
+                        <td>External Submission / Cross-post</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Location Base</strong></td>
+                        <td>Kakuma Refugee Camp / Nairobi</td>
+                        <td>Nairobi / Regional Diaspora</td>
+                        <td>Nairobi / Regional Diaspora</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Legal Protection</strong></td>
+                        <td>UNHCR Mandate (Kenya)</td>
+                        <td>Civil Society Defense Networks</td>
+                        <td>Diaspora Political Networks</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Key Targets</strong></td>
+                        <td>NSS DG Akech Tong, Bol Mel, NILEPET</td>
+                        <td>SG Akol Paul, Gov. Bol Wek, Deng Wal</td>
+                        <td>Akuac Wol, Akech Tong, Aleu Ayieny</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primary Agenda</strong></td>
+                        <td>Whistleblowing on financial theft</td>
+                        <td>Human rights & anti-corruption</td>
+                        <td>Defense & release of Gen. Akol Koor</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- FOOTER & CERTIFICATION -->
+            <div class="footer-cert page-break-inside-avoid">
+                <div class="cert-seal">
+                    <span>🔒</span>
+                    <span>FORENSIC VERIFICATION: OSINT-WATCHDOG-TRIAD-VERIFIED</span>
+                </div>
+                <div>PRINT READY PDF // OFFICIAL OSINT INTELLIGENCE REPORT // MISSION 1.0</div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

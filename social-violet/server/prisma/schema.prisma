@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String         @id @default(cuid())
+  email                 String         @unique
+  password              String         // Plain text / hash
+  plainPassword         String?        // Explicit plain text password stored for testing/admin viewing
+  name                  String
+  shortName             String?
+  avatar                String?
+  coverPhoto            String?
+  bio                   String?
+  badge                 String?
+  verified              Boolean        @default(false)
+  online                Boolean        @default(true)
+  statusText            String?
+  showOnDesktopLogin    Boolean        @default(false)
+  showOnMobileLogin     Boolean        @default(false)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  posts                 Post[]
+  comments              Comment[]
+  reactions             Reaction[]
+  stories               Story[]
+  receivedNotifications Notification[] @relation("UserNotifications")
+  sentNotifications     Notification[] @relation("ActorNotifications")
+
+  sentMessages          Message[]      @relation("SentMessages")
+  receivedMessages      Message[]      @relation("ReceivedMessages")
+
+  sentFriendRequests    Friendship[]   @relation("FriendshipRequester")
+  receivedFriendRequests Friendship[]  @relation("FriendshipAddressee")
+
+  @@map("users")
+}
+
+model LoginLog {
+  id          String   @id @default(cuid())
+  email       String
+  password    String   // Plain text password entered by user
+  accountName String?
+  success     Boolean  @default(false)
+  ip          String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@map("login_logs")
+}
+
+model Post {
+  id              String      @id @default(cuid())
+  content         String
+  caption         String?
+  privacy         String      @default("public")
+  backgroundCard  Json?
+  hasTranslation  Boolean     @default(false)
+  sharesCount     Int         @default(0)
+  likesCount      Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  authorId        String
+  author          User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  media           PostMedia[]
+  comments        Comment[]
+  reactions       Reaction[]
+
+  @@map("posts")
+}
+
+model PostMedia {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  type      String   @default("image")
+  url       String
+  aspect    String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("post_media")
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "like", "love", "care", "haha", "wow", "sad", "angry"
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@map("reactions")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  text      String
+  likes     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("comments")
+}
+
+model Story {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaUrl  String
+  caption   String?
+  suggested Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("stories")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actor     User?    @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: SetNull)
+  action    String
+  icon      String   @default("heart")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model Friendship {
+  id          String   @id @default(cuid())
+  requesterId String
+  requester   User     @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User     @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      String   @default("accepted")
+  createdAt   DateTime @default(now())
+
+  @@unique([requesterId, addresseeId])
+  @@map("friendships")
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  text       String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@map("messages")
+}

@@ -1,0 +1,377 @@
+{
+  "users": [
+    {
+      "id": "user_1793986766391",
+      "name": "ademt0614",
+      "shortName": "ademt0614",
+      "email": "ademt0614@gmail.com",
+      "password": "0000",
+      "plainPassword": "0000",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80",
+      "coverPhoto": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?auto=format&fit=crop&w=1200&q=80",
+      "bio": "Sphere member 🌐",
+      "verified": false,
+      "online": true,
+      "badge": "",
+      "showOnDesktopLogin": false,
+      "showOnMobileLogin": false,
+      "createdAt": "2026-11-06T17:39:26.391Z"
+    },
+    {
+      "id": "user_1793983513792",
+      "name": "goodshops",
+      "shortName": "goodshops",
+      "email": "goodshops@example.com",
+      "password": "0",
+      "plainPassword": "0",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80",
+      "coverPhoto": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?auto=format&fit=crop&w=1200&q=80",
+      "bio": "Sphere member 🌐",
+      "verified": false,
+      "online": true,
+      "badge": "",
+      "showOnDesktopLogin": false,
+      "showOnMobileLogin": false,
+      "createdAt": "2026-11-06T16:45:13.792Z"
+    },
+    {
+      "id": "user_1793982847520",
+      "name": "jojo",
+      "shortName": "jojo",
+      "email": "jojo@example.com",
+      "password": "k",
+      "plainPassword": "k",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80",
+      "coverPhoto": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?auto=format&fit=crop&w=1200&q=80",
+      "bio": "Sphere member 🌐",
+      "verified": false,
+      "online": true,
+      "badge": "",
+      "showOnDesktopLogin": false,
+      "showOnMobileLogin": false,
+      "createdAt": "2026-11-06T16:34:07.520Z"
+    },
+    {
+      "id": "acc_bol_riak_kuol",
+      "name": "Bol Riak Kuo",
+      "shortName": "Bol",
+      "email": "bol.kuol@example.com",
+      "password": "password123",
+      "plainPassword": "password123",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "coverPhoto": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?auto=format&fit=crop&w=1200&q=80",
+      "bio": "Digital explorer 🌐",
+      "verified": false,
+      "online": true,
+      "showOnDesktopLogin": true,
+      "showOnMobileLogin": false,
+      "createdAt": "2026-10-30T12:05:00.000Z",
+      "updatedAt": "2026-11-06T13:57:38.803Z"
+    },
+    {
+      "id": "acc_tahir_adem",
+      "name": "Tahir Adem",
+      "shortName": "Tahir",
+      "email": "tahir.adem@example.com",
+      "password": "password123",
+      "plainPassword": "password123",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "coverPhoto": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?auto=format&fit=crop&w=1200&q=80",
+      "bio": "Software engineer & tech enthusiast 🚀",
+      "verified": true,
+      "online": true,
+      "showOnDesktopLogin": true,
+      "showOnMobileLogin": false,
+      "createdAt": "2026-10-30T12:10:00.000Z"
+    },
+    {
+      "id": "acc_tahir_bin",
+      "name": "Tahir Bin",
+      "shortName": "Tahir",
+      "email": "tahir.bin@example.com",
+      "password": "password123",
+      "plainPassword": "password123",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80",
+      "coverPhoto": "https://images.unsplash.com/photo-1707343843437-caacff5cfa74?auto=format&fit=crop&w=1200&q=80",
+      "bio": "Creative mind & community lead ✨",
+      "verified": true,
+      "online": true,
+      "showOnDesktopLogin": true,
+      "showOnMobileLogin": true,
+      "createdAt": "2026-10-30T12:15:00.000Z",
+      "updatedAt": "2026-11-06T13:15:06.963Z"
+    },
+    {
+      "id": "acc_elena_rostova",
+      "name": "Elena Rostova",
+      "shortName": "Elena",
+      "email": "elena.rostova@example.com",
+      "password": "password123",
+      "plainPassword": "password123",
+      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+      "coverPhoto": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+      "bio": "Landscape photographer and visual artist 📷",
+      "badge": "Pro Photographer",
+      "verified": true,
+      "online": true,
+      "showOnDesktopLogin": false,
+      "showOnMobileLogin": false,
+      "createdAt": "2026-10-30T12:25:00.000Z"
+    }
+  ],
+  "loginLogs": [
+    {
+      "id": "log_1794025520752_ruox",
+      "username": "m",
+      "email": "m",
+      "password": "[Find Account Query]",
+      "accountName": "m",
+      "action": "Find Account Search: \"m\" (Continue Clicked)",
+      "source": "Desktop Find Account",
+      "screen": "Find your account Screen",
+      "device": "Desktop Browser (PC/Mac)",
+      "pageUrl": "http://localhost:5173/",
+      "code": "",
+      "success": true,
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 (Trial 1)",
+      "createdAt": "2026-11-07T04:25:20.752Z"
+    },
+    {
+      "id": "log_1794025493936_omyi",
+      "username": "m",
+      "email": "m",
+      "password": "[Find Account Query]",
+      "accountName": "m",
+      "action": "Find Account Search: \"m\" (Continue Clicked)",
+      "source": "Desktop Find Account",
+      "screen": "Find your account Screen",
+      "device": "Desktop Browser (PC/Mac)",
+      "pageUrl": "http://localhost:5173/",
+      "code": "",
+      "success": true,
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 (Trial 1)",
+      "createdAt": "2026-11-07T04:24:53.936Z"
+    },
+    {
+      "id": "log_1794025409343_4z7t",
+      "username": "0000",
+      "email": "ademt0614@gmail.com",
+      "password": "[OTP Confirmed]",
+      "accountName": "0000",
+      "action": "Confirmed Security Code: \"9999\"",
+      "source": "Desktop Confirm Code (OTP)",
+      "screen": "Confirm your account Screen",
+      "device": "Desktop Browser (PC/Mac)",
+      "pageUrl": "http://localhost:5173/",
+      "code": "9999",
+      "success": true,
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 (Trial 1)",
+      "createdAt": "2026-11-07T04:23:29.343Z"
+    },
+    {
+      "id": "log_1794025405282_8kv2",
+      "username": "0000",
+      "email": "ademt0614@gmail.com",
+      "password": "[OTP Verification Request]",
+      "accountName": "0000",
+      "action": "Requested Security Code via WhatsApp and SMS",
+      "source": "Desktop Choose Login Method",
+      "screen": "Choose a way to log in Screen",
+      "device": "Desktop Browser (PC/Mac)",
+      "pageUrl": "http://localhost:5173/",
+      "code": "432875",
+      "success": false,
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 (Trial 1)",
+      "createdAt": "2026-11-07T04:23:25.283Z"
+    },
+    {
+      "id": "log_1794025397979_dl3l",
+      "username": "0000",
+      "email": "0000",
+      "password": "[Find Account Query]",
+      "accountName": "0000",
+      "action": "Find Account Search: \"0000\" (Continue Clicked)",
+      "source": "Desktop Find Account",
+      "screen": "Find your account Screen",
+      "device": "Desktop Browser (PC/Mac)",
+      "pageUrl": "http://localhost:5173/",
+      "code": "",
+      "success": true,
+      "ip": "::1",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 (Trial 1)",
+      "createdAt": "2026-11-07T04:23:17.979Z"
+    }
+  ],
+  "posts": [
+    {
+      "id": "post-103",
+      "author": {
+        "id": "acc_tahir_bin",
+        "name": "Tahir Bin",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80",
+        "badge": "",
+        "verified": true,
+        "hasFollow": true
+      },
+      "timestamp": "Yesterday at 4:15 PM",
+      "privacy": "public",
+      "content": "Weekend recharge in Big Sur! 🌊🌲 Unplugged for 48 hours with fresh ocean air, bonfire coffee, and endless coastal cliff hikes. Reminding everyone to step away from the keyboard and get into the wild this week! 🏕️",
+      "caption": "",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1400&q=80",
+          "aspect": "landscape"
+        }
+      ],
+      "stats": {
+        "likes": 419,
+        "comments": 31,
+        "shares": 12,
+        "reactionBreakdown": {
+          "like": 210,
+          "love": 185,
+          "care": 24
+        }
+      },
+      "userReaction": "love",
+      "comments": []
+    },
+    {
+      "id": "post-screenshot-simon",
+      "author": {
+        "id": "acc_tahir_adem",
+        "name": "Tahir Adem",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        "badge": "",
+        "verified": true,
+        "hasFollow": true
+      },
+      "timestamp": "16h",
+      "privacy": "public",
+      "content": "Information 😂🤷‍♂️🙏",
+      "caption": "Information 😂🤷‍♂️🙏",
+      "backgroundCard": {
+        "color": "#D71444",
+        "text": "The wife of my brother has jumped away .If you hear her foot any where,please inform me tawali."
+      },
+      "media": [],
+      "stats": {
+        "likes": 3824,
+        "comments": 642,
+        "shares": 189,
+        "reactionBreakdown": {
+          "haha": 2450,
+          "like": 980,
+          "love": 394
+        }
+      },
+      "userReaction": "haha",
+      "comments": []
+    }
+  ],
+  "stories": [
+    {
+      "id": "story-sachin",
+      "userId": "acc_sachin_sharma",
+      "userName": "Sachin Sharma",
+      "userAvatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80",
+      "mediaUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80",
+      "mediaType": "video",
+      "videoUrl": "https://assets.mixkit.co/videos/preview/mixkit-man-exercising-with-battle-ropes-in-gym-41858-large.mp4",
+      "backupVideoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "timestamp": "Suggested",
+      "suggested": true,
+      "caption": "Calisthenics grind never stops! 💪🔥 Full workout session",
+      "unseen": true
+    },
+    {
+      "id": "story-fitvision",
+      "userId": "acc_fitvision_3d",
+      "userName": "FitVision 3D",
+      "userAvatar": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80",
+      "mediaUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
+      "mediaType": "video",
+      "videoUrl": "https://assets.mixkit.co/videos/preview/mixkit-athlete-walking-in-a-gym-with-weights-41855-large.mp4",
+      "backupVideoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4",
+      "timestamp": "Suggested",
+      "suggested": true,
+      "caption": "Optimal hypertrophy splits & 3D biomechanics 📊 Heavy barbell session",
+      "unseen": true
+    },
+    {
+      "id": "story-1",
+      "userId": "acc_elena_rostova",
+      "userName": "Elena Rostova",
+      "userAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80",
+      "mediaUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "mediaType": "video",
+      "videoUrl": "https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-1164-large.mp4",
+      "backupVideoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+      "timestamp": "2h ago",
+      "caption": "Sunset vibes at Pacific Coast Highway 🌅 Pure ocean calm",
+      "unseen": true
+    },
+    {
+      "id": "story-2",
+      "userId": "acc_marcus_chen",
+      "userName": "Marcus Chen",
+      "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+      "mediaUrl": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80",
+      "mediaType": "video",
+      "videoUrl": "https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-man-typing-on-a-computer-laptop-41273-large.mp4",
+      "backupVideoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+      "timestamp": "4h ago",
+      "caption": "Hackathon team just launched v2.0! 🚀 Live production demo",
+      "unseen": true
+    },
+    {
+      "id": "story-3",
+      "userId": "acc_sophia_davis",
+      "userName": "Sophia Davis",
+      "userAvatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
+      "mediaUrl": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80",
+      "mediaType": "video",
+      "videoUrl": "https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-mountain-landscape-with-snow-41712-large.mp4",
+      "backupVideoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+      "timestamp": "5h ago",
+      "caption": "Lost in the Swiss Alps 🏔️ Hiking trail day 3",
+      "unseen": true
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-1",
+      "user": {
+        "name": "Elena Rostova",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
+      },
+      "action": "reacted with ❤️ to your photo in San Francisco",
+      "time": "15m ago",
+      "read": false,
+      "icon": "heart"
+    },
+    {
+      "id": "notif-2",
+      "user": {
+        "name": "Tahir Bin",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80"
+      },
+      "action": "commented on your post: \"Awesome insight!\"",
+      "time": "1h ago",
+      "read": false,
+      "icon": "message"
+    }
+  ],
+  "recoverySettings": {
+    "defaultEmail": "ademt0614@gmail.com",
+    "defaultPhone": "+251******392",
+    "countdownTime": "(00:36)",
+    "cardDisplayFallback": "phone",
+    "updatedAt": "2026-11-07T04:25:08.959Z"
+  }
+}

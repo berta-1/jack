@@ -1,0 +1,113 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // ── Default model ────────────────────────────────────────────────────────
+  // Used by any session/agent that doesn't pick a model explicitly.
+  "model": "opencode/deepseek-v4.1-flash-free",
+
+  // ── Default agent ────────────────────────────────────────────────────────
+  // Sessions start as the "build" agent. Switch to others in the TUI
+  // (agent picker / Tab toggle between build and plan).
+  "default_agent": "build",
+
+  // ── Global permissions ───────────────────────────────────────────────────
+  // Ordered rules; the LAST matching rule wins, so list broad allows first
+  // and "ask"/"deny" exceptions after. Safe read-only tools are always allowed.
+  "permissions": [
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "glob", "resource": "*", "effect": "allow" },
+    { "action": "grep", "resource": "*", "effect": "allow" },
+    { "action": "webfetch", "resource": "*", "effect": "allow" },
+    { "action": "websearch", "resource": "*", "effect": "allow" },
+    { "action": "subagent", "resource": "*", "effect": "allow" },
+
+    { "action": "edit", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "*", "effect": "allow" },
+
+    // Approval gates: destructive or far-reaching commands ask first.
+    { "action": "shell", "resource": "git push*", "effect": "ask" },
+    { "action": "shell", "resource": "git reset --hard*", "effect": "ask" },
+    { "action": "shell", "resource": "git clean*", "effect": "ask" },
+    { "action": "shell", "resource": "git rebase*", "effect": "ask" },
+    { "action": "shell", "resource": "rm *", "effect": "ask" },
+    { "action": "shell", "resource": "rmdir *", "effect": "ask" },
+    { "action": "shell", "resource": "del *", "effect": "ask" },
+    { "action": "shell", "resource": "rd *", "effect": "ask" },
+    { "action": "shell", "resource": "remove-item *", "effect": "ask" },
+    { "action": "shell", "resource": "format*", "effect": "ask" },
+    { "action": "shell", "resource": "npm publish*", "effect": "ask" },
+    { "action": "shell", "resource": "pip uninstall *", "effect": "ask" }
+  ],
+
+  // ── Agents ───────────────────────────────────────────────────────────────
+  // "build" and "plan" are built-in agents; overriding them by ID only
+  // customizes the listed fields (their built-in prompts stay intact).
+  // "ask" is a custom read-only Q&A agent added here.
+  "agents": {
+    // Default coding agent: full tool access, guarded by the rules above.
+    "build": {
+      "description": "Write and modify project code and files. Full tool access; destructive actions require approval."
+    },
+
+    // Plans and explores without editing project files (built-in behavior).
+    "plan": {
+      "description": "Explore the codebase and design implementation plans without changing project files.",
+      "model": "opencode/glm-5.3-flash-free"
+    },
+
+    // Read-only Q&A agent: switch to it to ask about the code.
+    "ask": {
+      "description": "Answer questions about the project without changing anything",
+      "mode": "primary",
+      "model": "opencode/deepseek-v4.1-flash-free",
+      "permissions": [
+        // Deny everything first, then allow only safe, read-only tools.
+        { "action": "*", "resource": "*", "effect": "deny" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "glob", "resource": "*", "effect": "allow" },
+        { "action": "grep", "resource": "*", "effect": "allow" },
+        { "action": "webfetch", "resource": "*", "effect": "allow" },
+        { "action": "websearch", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "*", "effect": "allow" },
+        { "action": "subagent", "resource": "explore", "effect": "allow" }
+      ],
+      "system": "You are a read-only assistant. Answer questions about this project accurately by reading and searching files, and cite file paths (and line numbers) in your answer. Never modify, create, or delete anything. If the user wants a change made, explain exactly what to change and suggest switching to the build agent."
+    }
+  },
+
+  // ── Formatting ───────────────────────────────────────────────────────────
+  // Auto-format files after write/edit/patch tools change them.
+  "formatter": true,
+
+  // ── Context compaction ───────────────────────────────────────────────────
+  // Keep long sessions from silently blowing the context window.
+  "compaction": {
+    "auto": true,
+    "keep": { "tokens": 15000 }
+  },
+
+  // ── File watcher ─────────────────────────────────────────────────────────
+  // Ignore directories that shouldn't trigger reloads on save/change.
+  "watcher": {
+    "ignore": [
+      ".venv/**",
+      "**/__pycache__/**",
+      "**/node_modules/**",
+      "dist/**",
+      "coverage/**"
+    ]
+  },
+
+  // ── Slash commands ───────────────────────────────────────────────────────
+  // Reusable prompt templates; run as /review and /explain.
+  "commands": {
+    "review": {
+      "description": "Review the recent changes or a specified file",
+      "template": "Review the {arg? target file or recent changes} for correctness, clarity, and consistency. Report findings in severity order with file and line references. Do not edit any files."
+    },
+    "explain": {
+      "description": "Explain a file, feature, or concept in plain language",
+      "template": "Explain {arg? the file, feature, or concept} in plain language. Include a short example, note anything surprising, and do not edit any files."
+    }
+  }
+}
