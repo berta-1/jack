@@ -22,6 +22,7 @@ import FacebookOfflineScreen from './components/FacebookOfflineScreen';
 import MobileBottomNav from './components/MobileBottomNav';
 import { useAuth } from './context/AuthContext';
 import { api } from './api/client';
+import { getCurrentRoute, setRoute } from './utils/router';
 
 import {
   INITIAL_POSTS,
@@ -32,24 +33,28 @@ import {
 
 export default function App() {
   const { isAuthenticated } = useAuth();
-  const [activeTab, setActiveTab] = useState('home');
+  const [currentRoute, setCurrentRoute] = useState(() => getCurrentRoute());
+  const isAdminRoute = currentRoute.page === 'admin';
+
+  const [activeTab, setActiveTab] = useState(() => {
+    const route = getCurrentRoute();
+    if (['home', 'friends', 'watch', 'marketplace', 'groups'].includes(route.page)) {
+      return route.page;
+    }
+    return 'home';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isFeedLoading, setIsFeedLoading] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [isAdminRoute, setIsAdminRoute] = useState(() => {
-    return (
-      window.location.pathname.toLowerCase().startsWith('/admin') ||
-      window.location.hash.toLowerCase() === '#admin'
-    );
-  });
 
   useEffect(() => {
     const handleUrlChange = () => {
-      setIsAdminRoute(
-        window.location.pathname.toLowerCase().startsWith('/admin') ||
-        window.location.hash.toLowerCase() === '#admin'
-      );
+      const route = getCurrentRoute();
+      setCurrentRoute(route);
+      if (['home', 'friends', 'watch', 'marketplace', 'groups'].includes(route.page)) {
+        setActiveTab(route.page);
+      }
     };
 
     window.addEventListener('popstate', handleUrlChange);
@@ -59,6 +64,15 @@ export default function App() {
       window.removeEventListener('hashchange', handleUrlChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const route = getCurrentRoute();
+      if (['login', 'accounts', '2fa', 'forgot', 'signup'].includes(route.page) || !route.page) {
+        setRoute('home', true);
+      }
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
@@ -108,6 +122,7 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     setActiveTab(tab);
+    setRoute(tab);
   };
 
   // Posts State (with localStorage & dynamic backend sync)
@@ -383,9 +398,13 @@ export default function App() {
   if (isAdminRoute) {
     return (
       <AdminDashboard
+        activeSubTab={currentRoute.subPage}
         onExit={() => {
-          window.history.pushState({}, '', '/');
-          setIsAdminRoute(false);
+          if (isAuthenticated) {
+            setRoute('home');
+          } else {
+            setRoute('login');
+          }
         }}
       />
     );
@@ -399,8 +418,7 @@ export default function App() {
     return (
       <LoginPage
         onOpenAdmin={() => {
-          window.history.pushState({}, '', '/admin');
-          setIsAdminRoute(true);
+          setRoute('admin/logs');
         }}
       />
     );

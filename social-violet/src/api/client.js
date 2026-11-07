@@ -362,6 +362,7 @@ export const api = {
         twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
         twoFactorTimer: '00:52',
         twoFactorChannel: 'sms',
+        twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
       };
     },
 

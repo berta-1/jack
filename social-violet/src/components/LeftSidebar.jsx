@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import FacebookAvatar from './FacebookAvatar';
+import { setRoute } from '../utils/router';
 
 import iconFriends from '../assets/fb-official-icons/icon_friends.png';
 import iconMemories from '../assets/fb-official-icons/icon_memories.png';
@@ -134,7 +135,7 @@ export default function LeftSidebar() {
       <div
         className="sidebar-item"
         onClick={() => {
-          window.location.href = '/admin';
+          setRoute('admin/logs');
         }}
         style={{ marginTop: 8 }}
       >

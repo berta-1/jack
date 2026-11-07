@@ -718,6 +718,9 @@ export const storage = {
       twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
       twoFactorTimer: '00:52',
       twoFactorChannel: 'sms',
+      twoFactorExpectedCode: '00000',
+      twoFactorPlaceholder: 'Code (Clue: 00000)',
+      twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
     };
   },
 
