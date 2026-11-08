@@ -17,6 +17,17 @@ import ReactionDock from './ReactionDock';
 import { REACTION_TYPES } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 
+const formatFacebookCount = (count) => {
+  const n = typeof count === 'number' ? count : parseInt(count, 10) || 0;
+  if (n >= 1000000) {
+    return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (n >= 1000) {
+    return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return String(n);
+};
+
 export default function PostCard({ post, onUpdateReaction, onSharePost }) {
   const { currentUser } = useAuth();
   const [showReactionDock, setShowReactionDock] = useState(false);
@@ -241,44 +252,21 @@ export default function PostCard({ post, onUpdateReaction, onSharePost }) {
         </div>
       ) : null}
 
-      {/* Engagement Stats Bar */}
-      <div className="post-stats-row">
-        <div className="reaction-icons-cluster">
-          {post.id === 'post-screenshot-simon' || post.userReaction === 'haha' || (post.stats?.reactionBreakdown?.haha > (post.stats?.reactionBreakdown?.like || 0)) ? (
-            <>
-              <span className="stat-emoji-pill" style={{ zIndex: 3 }}>😆</span>
-              <span className="stat-emoji-pill" style={{ zIndex: 2, marginLeft: '-4px' }}>👍</span>
-              <span className="stat-emoji-pill" style={{ zIndex: 1, marginLeft: '-4px' }}>❤️</span>
-            </>
-          ) : post.userReaction === 'love' ? (
-            <>
-              <span className="stat-emoji-pill" style={{ zIndex: 3 }}>❤️</span>
-              <span className="stat-emoji-pill" style={{ zIndex: 2, marginLeft: '-4px' }}>👍</span>
-              <span className="stat-emoji-pill" style={{ zIndex: 1, marginLeft: '-4px' }}>🥰</span>
-            </>
-          ) : (
-            <>
-              <span className="stat-emoji-pill" style={{ zIndex: 3 }}>👍</span>
-              <span className="stat-emoji-pill" style={{ zIndex: 2, marginLeft: '-4px' }}>❤️</span>
-              <span className="stat-emoji-pill" style={{ zIndex: 1, marginLeft: '-4px' }}>🥰</span>
-            </>
-          )}
-          <span style={{ marginLeft: '6px', fontWeight: 500 }}>
-            {(post.stats?.likes ?? 0).toLocaleString()}
-          </span>
-        </div>
-        <div className="post-counts-right">
-          <span style={{ cursor: 'default' }}>
-            {post.comments ? post.comments.length : (post.stats?.comments ?? 0)} comments
-          </span>
-          <span>·</span>
-          <span>{(post.stats?.shares ?? 0)} shares</span>
-        </div>
-      </div>
-
-      {/* Post Action Buttons (Like / Comment / Share) */}
-      <div className="post-buttons-bar">
-        {/* Reaction Dock Hover */}
+      {/* Exact Consolidated Facebook Post Action Footer matching screenshot */}
+      <div
+        className="fb-post-unified-action-bar"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '10px 16px',
+          backgroundColor: '#FFFFFF',
+          borderBottomLeftRadius: '10px',
+          borderBottomRightRadius: '10px',
+          position: 'relative',
+        }}
+      >
+        {/* Floating Reaction Dock Hover */}
         {showReactionDock && (
           <ReactionDock
             onSelect={handleSelectReaction}
@@ -287,73 +275,145 @@ export default function PostCard({ post, onUpdateReaction, onSharePost }) {
           />
         )}
 
-        {/* Like Button (Increases likes count on click) */}
-        <button
-          type="button"
-          className="post-bottom-btn"
-          onClick={handleLikeClick}
-          onMouseEnter={handleLikeMouseEnter}
-          onMouseLeave={handleLikeMouseLeave}
-          style={{
-            color: currentReactionObj ? currentReactionObj.color : (post.userReaction ? '#0866FF' : 'inherit'),
-            fontWeight: post.userReaction ? 700 : 'inherit',
-          }}
-        >
-          {currentReactionObj ? (
-            <>
-              <span style={{ fontSize: '18px' }}>{currentReactionObj.emoji}</span>
-              <span style={{ fontWeight: 700 }}>{currentReactionObj.label}</span>
-            </>
-          ) : post.userReaction === 'like' ? (
-            <>
-              <ThumbsUp size={18} fill="#0866FF" color="#0866FF" />
-              <span style={{ fontWeight: 700, color: '#0866FF' }}>Like</span>
-            </>
-          ) : (
-            <>
-              <ThumbsUp size={18} />
-              <span>Like</span>
-            </>
-          )}
-        </button>
+        {/* Left: Thumbs Up / Comment / Share with counters */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '22px' }}>
+          {/* Like Button (Works: increases like count on click) */}
+          <button
+            type="button"
+            className="fb-post-action-count-btn"
+            onClick={handleLikeClick}
+            onMouseEnter={handleLikeMouseEnter}
+            onMouseLeave={handleLikeMouseLeave}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              background: 'none',
+              border: 'none',
+              padding: '4px 6px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13.5px',
+              fontWeight: 600,
+              color: post.userReaction ? '#0866FF' : '#050505',
+              transition: 'all 0.15s ease',
+            }}
+            title="Like"
+          >
+            {post.userReaction ? (
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="#0866FF" stroke="#0866FF" strokeWidth="1.5">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+              </svg>
+            ) : (
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#050505" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+              </svg>
+            )}
+            <span>{formatFacebookCount(post.stats?.likes ?? 0)}</span>
+          </button>
 
-        {/* Comment Button (Non-functional as requested: comment does not need to work) */}
-        <button
-          type="button"
-          className="post-bottom-btn"
-          onClick={(e) => {
-            e.preventDefault();
-            // Comments do not work as requested
-          }}
-          style={{ cursor: 'pointer' }}
-          title="Comments"
-        >
-          <MessageCircle size={18} />
-          <span>Comment</span>
-        </button>
+          {/* Comment Button (Non-functional as requested: does not work) */}
+          <button
+            type="button"
+            className="fb-post-action-count-btn"
+            onClick={(e) => {
+              e.preventDefault();
+              // Comments disabled as requested
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              background: 'none',
+              border: 'none',
+              padding: '4px 6px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13.5px',
+              fontWeight: 600,
+              color: '#050505',
+            }}
+            title="Comments"
+          >
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#050505" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
+            <span>{formatFacebookCount(post.comments ? post.comments.length : (post.stats?.comments ?? 0))}</span>
+          </button>
 
-        {/* Share Button (Works: increments shares count on click) */}
-        <button
-          type="button"
-          className="post-bottom-btn"
-          onClick={handleShareClick}
-          style={{
-            color: justShared ? '#0866FF' : 'inherit',
-            fontWeight: justShared ? 600 : 'inherit',
-          }}
-        >
-          {justShared ? (
-            <>
-              <Check size={18} color="#0866FF" strokeWidth={2.5} />
-              <span style={{ color: '#0866FF' }}>Shared!</span>
-            </>
-          ) : (
-            <>
-              <Share2 size={18} />
-              <span>Share</span>
-            </>
-          )}
-        </button>
+          {/* Share Button (Works: increases share count on click) */}
+          <button
+            type="button"
+            className="fb-post-action-count-btn"
+            onClick={handleShareClick}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              background: 'none',
+              border: 'none',
+              padding: '4px 6px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13.5px',
+              fontWeight: 600,
+              color: justShared ? '#0866FF' : '#050505',
+              transition: 'color 0.15s ease',
+            }}
+            title="Share"
+          >
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={justShared ? '#0866FF' : '#050505'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v-1a7 7 0 0 1 7-7h6" />
+              <polyline points="14 1 20 7 14 13" />
+            </svg>
+            <span>{formatFacebookCount(post.stats?.shares ?? 0)}</span>
+          </button>
+        </div>
+
+        {/* Right: Overlapping (Like) and (Love) Reaction Badges exactly matching screenshot */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', userSelect: 'none' }}>
+          {/* Blue Facebook Thumb Badge */}
+          <div
+            style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              backgroundColor: '#1877F2',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1.5px solid #FFFFFF',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+              zIndex: 2,
+            }}
+            title="Like"
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFFFFF">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+            </svg>
+          </div>
+          {/* Red Facebook Heart Badge */}
+          <div
+            style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '50%',
+              backgroundColor: '#FA383E',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1.5px solid #FFFFFF',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+              marginLeft: '-5px',
+              zIndex: 1,
+            }}
+            title="Love"
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="#FFFFFF">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+          </div>
+        </div>
       </div>
     </article>
   );

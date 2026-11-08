@@ -907,6 +907,10 @@ body {
   background-color: var(--bg-surface-hover);
 }
 
+.fb-post-action-count-btn:hover {
+  background-color: #F0F2F5 !important;
+}
+
 /* Floating Facebook Reaction Dock */
 .reaction-dock {
   position: absolute;
