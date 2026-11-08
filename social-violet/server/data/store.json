@@ -341,7 +341,7 @@
           "care": 24
         }
       },
-      "userReaction": "love",
+      "userReaction": null,
       "comments": []
     },
     {
@@ -373,7 +373,7 @@
           "love": 394
         }
       },
-      "userReaction": "haha",
+      "userReaction": null,
       "comments": []
     }
   ],

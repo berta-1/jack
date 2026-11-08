@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PenLine, Wifi, X } from 'lucide-react';
+import { PenLine, Wifi, X, Check } from 'lucide-react';
 import Navbar from './components/Navbar';
 import LeftSidebar from './components/LeftSidebar';
 import StoriesBar from './components/StoriesBar';
@@ -130,18 +130,19 @@ export default function App() {
   // Posts State (with localStorage & dynamic backend sync)
   const [posts, setPosts] = useState(() => {
     const saved = localStorage.getItem('sphere_posts');
-    if (!saved) return INITIAL_POSTS;
+    if (!saved) return INITIAL_POSTS.map((p) => ({ ...p, userReaction: null }));
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed.map((p) => ({
           ...p,
           content: p.content || p.caption || '',
+          userReaction: p.userExplicitlyReacted ? p.userReaction : null,
         }));
       }
-      return INITIAL_POSTS;
+      return INITIAL_POSTS.map((p) => ({ ...p, userReaction: null }));
     } catch {
-      return INITIAL_POSTS;
+      return INITIAL_POSTS.map((p) => ({ ...p, userReaction: null }));
     }
   });
 
@@ -334,7 +335,7 @@ export default function App() {
     }, 1200);
   };
 
-  // Reactions Handler
+  // Reactions Handler (Likes increase & toggle)
   const handleUpdateReaction = (postId, reactionType) => {
     setPosts((prevPosts) =>
       prevPosts.map((p) => {
@@ -350,16 +351,41 @@ export default function App() {
           likesDelta = -1;
         }
 
+        const curLikes = (p.stats && typeof p.stats.likes === 'number') ? p.stats.likes : 0;
         return {
           ...p,
           userReaction: newReaction,
+          userExplicitlyReacted: !!newReaction,
           stats: {
             ...p.stats,
-            likes: Math.max(0, p.stats.likes + likesDelta),
+            likes: Math.max(0, curLikes + likesDelta),
           },
         };
       })
     );
+  };
+
+  // Share Handler (Increments post share count and shows Facebook toast)
+  const [shareToast, setShareToast] = useState(false);
+  const handleSharePost = (postId) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((p) => {
+        if (p.id !== postId) return p;
+        const curShares = (p.stats && typeof p.stats.shares === 'number') ? p.stats.shares : 0;
+        return {
+          ...p,
+          userShared: true,
+          stats: {
+            ...p.stats,
+            shares: curShares + 1,
+          },
+        };
+      })
+    );
+    setShareToast(true);
+    setTimeout(() => {
+      setShareToast(false);
+    }, 2500);
   };
 
   // Comments Handler
@@ -572,7 +598,7 @@ export default function App() {
                   key={post.id}
                   post={post}
                   onUpdateReaction={handleUpdateReaction}
-                  onAddComment={handleAddComment}
+                  onSharePost={handleSharePost}
                 />
               ))
             ) : (
@@ -664,6 +690,32 @@ export default function App() {
       >
         <PenLine size={22} color="#050505" />
       </button>
+
+      {/* Share Toast Banner */}
+      {shareToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#1C1E21',
+            color: '#FFFFFF',
+            padding: '12px 22px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+            zIndex: 99999,
+          }}
+        >
+          <Check size={18} color="#22C55E" strokeWidth={2.5} />
+          <span>Post shared to your Feed.</span>
+        </div>
+      )}
     </div>
   );
 }

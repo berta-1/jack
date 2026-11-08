@@ -277,7 +277,7 @@ export const INITIAL_POSTS = [
         care: 4,
       },
     },
-    userReaction: 'like',
+    userReaction: null,
     comments: [
       {
         id: 'c-embassy-1',
@@ -319,7 +319,7 @@ export const INITIAL_POSTS = [
         love: 394,
       },
     },
-    userReaction: 'haha',
+    userReaction: null,
     comments: [
       {
         id: 'c-simon-1',
@@ -420,7 +420,7 @@ Here is the quick architectural takeaway breakdown 👇`,
         wow: 62,
       },
     },
-    userReaction: 'like',
+    userReaction: null,
     comments: [
       {
         id: 'c3',
@@ -462,7 +462,7 @@ Here is the quick architectural takeaway breakdown 👇`,
         care: 24,
       },
     },
-    userReaction: 'love',
+    userReaction: null,
     comments: [
       {
         id: 'c4',

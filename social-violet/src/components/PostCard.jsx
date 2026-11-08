@@ -17,18 +17,16 @@ import ReactionDock from './ReactionDock';
 import { REACTION_TYPES } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 
-export default function PostCard({ post, onUpdateReaction, onAddComment }) {
+export default function PostCard({ post, onUpdateReaction, onSharePost }) {
   const { currentUser } = useAuth();
   const [showReactionDock, setShowReactionDock] = useState(false);
-  const [showComments, setShowComments] = useState(false);
-  const [commentText, setCommentText] = useState('');
+  const [justShared, setJustShared] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
 
   const hoverTimerRef = useRef(null);
-  const commentInputRef = useRef(null);
 
   if (hidden) return null;
 
@@ -46,7 +44,7 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
     }, 350);
   };
 
-  // Toggle quick like
+  // Toggle quick like: clicking increases the like count
   const handleLikeClick = () => {
     if (post.userReaction) {
       onUpdateReaction(post.id, null);
@@ -61,24 +59,14 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
     setShowReactionDock(false);
   };
 
-  // Submit comment
-  const handleSubmitComment = (e) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-
-    onAddComment(post.id, {
-      id: 'c_' + Date.now(),
-      author: {
-        name: currentUser?.name || 'Berta Hule',
-        avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-      },
-      text: commentText.trim(),
-      timestamp: 'Just now',
-      likes: 0,
-    });
-
-    setCommentText('');
-    setShowComments(true);
+  const handleShareClick = () => {
+    if (onSharePost) {
+      onSharePost(post.id);
+    }
+    setJustShared(true);
+    setTimeout(() => {
+      setJustShared(false);
+    }, 2000);
   };
 
   const currentReactionObj = REACTION_TYPES.find((r) => r.type === post.userReaction);
@@ -256,11 +244,17 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
       {/* Engagement Stats Bar */}
       <div className="post-stats-row">
         <div className="reaction-icons-cluster">
-          {post.userReaction === 'haha' ? (
+          {post.id === 'post-screenshot-simon' || post.userReaction === 'haha' || (post.stats?.reactionBreakdown?.haha > (post.stats?.reactionBreakdown?.like || 0)) ? (
             <>
               <span className="stat-emoji-pill" style={{ zIndex: 3 }}>😆</span>
               <span className="stat-emoji-pill" style={{ zIndex: 2, marginLeft: '-4px' }}>👍</span>
               <span className="stat-emoji-pill" style={{ zIndex: 1, marginLeft: '-4px' }}>❤️</span>
+            </>
+          ) : post.userReaction === 'love' ? (
+            <>
+              <span className="stat-emoji-pill" style={{ zIndex: 3 }}>❤️</span>
+              <span className="stat-emoji-pill" style={{ zIndex: 2, marginLeft: '-4px' }}>👍</span>
+              <span className="stat-emoji-pill" style={{ zIndex: 1, marginLeft: '-4px' }}>🥰</span>
             </>
           ) : (
             <>
@@ -270,15 +264,15 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
             </>
           )}
           <span style={{ marginLeft: '6px', fontWeight: 500 }}>
-            {post.stats.likes.toLocaleString()}
+            {(post.stats?.likes ?? 0).toLocaleString()}
           </span>
         </div>
         <div className="post-counts-right">
-          <span onClick={() => setShowComments((prev) => !prev)}>
-            {post.comments ? post.comments.length : post.stats.comments} comments
+          <span style={{ cursor: 'default' }}>
+            {post.comments ? post.comments.length : (post.stats?.comments ?? 0)} comments
           </span>
           <span>·</span>
-          <span>{post.stats.shares} shares</span>
+          <span>{(post.stats?.shares ?? 0)} shares</span>
         </div>
       </div>
 
@@ -293,20 +287,27 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
           />
         )}
 
-        {/* Like Button */}
+        {/* Like Button (Increases likes count on click) */}
         <button
+          type="button"
           className="post-bottom-btn"
           onClick={handleLikeClick}
           onMouseEnter={handleLikeMouseEnter}
           onMouseLeave={handleLikeMouseLeave}
           style={{
-            color: currentReactionObj ? currentReactionObj.color : 'inherit',
+            color: currentReactionObj ? currentReactionObj.color : (post.userReaction ? '#0866FF' : 'inherit'),
+            fontWeight: post.userReaction ? 700 : 'inherit',
           }}
         >
           {currentReactionObj ? (
             <>
               <span style={{ fontSize: '18px' }}>{currentReactionObj.emoji}</span>
               <span style={{ fontWeight: 700 }}>{currentReactionObj.label}</span>
+            </>
+          ) : post.userReaction === 'like' ? (
+            <>
+              <ThumbsUp size={18} fill="#0866FF" color="#0866FF" />
+              <span style={{ fontWeight: 700, color: '#0866FF' }}>Like</span>
             </>
           ) : (
             <>
@@ -316,99 +317,44 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
           )}
         </button>
 
-        {/* Comment Button */}
+        {/* Comment Button (Non-functional as requested: comment does not need to work) */}
         <button
+          type="button"
           className="post-bottom-btn"
-          onClick={() => {
-            setShowComments(true);
-            setTimeout(() => {
-              commentInputRef.current?.focus();
-            }, 50);
+          onClick={(e) => {
+            e.preventDefault();
+            // Comments do not work as requested
           }}
+          style={{ cursor: 'pointer' }}
+          title="Comments"
         >
           <MessageCircle size={18} />
           <span>Comment</span>
         </button>
 
-        {/* Share Button */}
+        {/* Share Button (Works: increments shares count on click) */}
         <button
+          type="button"
           className="post-bottom-btn"
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({ title: 'Sphere Post', text: post.content || post.caption, url: window.location.href });
-            } else {
-              navigator.clipboard.writeText(window.location.href);
-              alert('Post link copied to clipboard!');
-            }
+          onClick={handleShareClick}
+          style={{
+            color: justShared ? '#0866FF' : 'inherit',
+            fontWeight: justShared ? 600 : 'inherit',
           }}
         >
-          <Share2 size={18} />
-          <span>Share</span>
+          {justShared ? (
+            <>
+              <Check size={18} color="#0866FF" strokeWidth={2.5} />
+              <span style={{ color: '#0866FF' }}>Shared!</span>
+            </>
+          ) : (
+            <>
+              <Share2 size={18} />
+              <span>Share</span>
+            </>
+          )}
         </button>
       </div>
-
-      {/* Comments Section */}
-      {showComments && (
-        <div className="comments-section">
-          {/* New Comment Input */}
-          <form className="comment-input-row" onSubmit={handleSubmitComment}>
-            <img
-              src={currentUser?.avatar}
-              alt={currentUser?.name}
-              className="chat-avatar-mini"
-            />
-            <div className="comment-input-box">
-              <input
-                ref={commentInputRef}
-                type="text"
-                placeholder={`Write a comment as ${currentUser?.shortName || currentUser?.name?.split(' ')[0]}...`}
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-              />
-              <button
-                type="submit"
-                className="comment-submit-btn"
-                disabled={!commentText.trim()}
-              >
-                <Send size={16} />
-              </button>
-            </div>
-          </form>
-
-          {/* Comment List */}
-          {post.comments && post.comments.length > 0 && (
-            <div>
-              {post.comments.map((comment) => (
-                <div key={comment.id} style={{ marginBottom: '12px' }}>
-                  <div className="comment-item">
-                    <img
-                      src={comment.author.avatar}
-                      alt={comment.author.name}
-                      className="chat-avatar-mini"
-                    />
-                    <div className="comment-bubble">
-                      <div className="comment-author-name">{comment.author.name}</div>
-                      <div className="comment-text">{comment.text}</div>
-                    </div>
-                  </div>
-                  <div className="comment-actions-meta">
-                    <span onClick={() => alert('Liked comment!')}>Like</span>
-                    <span onClick={() => commentInputRef.current?.focus()}>Reply</span>
-                    <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>
-                      {comment.timestamp}
-                    </span>
-                    {comment.likes > 0 && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                        👍 {comment.likes}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </article>
   );
 }
