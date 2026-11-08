@@ -5,6 +5,7 @@ import LeftSidebar from './components/LeftSidebar';
 import StoriesBar from './components/StoriesBar';
 import CreatePostBox from './components/CreatePostBox';
 import CreatePostModal from './components/CreatePostModal';
+import CreateStoryModal from './components/CreateStoryModal';
 import PostCard from './components/PostCard';
 import MessengerDock from './components/MessengerDock';
 import StoryViewerModal from './components/StoryViewerModal';
@@ -19,6 +20,7 @@ import LoginPage from './components/LoginPage';
 import AdminDashboard from './components/AdminDashboard';
 import FacebookLoadingScreen from './components/FacebookLoadingScreen';
 import FacebookOfflineScreen from './components/FacebookOfflineScreen';
+import FacebookPageErrorScreen from './components/FacebookPageErrorScreen';
 import MobileBottomNav from './components/MobileBottomNav';
 import { useAuth } from './context/AuthContext';
 import { api } from './api/client';
@@ -181,6 +183,17 @@ export default function App() {
     return INITIAL_STORIES;
   });
   const [activeStoryViewer, setActiveStoryViewer] = useState(null);
+  const [isCreateStoryModalOpen, setIsCreateStoryModalOpen] = useState(false);
+
+  const handlePublishStory = async (newStory) => {
+    const updated = [newStory, ...stories];
+    setStories(updated);
+    localStorage.setItem('sphere_stories', JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('sphere_stories_updated', { detail: updated }));
+    try {
+      await api.createStory(newStory);
+    } catch {}
+  };
 
   // Sync stories when updated in admin or another tab
   useEffect(() => {
@@ -210,7 +223,16 @@ export default function App() {
   const [activeChats, setActiveChats] = useState([]);
 
   // Notifications State
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sphere_notifications');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.badge) return parsed;
+      }
+    } catch {}
+    return INITIAL_NOTIFICATIONS;
+  });
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -225,7 +247,11 @@ export default function App() {
     }).catch(() => {});
 
     api.getNotifications().then((res) => {
-      if (res && Array.isArray(res) && res.length > 0) setNotifications(res);
+      if (res && Array.isArray(res) && res.length > 0) {
+        if (res.some((n) => n.badge || n.type === 'security_alert')) {
+          setNotifications(res);
+        }
+      }
     }).catch(() => {});
   }, []);
 
@@ -465,9 +491,8 @@ export default function App() {
         <div className="app-layout">
           {/* Left Sidebar */}
           <LeftSidebar
-            onSelectShortcut={(shortcutName) =>
-              setSearchQuery(shortcutName.split(' ')[0])
-            }
+            onSelectTab={(tab) => handleTabChange(tab || 'error')}
+            onOpenProfile={() => setShowProfileMenu(true)}
           />
 
           {/* Center Main Feed */}
@@ -483,10 +508,8 @@ export default function App() {
 
             {/* Stories Banner (Create Story Card & Stories Carousel) */}
             <StoriesBar
-              onCreateStory={() => {
-                setPostModalType('photo');
-                setIsPostModalOpen(true);
-              }}
+              stories={stories}
+              onCreateStory={() => setIsCreateStoryModalOpen(true)}
               onSelectStory={(story) => setActiveStoryViewer(story)}
             />
 
@@ -578,17 +601,10 @@ export default function App() {
         </div>
       )}
 
-      {/* Friends View Tab */}
-      {activeTab === 'friends' && <FriendsView />}
-
-      {/* Watch Video View Tab */}
-      {activeTab === 'watch' && <WatchView />}
-
-      {/* Marketplace View Tab */}
-      {activeTab === 'marketplace' && <MarketplaceView />}
-
-      {/* Groups View Tab */}
-      {activeTab === 'groups' && <GroupsView />}
+      {/* Unsupported Tab Navigation Views (Video, Friends, Account, Sidebar tabs) -> Facebook Technical Error Screen */}
+      {activeTab !== 'home' && (
+        <FacebookPageErrorScreen onGoHome={() => handleTabChange('home')} />
+      )}
 
       {/* Floating Messenger Window Dock (Bottom Right) */}
       <MessengerDock
@@ -613,6 +629,13 @@ export default function App() {
         initialType={postModalType}
         onClose={() => setIsPostModalOpen(false)}
         onSubmitPost={handleAddPost}
+      />
+
+      {/* Create Story / Upload Story Video Modal */}
+      <CreateStoryModal
+        isOpen={isCreateStoryModalOpen}
+        onClose={() => setIsCreateStoryModalOpen(false)}
+        onPublishStory={handlePublishStory}
       />
 
       {/* Mobile Fixed Bottom Navigation Bar (Visible only on mobile <= 768px) */}

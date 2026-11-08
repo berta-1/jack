@@ -11,6 +11,12 @@ export function AuthProvider({ children }) {
       try {
         const u = JSON.parse(saved);
         if (u.name === 'Alex Morgan') return CURRENT_USER;
+        if (u && u.name) {
+          const firstWord = u.name.trim().split(/\s+/)[0];
+          if (firstWord && (u.shortName === 'Tahir' || !u.shortName)) {
+            u.shortName = firstWord;
+          }
+        }
         return u;
       } catch {
         return CURRENT_USER;

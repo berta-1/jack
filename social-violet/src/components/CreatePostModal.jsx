@@ -5,6 +5,8 @@ import {
   Users,
   Lock,
   Image,
+  Video,
+  Upload,
   UserPlus,
   Smile,
   MapPin,
@@ -25,6 +27,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
       ? 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=80'
       : ''
   );
+  const [videoUrl, setVideoUrl] = useState('');
   const [showImageInput, setShowImageInput] = useState(initialType === 'photo');
 
   const bgColors = [
@@ -43,14 +46,41 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
     'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
   ];
 
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      setImageUrl(evt.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleVideoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      setVideoUrl(evt.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!content.trim() && !imageUrl) return;
+    if (!content.trim() && !imageUrl && !videoUrl) return;
+
+    const mediaList = [];
+    if (videoUrl) {
+      mediaList.push({ type: 'video', url: videoUrl, poster: imageUrl || '' });
+    } else if (imageUrl && !selectedBgColor) {
+      mediaList.push({ type: 'image', url: imageUrl });
+    }
 
     const newPost = {
       id: 'post-' + Date.now(),
       author: {
-        name: currentUser?.name || 'Berta Hule',
+        name: currentUser?.name || 'Deng Garang Ajou',
         avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
         verified: true,
       },
@@ -60,7 +90,8 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
       backgroundCard: selectedBgColor
         ? { color: selectedBgColor, text: content.trim() }
         : null,
-      media: imageUrl && !selectedBgColor ? [{ type: 'image', url: imageUrl }] : [],
+      videoUrl: videoUrl || null,
+      media: mediaList,
       stats: {
         likes: 1,
         comments: 0,
@@ -74,6 +105,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
     onSubmitPost(newPost);
     setContent('');
     setImageUrl('');
+    setVideoUrl('');
     setSelectedBgColor(null);
     setShowImageInput(false);
     onClose();
@@ -139,7 +171,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
                 textAlign: selectedBgColor ? 'center' : 'left',
                 minHeight: selectedBgColor ? '120px' : '100px',
               }}
-              placeholder={`What's on your mind, ${currentUser?.shortName || currentUser?.name?.split(' ')[0]}?`}
+              placeholder={`What's on your mind, ${currentUser?.name?.trim().split(/\s+/)[0] || currentUser?.shortName || 'Deng'}?`}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               autoFocus
@@ -177,15 +209,78 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
             ))}
           </div>
 
-          {/* Image Input field if toggled */}
+          {/* Media Attach Section (Photo / Video) */}
           {showImageInput && (
-            <div style={{ margin: '8px 0' }}>
+            <div
+              style={{
+                border: '1px solid var(--border-subtle, #CED0D4)',
+                borderRadius: '8px',
+                padding: '10px',
+                margin: '8px 0',
+                backgroundColor: 'var(--bg-card-hover, #F0F2F5)',
+              }}
+            >
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                <label
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '7px 10px',
+                    borderRadius: '6px',
+                    background: '#2bbf5a',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Upload size={14} />
+                  <span>Upload Photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handlePhotoUpload}
+                  />
+                </label>
+
+                <label
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '7px 10px',
+                    borderRadius: '6px',
+                    background: '#0866FF',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Video size={14} />
+                  <span>Upload Video</span>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    style={{ display: 'none' }}
+                    onChange={handleVideoUpload}
+                  />
+                </label>
+              </div>
+
+              {/* Photo or Video URL Input */}
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  backgroundColor: 'var(--bg-input)',
+                  backgroundColor: 'var(--bg-input, #FFFFFF)',
                   borderRadius: '8px',
                   padding: '6px 10px',
                 }}
@@ -193,9 +288,16 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
                 <Link size={16} color="var(--text-secondary)" />
                 <input
                   type="text"
-                  placeholder="Paste image URL or pick one below..."
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="Paste image/video URL (e.g. https://...)"
+                  value={videoUrl || imageUrl}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.endsWith('.mp4') || val.includes('video')) {
+                      setVideoUrl(val);
+                    } else {
+                      setImageUrl(val);
+                    }
+                  }}
                   style={{
                     border: 'none',
                     background: 'transparent',
@@ -214,7 +316,10 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
                     key={idx}
                     src={img}
                     alt="Preset"
-                    onClick={() => setImageUrl(img)}
+                    onClick={() => {
+                      setImageUrl(img);
+                      setVideoUrl('');
+                    }}
                     style={{
                       width: '48px',
                       height: '36px',
@@ -229,8 +334,30 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
             </div>
           )}
 
+          {/* Attached Video Preview */}
+          {videoUrl && (
+            <div
+              className="modal-media-preview"
+              style={{ background: '#000', borderRadius: '8px', overflow: 'hidden', position: 'relative', margin: '8px 0' }}
+            >
+              <video
+                src={videoUrl}
+                poster={imageUrl}
+                controls
+                style={{ width: '100%', maxHeight: '280px', display: 'block' }}
+              />
+              <button
+                type="button"
+                className="remove-preview-btn"
+                onClick={() => setVideoUrl('')}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
           {/* Attached Image Preview */}
-          {imageUrl && (
+          {imageUrl && !videoUrl && (
             <div className="modal-media-preview">
               <img src={imageUrl} alt="Preview" />
               <button
@@ -286,7 +413,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmitPost, initial
           <button
             type="submit"
             className="btn-submit-post"
-            disabled={!content.trim() && !imageUrl}
+            disabled={!content.trim() && !imageUrl && !videoUrl}
           >
             Post
           </button>

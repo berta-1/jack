@@ -55,7 +55,7 @@ export default function ProfileDropdown({ onClose }) {
                   <FacebookAvatar size={40} />
                 )}
               </div>
-              <div className="fb-profile-name">{currentUser?.name || 'Berta Hule'}</div>
+              <div className="fb-profile-name">{currentUser?.name || 'Deng Garang Ajou'}</div>
             </div>
 
             <div className="fb-profile-divider" />

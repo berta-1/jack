@@ -152,25 +152,30 @@ export default function MobileBottomNav({
         onClick={() => setActiveTab('marketplace')}
         title="Marketplace"
       >
-        <svg viewBox="0 0 30 30" width="28" height="27" fill="none">
-          {/* Awning roof with 4 scallops */}
+        <svg viewBox="0 0 28 28" width="28" height="27" fill="none">
+          {/* Awning with 3 clean, symmetrical curved scallops */}
           <path
-            d="M3.5 7c0-1.1.9-2 2-2h19c1.1 0 2 .9 2 2v3.8c0 1.8-1.3 3.2-3 3.2-1.3 0-2.5-.8-2.9-2-.4 1.2-1.6 2-2.9 2s-2.5-.8-2.9-2c-.4 1.2-1.6 2-2.9 2-1.7 0-3-1.4-3-3.2V7z"
+            d="M 4.5 9.2 C 4.5 7.6 5.8 6.2 7.5 6.2 L 20.5 6.2 C 22.2 6.2 23.5 7.6 23.5 9.2 L 23.5 10.8 C 23.5 12.6 21.8 13.6 20.3 13.6 C 18.8 13.6 17.5 12.6 17.1 11.2 C 16.7 12.6 15.4 13.6 14.0 13.6 C 12.6 13.6 11.3 12.6 10.9 11.2 C 10.5 12.6 9.2 13.6 7.7 13.6 C 6.2 13.6 4.5 12.6 4.5 10.8 Z"
             stroke={activeTab === 'marketplace' ? '#0866FF' : '#050505'}
-            strokeWidth="2.4"
+            strokeWidth="2.3"
+            strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {/* Storefront base building */}
+          {/* Storefront base building walls */}
           <path
-            d="M4.5 13.8v9a2 2 0 0 0 2 2h17a2 2 0 0 0 2-2v-9"
+            d="M 5.8 13.2 V 21.2 C 5.8 22.8 7.2 24.2 8.8 24.2 H 19.2 C 20.8 24.2 22.2 22.8 22.2 21.2 V 13.2"
             stroke={activeTab === 'marketplace' ? '#0866FF' : '#050505'}
-            strokeWidth="2.4"
+            strokeWidth="2.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
-          {/* Arched doorway cutout */}
+          {/* Centered arched doorway */}
           <path
-            d="M11.5 24.8v-6a1.2 1.2 0 0 1 1.2-1.2h4.6a1.2 1.2 0 0 1 1.2 1.2v6"
+            d="M 11.5 24.2 V 19.8 C 11.5 18.4 12.6 17.3 14.0 17.3 C 15.4 17.3 16.5 18.4 16.5 19.8 V 24.2"
             stroke={activeTab === 'marketplace' ? '#0866FF' : '#050505'}
-            strokeWidth="2.4"
+            strokeWidth="2.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       </button>
@@ -183,15 +188,22 @@ export default function MobileBottomNav({
         title="Notifications"
       >
         <div className="fb-mobile-notif-wrapper">
-          <svg viewBox="0 0 30 30" width="28" height="27" fill="none">
-            {/* Bell body */}
+          <svg viewBox="0 0 28 28" width="28" height="27" fill="none">
+            {/* Bell body matching Facebook mobile */}
             <path
-              d="M15 4a6.8 6.8 0 0 0-6.8 6.8v4.2c0 .8-.4 1.6-1 2.2l-1.6 1.6a.8.8 0 0 0 .6 1.4h17.6a.8.8 0 0 0 .6-1.4l-1.6-1.6c-.6-.6-1-1.4-1-2.2v-4.2A6.8 6.8 0 0 0 15 4z"
+              d="M 14.0 4.5 C 9.8 4.5 7.0 7.8 7.0 12.4 V 15.2 C 7.0 16.4 6.5 17.4 5.7 18.2 C 5.0 18.9 4.6 19.6 5.0 20.4 C 5.3 21.1 6.0 21.2 6.8 21.2 H 21.2 C 22.0 21.2 22.7 21.1 23.0 20.4 C 23.4 19.6 23.0 18.9 22.3 18.2 C 21.5 17.4 21.0 16.4 21.0 15.2 V 12.4 C 21.0 7.8 18.2 4.5 14.0 4.5 Z"
               stroke="#050505"
-              strokeWidth="2.4"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             {/* Clapper underneath */}
-            <path d="M12 21.2a3 3 0 0 0 6 0" stroke="#050505" strokeWidth="2.4" />
+            <path
+              d="M 11.5 21.2 C 11.8 22.7 12.8 23.8 14.0 23.8 C 15.2 23.8 16.2 22.7 16.5 21.2"
+              stroke="#050505"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+            />
           </svg>
 
           {/* Red Capsule 9+ Badge (Exact match to screenshot) */}
@@ -210,7 +222,7 @@ export default function MobileBottomNav({
       >
         <div className="fb-mobile-profile-ring">
           <img
-            src={darkAvatarImg}
+            src={currentUser?.avatar || darkAvatarImg}
             alt="Profile"
             className="fb-mobile-profile-avatar-img"
           />

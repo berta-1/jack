@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Play, Film } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import darkAvatarImg from '../assets/fb-user-dark-avatar.png';
 import { useAuth } from '../context/AuthContext';
 import { INITIAL_STORIES } from '../data/mockData';
@@ -86,14 +86,6 @@ export default function StoriesBar({ onCreateStory, onSelectStory, stories = INI
                   className="fb-story-bg-img"
                   loading="lazy"
                 />
-              )}
-
-              {/* Top-Right Video Story Indicator Badge */}
-              {isVideo && (
-                <div className="fb-story-video-badge" title="Video story">
-                  <Play size={10} color="#FFFFFF" fill="#FFFFFF" />
-                  <span>VIDEO</span>
-                </div>
               )}
 
               {/* Top-Left Circular Author Avatar with Blue Story Ring */}

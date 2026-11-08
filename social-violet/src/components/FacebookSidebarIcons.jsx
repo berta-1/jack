@@ -327,9 +327,9 @@ export function PlayGamesIcon() {
 /**
  * See More Icon: 36px gray circle with clean centered down chevron
  */
-export function SeeMoreIcon({ isExpanded = false }) {
+export function SeeMoreIcon({ isExpanded = false, size = 38 }) {
   return (
-    <svg width="36" height="36" viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
       <circle cx="18" cy="18" r="17.5" fill="#E4E6EB" />
       {isExpanded ? (
         <path
@@ -403,7 +403,7 @@ export function FacebookFeelingSmileyIcon({ size = 24 }) {
 }
 
 /**
- * Facebook Navbar Center Tab Icons (Pixel-perfect SVG vectors - 100% crisp at any resolution)
+ * Facebook Navbar Center Tab Icons (Pixel-perfect SVG vectors matching desktop Facebook navbar)
  */
 export function FacebookNavbarHomeIcon({ active = false, size = 28 }) {
   if (active) {
@@ -415,7 +415,7 @@ export function FacebookNavbarHomeIcon({ active = false, size = 28 }) {
         fill="#0866FF"
         style={{ display: 'block' }}
       >
-        <path d="M25.825 12.29C25.824 12.289 25.823 12.288 25.821 12.286L15.027 2.937C14.752 2.675 14.392 2.527 13.989 2.521C13.608 2.527 13.248 2.675 13.001 2.912L2.175 12.29C1.756 12.658 1.629 13.245 1.868 13.759C2.079 14.215 2.567 14.479 3.069 14.479L5 14.479L5 23.729C5 24.695 5.784 25.479 6.75 25.479L11 25.479C11.552 25.479 12 25.031 12 24.479L12 18.309C12 18.126 12.148 17.979 12.33 17.979L15.67 17.979C15.852 17.979 16 18.126 16 18.309L16 24.479C16 25.031 16.448 25.479 17 25.479L21.25 25.479C22.217 25.479 23 24.695 23 23.729L23 14.479L24.931 14.479C25.433 14.479 25.921 14.215 26.132 13.759C26.371 13.245 26.244 12.658 25.825 12.29" />
+        <path d="M12.6 2.3a2 2 0 0 1 2.8 0l9.8 9.1c.7.6 1.1 1.5 1.1 2.4v9.7c0 1.4-1.1 2.5-2.5 2.5h-4.2a1.2 1.2 0 0 1-1.2-1.2v-6.8a2.4 2.4 0 0 0-4.8 0v6.8c0 .7-.5 1.2-1.2 1.2H7.2A2.5 2.5 0 0 1 4.7 23.5V13.8c0-.9.4-1.8 1.1-2.4L12.6 2.3z" />
       </svg>
     );
   }
@@ -426,13 +426,12 @@ export function FacebookNavbarHomeIcon({ active = false, size = 28 }) {
       viewBox="0 0 28 28"
       fill="none"
       stroke="#65676B"
-      strokeWidth="2.4"
+      strokeWidth="2.3"
       strokeLinecap="round"
       strokeLinejoin="round"
       style={{ display: 'block' }}
     >
-      <path d="M3 13 L14 3 L25 13" />
-      <path d="M5.5 11.5 V24.5 a1 1 0 0 0 1 1 h4.5 v-6 a2 2 0 0 1 4 0 v6 h4.5 a1 1 0 0 0 1-1 V11.5" />
+      <path d="M12.6 2.5a2 2 0 0 1 2.8 0l9.8 9.1c.7.6 1.1 1.5 1.1 2.4v9.5c0 1.4-1.1 2.5-2.5 2.5h-4.2a1.2 1.2 0 0 1-1.2-1.2v-6.8a2.4 2.4 0 0 0-4.8 0v6.8c0 .7-.5 1.2-1.2 1.2H7.2A2.5 2.5 0 0 1 4.7 23.5V14c0-.9.4-1.8 1.1-2.4L12.6 2.5z" />
     </svg>
   );
 }
@@ -447,25 +446,68 @@ export function FacebookNavbarVideoIcon({ active = false, size = 28 }) {
       fill="none"
       style={{ display: 'block' }}
     >
-      {/* Outer rounded monitor frame */}
+      {/* Outer rounded clapper monitor frame */}
       <rect
         x="3"
         y="4"
         width="22"
         height="20"
-        rx="4.5"
+        rx="5"
         stroke={color}
-        strokeWidth="2.2"
-        fill={active ? '#0866FF15' : 'none'}
+        strokeWidth="2.3"
+        fill="none"
       />
-      {/* Clapperboard line */}
-      <line x1="3" y1="9.5" x2="25" y2="9.5" stroke={color} strokeWidth="2" />
-      {/* 3 top clapperboard diagonal slats */}
-      <line x1="7.5" y1="4" x2="9.5" y2="9.5" stroke={color} strokeWidth="2" strokeLinecap="round" />
-      <line x1="13" y1="4" x2="15" y2="9.5" stroke={color} strokeWidth="2" strokeLinecap="round" />
-      <line x1="18.5" y1="4" x2="20.5" y2="9.5" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      {/* Top dividing line */}
+      <line x1="3" y1="9.8" x2="25" y2="9.8" stroke={color} strokeWidth="2.3" />
+      {/* 2 diagonal slats */}
+      <line x1="9.5" y1="4" x2="8" y2="9.8" stroke={color} strokeWidth="2.3" strokeLinecap="round" />
+      <line x1="18.5" y1="4" x2="17" y2="9.8" stroke={color} strokeWidth="2.3" strokeLinecap="round" />
       {/* Play button triangle */}
-      <path d="M12 13 L17.5 16.5 L12 20 Z" fill={color} stroke="none" />
+      <polygon points="12,13.2 18,16.8 12,20.4" fill={color} />
+    </svg>
+  );
+}
+
+export function FacebookNavbarFriendsIcon({ active = false, size = 28 }) {
+  const color = active ? '#0866FF' : '#65676B';
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 28 28"
+      fill="none"
+      style={{ display: 'block' }}
+    >
+      {/* Back person (top-right) */}
+      <circle
+        cx="19.5"
+        cy="7.8"
+        r="3.8"
+        stroke={color}
+        strokeWidth="2.3"
+        fill="none"
+      />
+      <path
+        d="M17.8 15.2c2.4.5 4.8 1.8 5.7 4.5"
+        stroke={color}
+        strokeWidth="2.3"
+        strokeLinecap="round"
+      />
+      {/* Front person (bottom-left) */}
+      <circle
+        cx="10.2"
+        cy="11.2"
+        r="4.2"
+        stroke={color}
+        strokeWidth="2.3"
+        fill="none"
+      />
+      <path
+        d="M3.5 24.2c0-3.8 3.2-6.8 7.5-6.8s7.5 3 7.5 6.8"
+        stroke={color}
+        strokeWidth="2.3"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -478,24 +520,61 @@ export function FacebookNavbarGroupsIcon({ active = false, size = 28 }) {
       height={size}
       viewBox="0 0 28 28"
       fill="none"
-      stroke={color}
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
       style={{ display: 'block' }}
     >
-      {/* Foreground person (left) */}
-      <circle cx="10" cy="8.5" r="4.2" strokeWidth="2.2" fill={active ? color : 'none'} />
-      <path
-        d="M3.2 24.5 c0-4.6 3.6-7.5 7.3-7.5 s7.3 2.9 7.3 7.5"
-        strokeWidth="2.2"
-        fill={active ? color : 'none'}
+      {/* Outer circular ring */}
+      <circle
+        cx="14"
+        cy="14"
+        r="11.8"
+        stroke={color}
+        strokeWidth="2.3"
+        fill="none"
       />
-      {/* Background person (right) */}
-      <circle cx="18.8" cy="6.8" r="3.6" strokeWidth="2" fill={active ? color : 'none'} />
+      {/* Center person (front) */}
+      <circle
+        cx="14"
+        cy="10.2"
+        r="3.2"
+        stroke={color}
+        strokeWidth="2.2"
+        fill="none"
+      />
       <path
-        d="M16.8 15 c1.4-.7 3-1 4.5 0 c2.4 1.4 3.5 4 3.5 9.5"
-        strokeWidth="2"
+        d="M9.2 21.2c.8-3.4 2.8-5.2 4.8-5.2s4 1.8 4.8 5.2"
+        stroke={color}
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      {/* Left person (behind) */}
+      <circle
+        cx="7.2"
+        cy="12.5"
+        r="2.3"
+        stroke={color}
+        strokeWidth="2.1"
+        fill="none"
+      />
+      <path
+        d="M4.2 20.8c.6-2.5 2-4 3.8-4.2"
+        stroke={color}
+        strokeWidth="2.1"
+        strokeLinecap="round"
+      />
+      {/* Right person (behind) */}
+      <circle
+        cx="20.8"
+        cy="12.5"
+        r="2.3"
+        stroke={color}
+        strokeWidth="2.1"
+        fill="none"
+      />
+      <path
+        d="M23.8 20.8c-.6-2.5-2-4-3.8-4.2"
+        stroke={color}
+        strokeWidth="2.1"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -555,6 +634,188 @@ export function FacebookBellIcon({ size = 22, color = 'currentColor' }) {
       {/* Official Facebook Notification Bell without top loop (Exact match to screenshot) */}
       <path d="M12 2.6C7.2 2.6 4.5 6.5 4.5 12.2c0 2.2-.6 3.6-1.5 4.7-.4.5-.1 1.1.5 1.1h17c.6 0 .9-.6.5-1.1-.9-1.1-1.5-2.5-1.5-4.7 0-5.7-2.7-9.6-7-9.6z" />
       <path d="M9.8 20.2c.5 1.4 1.3 2 2.2 2s1.7-.6 2.2-2H9.8z" />
+    </svg>
+  );
+}
+
+/**
+ * Facebook Expanded Sidebar Icons (Exact vectors matching web.facebook.com)
+ */
+
+export function BirthdaysIcon({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="fbBdayBox" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#1DA1F2" />
+          <stop offset="100%" stopColor="#0077E6" />
+        </linearGradient>
+        <linearGradient id="fbBdayRibbon" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FF3B30" />
+          <stop offset="100%" stopColor="#E0242B" />
+        </linearGradient>
+      </defs>
+      {/* Blue Gift Box Container */}
+      <rect x="5.5" y="14" width="25" height="17" rx="3" fill="url(#fbBdayBox)" />
+      {/* Overhanging Box Lid */}
+      <rect x="4" y="11" width="28" height="5.5" rx="2" fill="#38B6FF" />
+      {/* Vertical Red Ribbon */}
+      <rect x="15.5" y="11" width="5" height="20" fill="url(#fbBdayRibbon)" />
+      {/* Red Bow on Top */}
+      <path
+        d="M18 11.5 C16 7 9 7 10.5 9.8 C11.8 12 16.5 11.5 18 11.5 Z"
+        fill="#FF3B30"
+      />
+      <path
+        d="M18 11.5 C20 7 27 7 25.5 9.8 C24.2 12 19.5 11.5 18 11.5 Z"
+        fill="#FF3B30"
+      />
+      {/* Center Ribbon Knot */}
+      <circle cx="18" cy="11.5" r="2.2" fill="#E0242B" />
+    </svg>
+  );
+}
+
+export function GamingVideoIcon({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="fbGamingCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00E5FF" />
+          <stop offset="100%" stopColor="#0080FF" />
+        </linearGradient>
+        <linearGradient id="fbGamingBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0072FF" />
+          <stop offset="100%" stopColor="#0047B3" />
+        </linearGradient>
+      </defs>
+      {/* Official Facebook Gaming 'G' monogram */}
+      <path
+        d="M5 5.5 C5 4.5 5.8 4 6.8 4 H28.5 C29.5 4 30.5 5 30.5 6 V14 C30.5 15 29.5 15.5 28.5 15.5 H15 V22.5 C15 23.5 14 24.5 13 24.5 H6.8 C5.8 24.5 5 23.5 5 22.5 Z"
+        fill="url(#fbGamingCyan)"
+      />
+      <path
+        d="M17 18 C17 17 17.8 16.5 18.8 16.5 H30.5 C31.5 16.5 32 17.5 32 18.5 V30.5 C32 31.5 31.2 32 30.2 32 H11.8 C10.8 32 10 31.2 10 30.2 V25.5 H21 C22 25.5 22.5 24.5 22.5 23.5 V18 Z"
+        fill="url(#fbGamingBlue)"
+      />
+    </svg>
+  );
+}
+
+export function SidebarMessengerIcon({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="fbSideMessBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00A3FF" />
+          <stop offset="100%" stopColor="#0066FF" />
+        </linearGradient>
+      </defs>
+      <circle cx="18" cy="18" r="16.5" fill="url(#fbSideMessBlue)" />
+      {/* Center White Lightning Bolt */}
+      <path
+        d="M19.8 10 L11 20.8 L16.8 20.8 L15.2 26 L24 15.2 L18.2 15.2 Z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
+
+export function MessengerKidsIcon({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="fbKidsLime" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#A6E22E" />
+          <stop offset="40%" stopColor="#3CD070" />
+          <stop offset="100%" stopColor="#00C5E0" />
+        </linearGradient>
+      </defs>
+      <circle cx="18" cy="17" r="15" fill="url(#fbKidsLime)" />
+      <polygon points="9,27 15,25 12,21" fill="url(#fbKidsLime)" />
+      {/* Friendly White Curved Smile */}
+      <path
+        d="M12.5 15.5 C14.2 21.5 21.8 21.5 23.5 15.5"
+        fill="none"
+        stroke="#FFFFFF"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function OrdersAndPaymentsIcon({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="fbCardNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#253A60" />
+          <stop offset="100%" stopColor="#121F38" />
+        </linearGradient>
+      </defs>
+      <g transform="translate(18,18) rotate(-18) translate(-18,-18)">
+        <rect x="4.5" y="8" width="27" height="19" rx="3.5" fill="url(#fbCardNavy)" stroke="#3B82F6" strokeWidth="0.8" />
+        <line x1="4.5" y1="13" x2="31.5" y2="13" stroke="#0B1320" strokeWidth="2.5" />
+        {/* Golden EMV Chip */}
+        <rect x="8" y="17.5" width="5.5" height="4.5" rx="1.2" fill="#FBBF24" />
+        {/* Subtle Dots */}
+        <circle cx="16.5" cy="20" r="0.9" fill="#94A3B8" />
+        <circle cx="19.5" cy="20" r="0.9" fill="#94A3B8" />
+        <circle cx="22.5" cy="20" r="0.9" fill="#94A3B8" />
+        <circle cx="25.5" cy="20" r="0.9" fill="#94A3B8" />
+      </g>
+    </svg>
+  );
+}
+
+export function PagesIcon({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="fbPagesOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FF961F" />
+          <stop offset="50%" stopColor="#FF6A38" />
+          <stop offset="100%" stopColor="#F14A1C" />
+        </linearGradient>
+      </defs>
+      {/* Silver Flagpole */}
+      <line x1="8.5" y1="4" x2="8.5" y2="32" stroke="#8D949E" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="8.5" cy="4.5" r="1.8" fill="#8D949E" />
+      {/* Waving Orange Pennant */}
+      <path
+        d="M9.5 6.5 C15.5 4.5 20.5 8.5 27.5 6.5 L26 19 C20 21 14.5 17 9.5 19 Z"
+        fill="url(#fbPagesOrange)"
+      />
+    </svg>
+  );
+}
+
+export function YourAdActivityIcon({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" style={{ display: 'block', flexShrink: 0 }}>
+      <defs>
+        <linearGradient id="fbAdActBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#2E89FF" />
+          <stop offset="100%" stopColor="#0866FF" />
+        </linearGradient>
+      </defs>
+      {/* Rounded Blue Card */}
+      <rect x="4" y="6" width="28" height="24" rx="4.5" fill="url(#fbAdActBlue)" />
+      {/* White Framed Photo Window */}
+      <rect x="7.5" y="9.5" width="21" height="17" rx="2.5" fill="#FFFFFF" />
+      {/* Yellow Sun */}
+      <circle cx="23.5" cy="13.5" r="2.2" fill="#F7B125" />
+      {/* Mountain Silhouettes */}
+      <path
+        d="M8.5 24.5 L14 17 L17.5 21 L20 18 L27.5 24.5 Z"
+        fill="#1877F2"
+      />
+      <path
+        d="M17.5 21 L19.5 18.5 L23 22 L27.5 24.5 L14 24.5 Z"
+        fill="#0052CC"
+        opacity="0.8"
+      />
     </svg>
   );
 }

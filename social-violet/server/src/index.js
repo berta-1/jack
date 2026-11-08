@@ -20,9 +20,9 @@ app.use(
   })
 );
 
-// Body parsing middleware
-app.use(express.json({ limit: '15mb' }));
-app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+// Body parsing middleware (allow video data payloads up to 100mb)
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Health Check
 app.get('/api/health', (req, res) => {

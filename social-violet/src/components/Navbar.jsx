@@ -11,6 +11,7 @@ import {
   FacebookOfficialLogo,
   FacebookNavbarHomeIcon,
   FacebookNavbarVideoIcon,
+  FacebookNavbarFriendsIcon,
   FacebookNavbarGroupsIcon,
   FacebookNavbarGamingIcon,
   FacebookMenuGridIcon,
@@ -62,7 +63,7 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Center: Main Navigation Tabs */}
+        {/* Center: Main Navigation Tabs (Home, Video, Friends, Groups) matching desktop Facebook */}
         <nav className="header-center">
           <button
             className={`nav-tab ${activeTab === 'home' ? 'active' : ''}`}
@@ -81,19 +82,19 @@ export default function Navbar({
           </button>
 
           <button
-            className={`nav-tab ${activeTab === 'groups' ? 'active' : ''}`}
-            onClick={() => setActiveTab('groups')}
-            title="Groups"
+            className={`nav-tab ${activeTab === 'friends' ? 'active' : ''}`}
+            onClick={() => setActiveTab('friends')}
+            title="Friends"
           >
-            <FacebookNavbarGroupsIcon active={activeTab === 'groups'} size={28} />
+            <FacebookNavbarFriendsIcon active={activeTab === 'friends'} size={28} />
           </button>
 
           <button
-            className={`nav-tab ${activeTab === 'gaming' ? 'active' : ''}`}
-            onClick={() => setActiveTab('gaming')}
-            title="Gaming"
+            className={`nav-tab ${activeTab === 'groups' || activeTab === 'account' ? 'active' : ''}`}
+            onClick={() => setActiveTab('groups')}
+            title="Groups"
           >
-            <FacebookNavbarGamingIcon active={activeTab === 'gaming'} size={28} />
+            <FacebookNavbarGroupsIcon active={activeTab === 'groups' || activeTab === 'account'} size={28} />
           </button>
         </nav>
 

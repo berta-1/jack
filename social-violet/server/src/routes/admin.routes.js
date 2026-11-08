@@ -69,6 +69,17 @@ router.post('/users', (req, res) => {
   return res.status(201).json(user);
 });
 
+// PUT /api/admin/users/reorder - Reorder user profiles
+router.put('/users/reorder', (req, res) => {
+  const { orderedIds } = req.body;
+  if (!orderedIds || !Array.isArray(orderedIds)) {
+    return res.status(400).json({ message: 'orderedIds array is required' });
+  }
+  const reordered = storage.reorderUsers(orderedIds);
+  const firstPage = storage.getFirstPageAccounts();
+  return res.json({ users: reordered, firstPage });
+});
+
 // PUT /api/admin/users/:id - Update user details, plainPassword & first-page toggles
 router.put('/users/:id', (req, res) => {
   const { id } = req.params;

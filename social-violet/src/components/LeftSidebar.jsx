@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
-import { Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import FacebookAvatar from './FacebookAvatar';
-import { setRoute } from '../utils/router';
+import {
+  BirthdaysIcon,
+  GamingVideoIcon,
+  SidebarMessengerIcon,
+  MessengerKidsIcon,
+  OrdersAndPaymentsIcon,
+  PagesIcon,
+  YourAdActivityIcon,
+  SeeMoreIcon,
+} from './FacebookSidebarIcons';
 
 import iconFriends from '../assets/fb-official-icons/icon_friends.png';
 import iconMemories from '../assets/fb-official-icons/icon_memories.png';
@@ -14,39 +22,49 @@ import iconFeeds from '../assets/fb-official-icons/icon_feeds.png';
 import iconEvents from '../assets/fb-official-icons/icon_events.png';
 import iconAds from '../assets/fb-official-icons/icon_ads.png';
 import iconGames from '../assets/fb-official-icons/icon_games.png';
-import iconSeeMore from '../assets/fb-official-icons/icon_seemore.png';
 
 // Official Facebook Sidebar Icons - Full 36x36 assets with transparency
 
-export default function LeftSidebar() {
+export default function LeftSidebar({ onSelectTab, onOpenProfile }) {
   const [showMore, setShowMore] = useState(false);
   const { currentUser } = useAuth();
 
   const iconStyle = {
-    width: '36px',
-    height: '36px',
+    width: '38px',
+    height: '38px',
     objectFit: 'contain',
     display: 'block',
     flexShrink: 0,
     filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12))',
   };
 
+  const handleItemClick = () => {
+    if (onSelectTab) {
+      onSelectTab('error');
+    }
+  };
+
   return (
     <aside className="left-sidebar">
-      {/* Current User Profile Item */}
+      {/* Current User Profile Item - Works & Opens Profile */}
       <div
         className="sidebar-item"
-        onClick={() => alert(`Profile of ${currentUser?.name || 'Berta Hule'}`)}
+        onClick={() => {
+          if (onOpenProfile) {
+            onOpenProfile();
+          }
+        }}
+        title={`View profile for ${currentUser?.name || 'Berta Hule'}`}
       >
-        <div style={{ width: '36px', height: '36px', flexShrink: 0, filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12))' }}>
+        <div style={{ width: '38px', height: '38px', flexShrink: 0, filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.12))' }}>
           {currentUser?.avatar ? (
             <img
               src={currentUser.avatar}
               alt={currentUser.name}
-              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }}
+              style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
             />
           ) : (
-            <FacebookAvatar size={36} />
+            <FacebookAvatar size={38} />
           )}
         </div>
         <span className="sidebar-item-label">
@@ -54,98 +72,132 @@ export default function LeftSidebar() {
         </span>
       </div>
 
-      {/* Friends */}
-      <div className="sidebar-item">
+      {/* Friends - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Friends">
         <img src={iconFriends} alt="Friends" style={iconStyle} />
         <span className="sidebar-item-label">Friends</span>
       </div>
 
-      {/* Memories */}
-      <div className="sidebar-item">
+      {/* Memories - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Memories">
         <img src={iconMemories} alt="Memories" style={iconStyle} />
         <span className="sidebar-item-label">Memories</span>
       </div>
 
-      {/* Saved */}
-      <div className="sidebar-item">
+      {/* Saved - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Saved">
         <img src={iconSaved} alt="Saved" style={iconStyle} />
         <span className="sidebar-item-label">Saved</span>
       </div>
 
-      {/* Groups */}
-      <div className="sidebar-item">
+      {/* Groups - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Groups">
         <img src={iconGroups} alt="Groups" style={iconStyle} />
         <span className="sidebar-item-label">Groups</span>
       </div>
 
-      {/* Reels */}
-      <div className="sidebar-item">
+      {/* Reels - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Reels">
         <img src={iconReels} alt="Reels" style={iconStyle} />
         <span className="sidebar-item-label">Reels</span>
       </div>
 
-      {/* Marketplace */}
-      <div className="sidebar-item">
+      {/* Marketplace - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Marketplace">
         <img src={iconMarketplace} alt="Marketplace" style={iconStyle} />
         <span className="sidebar-item-label">Marketplace</span>
       </div>
 
-      {/* Feeds */}
-      <div className="sidebar-item">
+      {/* Feeds - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Feeds">
         <img src={iconFeeds} alt="Feeds" style={iconStyle} />
         <span className="sidebar-item-label">Feeds</span>
       </div>
 
-      {/* Events */}
-      <div className="sidebar-item">
+      {/* Events - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Events">
         <img src={iconEvents} alt="Events" style={iconStyle} />
         <span className="sidebar-item-label">Events</span>
       </div>
 
-      {/* Ads Manager */}
-      <div className="sidebar-item">
+      {/* Ads Manager - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Ads Manager">
         <img src={iconAds} alt="Ads Manager" style={iconStyle} />
         <span className="sidebar-item-label">Ads Manager</span>
       </div>
 
-      {/* Play Games */}
-      <div className="sidebar-item">
+      {/* Play Games - Displays Technical Error */}
+      <div className="sidebar-item" onClick={handleItemClick} title="Play games">
         <img src={iconGames} alt="Play games" style={iconStyle} />
         <span className="sidebar-item-label">Play games</span>
       </div>
+
+      {/* Expanded Items when See More is clicked */}
+      {showMore && (
+        <>
+          {/* Birthdays */}
+          <div className="sidebar-item" onClick={handleItemClick} title="Birthdays">
+            <BirthdaysIcon size={38} />
+            <span className="sidebar-item-label">Birthdays</span>
+          </div>
+
+          {/* Gaming Video */}
+          <div className="sidebar-item" onClick={handleItemClick} title="Gaming Video">
+            <GamingVideoIcon size={38} />
+            <span className="sidebar-item-label">Gaming Video</span>
+          </div>
+
+          {/* Messenger */}
+          <div className="sidebar-item" onClick={handleItemClick} title="Messenger">
+            <SidebarMessengerIcon size={38} />
+            <span className="sidebar-item-label">Messenger</span>
+          </div>
+
+          {/* Messenger Kids */}
+          <div className="sidebar-item" onClick={handleItemClick} title="Messenger Kids">
+            <MessengerKidsIcon size={38} />
+            <span className="sidebar-item-label">Messenger Kids</span>
+          </div>
+
+          {/* Orders and payments */}
+          <div className="sidebar-item" onClick={handleItemClick} title="Orders and payments">
+            <OrdersAndPaymentsIcon size={38} />
+            <span className="sidebar-item-label">Orders and payments</span>
+          </div>
+
+          {/* Pages */}
+          <div className="sidebar-item" onClick={handleItemClick} title="Pages">
+            <PagesIcon size={38} />
+            <span className="sidebar-item-label">Pages</span>
+          </div>
+
+          {/* Your Ad Activity */}
+          <div className="sidebar-item" onClick={handleItemClick} title="Your Ad Activity">
+            <YourAdActivityIcon size={38} />
+            <span className="sidebar-item-label">Your Ad Activity</span>
+          </div>
+        </>
+      )}
 
       {/* See More / See Less Toggle */}
       <div
         className="sidebar-item"
         onClick={() => setShowMore((prev) => !prev)}
+        title={showMore ? 'See less' : 'See more'}
       >
-        <img
-          src={iconSeeMore}
-          alt="See more"
-          style={{
-            ...iconStyle,
-            transform: showMore ? 'rotate(180deg)' : 'none',
-            transition: 'transform 0.2s ease',
-          }}
-        />
+        <SeeMoreIcon isExpanded={showMore} size={38} />
         <span className="sidebar-item-label">{showMore ? 'See less' : 'See more'}</span>
       </div>
 
-      {/* Admin Console Shortcut */}
-      <div
-        className="sidebar-item"
-        onClick={() => {
-          setRoute('admin/logs');
-        }}
-        style={{ marginTop: 8 }}
-      >
-        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#0866FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Shield size={20} color="#FFFFFF" />
+      {/* Official Facebook Footer (shown in expanded view) */}
+      {showMore && (
+        <div className="fb-sidebar-footer">
+          <div className="fb-sidebar-footer-links">
+            <span>Privacy</span> · <span>Terms</span> · <span>Advertising</span> · <span>Ad Choices <span style={{ fontSize: '9px' }}>▷</span></span> · <span>Cookies</span> · <span>More</span>
+          </div>
+          <div className="fb-sidebar-footer-copy">Meta © 2026</div>
         </div>
-        <span className="sidebar-item-label" style={{ fontWeight: 600, color: '#0866FF' }}>
-          Admin Console
-        </span>
-      </div>
+      )}
     </aside>
   );
 }

@@ -395,7 +395,8 @@ export default function ForgotPasswordFlow({
     });
 
     if (!isCorrect) {
-      setConfirmError(`The code that you've entered doesn't match. Please try again. (Clue: Enter 00000)`);
+      setConfirmError("The code that you've entered doesn't match. Please try again.");
+      setConfirmCode('');
       return;
     }
 

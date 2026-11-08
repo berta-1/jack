@@ -232,8 +232,18 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
         </div>
       )}
 
-      {/* Single Media (Image) */}
-      {post.media && post.media.length > 0 && (
+      {/* Video Post Media */}
+      {(post.videoUrl || (post.media && post.media.length > 0 && post.media[0].type === 'video')) ? (
+        <div className="post-media-container" style={{ background: '#000000', overflow: 'hidden' }}>
+          <video
+            src={post.videoUrl || post.media[0].url}
+            poster={post.media?.[0]?.poster || (post.media?.[0]?.type === 'image' ? post.media[0].url : undefined)}
+            controls
+            playsInline
+            style={{ width: '100%', maxHeight: '550px', display: 'block', margin: '0 auto', background: '#000000' }}
+          />
+        </div>
+      ) : post.media && post.media.length > 0 ? (
         <div className={`post-media-container ${post.media[0].isAlijomaCrop ? 'alijoma-crop-container' : ''}`}>
           <img
             src={post.media[0].url}
@@ -241,7 +251,7 @@ export default function PostCard({ post, onUpdateReaction, onAddComment }) {
             className={`post-media-img ${post.media[0].isAlijomaCrop ? 'alijoma-crop-img' : ''}`}
           />
         </div>
-      )}
+      ) : null}
 
       {/* Engagement Stats Bar */}
       <div className="post-stats-row">

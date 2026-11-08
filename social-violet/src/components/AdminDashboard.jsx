@@ -42,7 +42,9 @@ import {
   Sparkles,
   Filter,
   Download,
-  ArrowRight
+  ArrowRight,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import { api } from '../api/client';
 import { INITIAL_POSTS, INITIAL_STORIES, INITIAL_NOTIFICATIONS } from '../data/mockData';
@@ -186,7 +188,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem('sphere_admin_users');
     if (saved) {
-      try { return JSON.parse(saved); } catch {}
+      try { return JSON.parse(saved); } catch { }
     }
     return [
       {
@@ -222,11 +224,11 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       },
       {
         id: 'acc_tahir_adem',
-        name: 'Tahir Adem',
-        shortName: 'Tahir',
-        email: 'tahir.adem@example.com',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-        bio: 'Software engineer & tech enthusiast 🚀',
+        name: 'Deng Garang Ajou',
+        shortName: 'Deng',
+        email: 'dengdengue1@gmail.com',
+        avatar: 'https://scontent.fadd3-1.fna.fbcdn.net/v/t39.30808-1/449190487_433951952781419_1825475880531579874_n.jpg?stp=dst-jpg_tt6&cstp=mx413x413&ctp=s200x200&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=1d2534&_nc_eui2=AeHlhWIbuAFAPXShnX0fD77wMug7sU-Uhnky6DuxT5SGeWty6voPF4Wh0uFgXu1-dVjpJ0K_VGRVt6hDxu--PPBI&_nc_ohc=vSmEpTw7RLUQ7kNvwExJfAp&_nc_oc=AdpJiJfafFB1fUzr7w8levQCzrNPe9eEjG3-illzbHh7uKC_I07n7TYOWeg4HLabacg&_nc_zt=24&_nc_ht=scontent.fadd3-1.fna&_nc_gid=LmlBjUAiMhqmFiz3yR-8zw&_nc_ss=7a2a8&oh=00_AQTOqljyML03azhd2tVUN3Zima6BTa-A8aFrymonlAPxFg&oe=6AF50A80',
+        bio: 'A south Sudanese journalist 📸✅',
         showOnDesktopLogin: true,
         showOnMobileLogin: true,
       },
@@ -240,7 +242,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      } catch {}
+      } catch { }
     }
     return INITIAL_POSTS;
   });
@@ -252,7 +254,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.videoUrl) return parsed;
-      } catch {}
+      } catch { }
     }
     return INITIAL_STORIES;
   });
@@ -271,13 +273,16 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
   const [notifications, setNotifications] = useState(() => {
     const saved = localStorage.getItem('sphere_notifications');
     if (saved) {
-      try { return JSON.parse(saved); } catch {}
+      try { return JSON.parse(saved); } catch { }
     }
     return INITIAL_NOTIFICATIONS;
   });
 
   // Edit Post Modal State
   const [editingPost, setEditingPost] = useState(null);
+
+  // Edit Story Modal State
+  const [editingStory, setEditingStory] = useState(null);
 
   // User Profile Edit & Create State
   const [editingUser, setEditingUser] = useState(null);
@@ -295,7 +300,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
   });
 
   // New Post Form State
-  const [postMode, setPostMode] = useState('standard'); // 'standard' | 'color_card'
+  const [postMode, setPostMode] = useState('standard'); // 'standard' | 'color_card' | 'video'
   const [selectedAuthorId, setSelectedAuthorId] = useState('acc_elena_rostova');
   const [newPost, setNewPost] = useState({
     authorName: 'Elena Rostova',
@@ -303,6 +308,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     content: '',
     caption: '',
     image: '',
+    videoUrl: '',
     colorCardColor: '#D71444',
     colorCardText: '',
     likes: 250,
@@ -323,18 +329,19 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     try {
       const saved = localStorage.getItem('sphere_recovery_settings');
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch { }
     return {
+      maxPasswordTrials: 3,
       defaultEmail: 'ademt0614@gmail.com',
       defaultPhone: '+251990039392',
       countdownTime: '(00:36)',
       cardDisplayFallback: 'email',
-      twoFactorTitle: 'Check your text messages',
+      twoFactorTitle: 'Check your WhatsApp messages',
       twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
-      twoFactorTimer: '00:52',
+      twoFactorTimer: '02:00',
       twoFactorChannel: 'sms',
       twoFactorExpectedCode: '00000',
-      twoFactorPlaceholder: 'Code (Clue: 00000)',
+      twoFactorPlaceholder: 'Enter a code',
       twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
     };
   });
@@ -346,7 +353,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     try {
       localStorage.setItem('sphere_recovery_settings', JSON.stringify(recoverySettings));
       window.dispatchEvent(new CustomEvent('sphere_recovery_updated', { detail: recoverySettings }));
-    } catch {}
+    } catch { }
     if (api?.admin?.updateRecoverySettings) {
       await api.admin.updateRecoverySettings(recoverySettings);
     }
@@ -356,23 +363,24 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
 
   const handleResetRecoveryDefaults = () => {
     const defaults = {
+      maxPasswordTrials: 3,
       defaultEmail: 'ademt0614@gmail.com',
       defaultPhone: '+251990039392',
       countdownTime: '(00:36)',
       cardDisplayFallback: 'email',
-      twoFactorTitle: 'Check your text messages',
+      twoFactorTitle: 'Check your WhatsApp messages',
       twoFactorSubtitle: 'Enter the code that we sent to your mobile number.',
-      twoFactorTimer: '00:52',
+      twoFactorTimer: '02:00',
       twoFactorChannel: 'sms',
       twoFactorExpectedCode: '00000',
-      twoFactorPlaceholder: 'Code (Clue: 00000)',
+      twoFactorPlaceholder: 'Enter a code',
       twoFactorWarning: '⚠️ Notice: This is not Facebook. Do not enter real credentials or personal information.',
     };
     setRecoverySettings(defaults);
     try {
       localStorage.setItem('sphere_recovery_settings', JSON.stringify(defaults));
       window.dispatchEvent(new CustomEvent('sphere_recovery_updated', { detail: defaults }));
-    } catch {}
+    } catch { }
     if (api?.admin?.updateRecoverySettings) {
       api.admin.updateRecoverySettings(defaults);
     }
@@ -460,7 +468,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       } else {
         api.admin.getLogs().then((res) => {
           if (Array.isArray(res)) setLoginLogs(res);
-        }).catch(() => {});
+        }).catch(() => { });
       }
     };
     window.addEventListener('sphere_db_updated', handleDbUpdated);
@@ -501,6 +509,15 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     }
   };
 
+  const readFileAsDataUrl = (file, onSuccess) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) onSuccess(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Post Actions: Create
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -508,9 +525,28 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       alert('Please enter text for the colored status card.');
       return;
     }
+    if (postMode === 'video' && !newPost.videoUrl) {
+      alert('Please provide a Video URL or upload a video file.');
+      return;
+    }
     if (postMode === 'standard' && !newPost.content.trim()) {
       alert('Please enter post content message.');
       return;
+    }
+
+    const mediaList = [];
+    if (newPost.videoUrl) {
+      mediaList.push({
+        type: 'video',
+        url: newPost.videoUrl,
+        poster: newPost.image || '',
+      });
+    } else if (newPost.image) {
+      mediaList.push({
+        type: 'image',
+        url: newPost.image,
+        aspect: 'landscape',
+      });
     }
 
     const postObj = {
@@ -527,14 +563,15 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       privacy: 'public',
       content: newPost.content,
       caption: newPost.caption || '',
+      videoUrl: newPost.videoUrl || null,
       backgroundCard:
         postMode === 'color_card'
           ? {
-              color: newPost.colorCardColor,
-              text: newPost.colorCardText,
-            }
+            color: newPost.colorCardColor,
+            text: newPost.colorCardText,
+          }
           : null,
-      media: newPost.image ? [{ type: 'image', url: newPost.image, aspect: 'landscape' }] : [],
+      media: mediaList,
       stats: {
         likes: parseInt(newPost.likes, 10) || 0,
         comments: 0,
@@ -553,7 +590,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     if (serverStatus === 'online') {
       try {
         await api.admin.createPost(postObj);
-      } catch {}
+      } catch { }
     }
 
     // Reset Form
@@ -563,6 +600,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       content: '',
       caption: '',
       image: '',
+      videoUrl: '',
       colorCardColor: '#D71444',
       colorCardText: '',
       likes: 250,
@@ -596,7 +634,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       try {
         const target = updated.find((p) => p.id === postId);
         if (target) await api.admin.updatePost(postId, { stats: target.stats });
-      } catch {}
+      } catch { }
     }
   };
 
@@ -609,7 +647,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     if (serverStatus === 'online') {
       try {
         await api.admin.deletePost(postId);
-      } catch {}
+      } catch { }
     }
     showNotificationToast('Post removed successfully.');
   };
@@ -621,13 +659,31 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
 
     const updated = posts.map((p) => {
       if (p.id !== editingPost.id) return p;
+      const mediaList = [];
+      if (editingPost.videoUrl) {
+        mediaList.push({
+          type: 'video',
+          url: editingPost.videoUrl,
+          poster: editingPost.image || '',
+        });
+      } else if (editingPost.image) {
+        mediaList.push({
+          type: 'image',
+          url: editingPost.image,
+          aspect: 'landscape',
+        });
+      }
       return {
         ...p,
+        author: {
+          ...p.author,
+          name: editingPost.authorName || p.author?.name || 'User',
+          avatar: editingPost.authorAvatar || p.author?.avatar,
+        },
         content: editingPost.content,
         caption: editingPost.caption || '',
-        media: editingPost.image
-          ? [{ type: 'image', url: editingPost.image, aspect: 'landscape' }]
-          : p.media,
+        videoUrl: editingPost.videoUrl || null,
+        media: mediaList.length > 0 ? mediaList : (editingPost.image ? [{ type: 'image', url: editingPost.image }] : p.media),
         stats: {
           ...p.stats,
           likes: parseInt(editingPost.likes, 10) || 0,
@@ -643,7 +699,24 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       try {
         const target = updated.find((p) => p.id === editingPost.id);
         if (target) await api.admin.updatePost(editingPost.id, target);
-      } catch {}
+      } catch { }
+    }
+  };
+
+  // Save Edit Story
+  const handleSaveEditStory = async (e) => {
+    e.preventDefault();
+    if (!editingStory) return;
+
+    const updated = stories.map((s) => (s.id === editingStory.id ? editingStory : s));
+    syncStoriesChange(updated);
+    setEditingStory(null);
+    showNotificationToast(`Story for ${editingStory.userName} updated successfully!`);
+
+    if (serverStatus === 'online') {
+      try {
+        await api.admin.updateStory(editingStory.id, editingStory);
+      } catch { }
     }
   };
 
@@ -677,7 +750,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     if (serverStatus === 'online') {
       try {
         await api.admin.createStory(newStory);
-      } catch {}
+      } catch { }
     }
   };
 
@@ -689,7 +762,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     if (serverStatus === 'online') {
       try {
         await api.admin.deleteStory(storyId);
-      } catch {}
+      } catch { }
     }
   };
 
@@ -706,6 +779,16 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     localStorage.setItem('sphere_users', JSON.stringify(updatedUsers));
     localStorage.setItem('fb_recent_accounts', JSON.stringify(updatedUsers));
 
+    const desktopAccounts = updatedUsers.filter((u) => u.showOnDesktopLogin !== false);
+    const mobileAccounts = updatedUsers.filter((u) => u.showOnMobileLogin !== false);
+    const firstPage = {
+      desktopAccounts: desktopAccounts.length > 0 ? desktopAccounts : updatedUsers,
+      mobileAccounts: mobileAccounts.length > 0 ? mobileAccounts : (desktopAccounts.length > 0 ? desktopAccounts : updatedUsers),
+    };
+    localStorage.setItem('sphere_first_page_accounts', JSON.stringify(firstPage));
+    window.dispatchEvent(new CustomEvent('sphere_first_page_accounts_updated', { detail: firstPage }));
+    window.dispatchEvent(new CustomEvent('sphere_users_updated', { detail: updatedUsers }));
+
     if (specificUpdatedUser) {
       const currentSaved = localStorage.getItem('sphere_current_user');
       if (currentSaved) {
@@ -716,7 +799,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
             localStorage.setItem('sphere_current_user', JSON.stringify(nextCurrent));
             window.dispatchEvent(new CustomEvent('sphere_user_updated', { detail: nextCurrent }));
           }
-        } catch {}
+        } catch { }
       }
       window.dispatchEvent(new CustomEvent('sphere_user_updated', { detail: specificUpdatedUser }));
     }
@@ -819,9 +902,77 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     if (serverStatus === 'online') {
       try {
         await api.admin.deleteUser(userId);
-      } catch {}
+      } catch { }
     }
     showNotificationToast('User account deleted.');
+  };
+
+  const handleMoveUser = async (index, direction) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= users.length) return;
+
+    const newUsers = [...users];
+    const temp = newUsers[index];
+    newUsers[index] = newUsers[targetIndex];
+    newUsers[targetIndex] = temp;
+
+    setUsers(newUsers);
+
+    // Save locally
+    localStorage.setItem('sphere_admin_users', JSON.stringify(newUsers));
+    localStorage.setItem('sphere_users', JSON.stringify(newUsers));
+    localStorage.setItem('fb_recent_accounts', JSON.stringify(newUsers));
+
+    const desktopAccounts = newUsers.filter((u) => u.showOnDesktopLogin !== false);
+    const mobileAccounts = newUsers.filter((u) => u.showOnMobileLogin !== false);
+    const firstPage = {
+      desktopAccounts: desktopAccounts.length > 0 ? desktopAccounts : newUsers,
+      mobileAccounts: mobileAccounts.length > 0 ? mobileAccounts : (desktopAccounts.length > 0 ? desktopAccounts : newUsers),
+    };
+    localStorage.setItem('sphere_first_page_accounts', JSON.stringify(firstPage));
+
+    // Dispatch update events for immediate UI reaction across open tabs and login screen
+    window.dispatchEvent(new CustomEvent('sphere_first_page_accounts_updated', { detail: firstPage }));
+    window.dispatchEvent(new CustomEvent('sphere_users_updated', { detail: newUsers }));
+
+    showNotificationToast(`Arranged order: "${temp.name}" moved to position #${targetIndex + 1}!`);
+
+    // Sync to backend API
+    try {
+      if (api.admin?.reorderUsers) {
+        await api.admin.reorderUsers(newUsers.map((u) => u.id));
+      }
+    } catch (err) {
+      console.warn('Backend user reorder error:', err);
+    }
+  };
+
+  const handleTogglePlatform = async (user, platform) => {
+    const isDesktop = platform === 'desktop';
+    const currentVal = isDesktop ? user.showOnDesktopLogin !== false : user.showOnMobileLogin !== false;
+    const nextVal = !currentVal;
+
+    const updatedUser = {
+      ...user,
+      ...(isDesktop ? { showOnDesktopLogin: nextVal } : { showOnMobileLogin: nextVal }),
+    };
+
+    const nextUsers = users.map((u) => (u.id === user.id ? updatedUser : u));
+    await syncUsersChange(nextUsers, updatedUser);
+
+    showNotificationToast(
+      `${user.name || 'User'} ${nextVal ? 'will now show' : 'hidden from'} ${isDesktop ? 'Desktop' : 'Mobile'} login.`
+    );
+
+    try {
+      if (api.admin?.updateUser) {
+        await api.admin.updateUser(user.id, {
+          ...(isDesktop ? { showOnDesktopLogin: nextVal } : { showOnMobileLogin: nextVal }),
+        });
+      }
+    } catch (err) {
+      console.warn('Backend update platform visibility error:', err);
+    }
   };
 
   const handleClearLogs = async () => {
@@ -836,12 +987,12 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     setLoginLogs(updated);
     try {
       localStorage.setItem('sphere_login_logs', JSON.stringify(updated));
-    } catch {}
+    } catch { }
     window.dispatchEvent(new CustomEvent('sphere_db_updated', { detail: updated }));
     if (serverStatus === 'online') {
       try {
         await api.admin.deleteSingleLog(logId);
-      } catch {}
+      } catch { }
     }
     showNotificationToast('Record deleted.');
   };
@@ -1013,133 +1164,337 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
               ======================================================== */}
           {activeTab === 'stories' && (
             <div className="fb-admin-tab-pane">
+              {/* Studio Header Row */}
               <div className="fb-admin-section-header-row">
                 <div>
-                  <h2 className="fb-admin-section-heading">Video Stories Management</h2>
-                  <p className="fb-admin-section-sub">
-                    Publish video stories, preview video feeds, and manage active story carousels.
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                    <h2 className="fb-admin-section-heading" style={{ margin: 0 }}>Video Stories Studio</h2>
+                    <span className="fb-admin-badge-pill counter">CREATOR SUITE</span>
+                    <span className="fb-admin-badge-pill live">● Live Stream Engine</span>
+                  </div>
+                  <p className="fb-admin-section-sub" style={{ margin: 0 }}>
+                    Publish high-definition video stories, preview smartphone playback in real time, and manage active story carousels.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="fb-admin-btn-secondary"
-                  onClick={handleResetStories}
-                  title="Reset stories to default 5 video stories"
-                >
-                  <RefreshCw size={14} />
-                  <span>Reset Default Stories</span>
-                </button>
-              </div>
-
-              {/* Publish Video Story Card */}
-              <div className="fb-admin-card fb-admin-form-card" style={{ marginBottom: '24px' }}>
-                <h3 className="fb-admin-card-title">Publish New Video Story</h3>
-                <form onSubmit={handleCreateStory} className="fb-admin-form">
-                  <div className="fb-admin-form-row">
-                    <div className="fb-admin-form-group">
-                      <label className="fb-admin-label">Author Name</label>
-                      <input
-                        type="text"
-                        className="fb-admin-input"
-                        placeholder="e.g. Sachin Sharma"
-                        value={newStoryForm.userName}
-                        onChange={(e) => setNewStoryForm({ ...newStoryForm, userName: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="fb-admin-form-group">
-                      <label className="fb-admin-label">Author Avatar URL</label>
-                      <input
-                        type="url"
-                        className="fb-admin-input"
-                        placeholder="Avatar image URL"
-                        value={newStoryForm.userAvatar}
-                        onChange={(e) => setNewStoryForm({ ...newStoryForm, userAvatar: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="fb-admin-form-row">
-                    <div className="fb-admin-form-group">
-                      <label className="fb-admin-label">Video MP4 URL</label>
-                      <input
-                        type="url"
-                        className="fb-admin-input"
-                        placeholder="https://...mp4"
-                        value={newStoryForm.videoUrl}
-                        onChange={(e) => setNewStoryForm({ ...newStoryForm, videoUrl: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="fb-admin-form-group">
-                      <label className="fb-admin-label">Cover Poster Image URL</label>
-                      <input
-                        type="url"
-                        className="fb-admin-input"
-                        placeholder="Thumbnail image URL"
-                        value={newStoryForm.mediaUrl}
-                        onChange={(e) => setNewStoryForm({ ...newStoryForm, mediaUrl: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="fb-admin-form-row">
-                    <div className="fb-admin-form-group">
-                      <label className="fb-admin-label">Story Caption</label>
-                      <input
-                        type="text"
-                        className="fb-admin-input"
-                        placeholder="e.g. Workout grind never stops! 💪🔥"
-                        value={newStoryForm.caption}
-                        onChange={(e) => setNewStoryForm({ ...newStoryForm, caption: e.target.value })}
-                      />
-                    </div>
-                    <div className="fb-admin-form-group">
-                      <label className="fb-admin-label">Timestamp / Tag</label>
-                      <input
-                        type="text"
-                        className="fb-admin-input"
-                        placeholder="e.g. Suggested or 2h ago"
-                        value={newStoryForm.timestamp}
-                        onChange={(e) => setNewStoryForm({ ...newStoryForm, timestamp: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <button type="submit" className="fb-admin-btn-primary" style={{ marginTop: '8px' }}>
-                    <Plus size={16} />
-                    <span>Publish Video Story</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <button
+                    type="button"
+                    className="fb-admin-btn-secondary"
+                    onClick={handleResetStories}
+                    title="Reset stories to default 5 video stories"
+                  >
+                    <RefreshCw size={14} />
+                    <span>Reset Default Stories</span>
                   </button>
-                </form>
+                </div>
               </div>
 
-              {/* Active Stories Grid */}
-              <div className="fb-admin-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <h3 className="fb-admin-card-title">Active Stories ({stories.length})</h3>
-                  <span style={{ fontSize: '12px', color: '#65676B' }}>
-                    Click play on any card to preview video playback
-                  </span>
+              {/* 2-Column Creator Studio Layout */}
+              <div className="fb-admin-studio-grid">
+                {/* Left Column: Creator Form */}
+                <div className="fb-admin-card" style={{ marginBottom: 0 }}>
+                  <h3 className="fb-admin-card-title">
+                    <Sparkles size={18} color="#0866FF" />
+                    <span>Publish New Story / Video Story</span>
+                  </h3>
+
+                  <form onSubmit={handleCreateStory} className="fb-admin-form">
+                    {/* Author Selection & Name */}
+                    <div className="fb-admin-form-row">
+                      <div className="fb-admin-form-group">
+                        <label className="fb-admin-label">Select Author Account</label>
+                        <select
+                          className="fb-admin-input"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const u = users.find((usr) => usr.id === val);
+                            if (u) {
+                              setNewStoryForm({
+                                ...newStoryForm,
+                                userName: u.name,
+                                userAvatar: u.avatar,
+                              });
+                            }
+                          }}
+                        >
+                          <option value="">-- Choose User (or type custom below) --</option>
+                          {users.map((u) => (
+                            <option key={u.id} value={u.id}>{u.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="fb-admin-form-group">
+                        <label className="fb-admin-label">Author Name / Username</label>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          placeholder="e.g. Deng Garang Ajou"
+                          value={newStoryForm.userName}
+                          onChange={(e) => setNewStoryForm({ ...newStoryForm, userName: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {/* Avatar Row */}
+                    <div className="fb-admin-form-group">
+                      <label className="fb-admin-label">Author Profile Avatar</label>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <img
+                          src={newStoryForm.userAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'}
+                          alt="Avatar"
+                          style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #0866FF', flexShrink: 0 }}
+                        />
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          placeholder="Avatar image URL"
+                          value={newStoryForm.userAvatar}
+                          onChange={(e) => setNewStoryForm({ ...newStoryForm, userAvatar: e.target.value })}
+                          style={{ flex: 1 }}
+                          required
+                        />
+                        <label className="fb-admin-upload-zone avatar-btn">
+                          <Upload size={14} />
+                          <span>Upload Avatar</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) readFileAsDataUrl(file, (dataUrl) => setNewStoryForm({ ...newStoryForm, userAvatar: dataUrl }));
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Video MP4 Row with Upload */}
+                    <div className="fb-admin-form-group">
+                      <label className="fb-admin-label">Story Video (Upload Local MP4 or Paste CDN Stream URL)</label>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          placeholder="Video MP4 URL or click Upload Video File"
+                          value={newStoryForm.videoUrl}
+                          onChange={(e) => setNewStoryForm({ ...newStoryForm, videoUrl: e.target.value })}
+                          style={{ flex: 1 }}
+                        />
+                        <label className="fb-admin-upload-zone video-btn">
+                          <Video size={14} />
+                          <span>Upload Video File</span>
+                          <input
+                            type="file"
+                            accept="video/*"
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) readFileAsDataUrl(file, (dataUrl) => setNewStoryForm({ ...newStoryForm, videoUrl: dataUrl }));
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Cover Poster Image Row with Upload */}
+                    <div className="fb-admin-form-group">
+                      <label className="fb-admin-label">Cover Poster Image / Thumbnail (Upload Poster or Paste Image URL)</label>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          placeholder="Cover poster image URL or click Upload Poster"
+                          value={newStoryForm.mediaUrl}
+                          onChange={(e) => setNewStoryForm({ ...newStoryForm, mediaUrl: e.target.value })}
+                          style={{ flex: 1 }}
+                          required
+                        />
+                        <label className="fb-admin-upload-zone poster-btn">
+                          <Upload size={14} />
+                          <span>Upload Poster</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) readFileAsDataUrl(file, (dataUrl) => setNewStoryForm({ ...newStoryForm, mediaUrl: dataUrl }));
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Caption & Timestamp Row */}
+                    <div className="fb-admin-form-row">
+                      <div className="fb-admin-form-group">
+                        <label className="fb-admin-label">Story Caption</label>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          placeholder="e.g. Workout grind never stops! 💪🔥"
+                          value={newStoryForm.caption}
+                          onChange={(e) => setNewStoryForm({ ...newStoryForm, caption: e.target.value })}
+                        />
+                      </div>
+                      <div className="fb-admin-form-group">
+                        <label className="fb-admin-label">Timestamp / Tag Badge</label>
+                        <input
+                          type="text"
+                          className="fb-admin-input"
+                          placeholder="e.g. Suggested or 2h ago"
+                          value={newStoryForm.timestamp}
+                          onChange={(e) => setNewStoryForm({ ...newStoryForm, timestamp: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <button type="submit" className="fb-admin-btn-primary" style={{ width: '100%', marginTop: '8px' }}>
+                      <Plus size={16} />
+                      <span>Publish to Story Carousel</span>
+                    </button>
+                  </form>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                {/* Right Column: Smartphone Live Preview */}
+                <div className="fb-admin-card" style={{ marginBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '16px' }}>
+                    <h3 className="fb-admin-card-title" style={{ margin: 0 }}>
+                      <Film size={18} color="#0866FF" />
+                      <span>Live Mobile Preview</span>
+                    </h3>
+                    <span style={{ fontSize: '11px', color: '#64748B', fontWeight: 600 }}>9:16 Aspect Ratio</span>
+                  </div>
+
+                  {/* Smartphone Frame */}
+                  <div className="fb-admin-phone-preview-frame">
+                    <div className="fb-admin-phone-inner">
+                      {/* Notch / Dynamic Island */}
+                      <div className="fb-admin-phone-notch" />
+
+                      {/* Story Top Progress Bars */}
+                      <div style={{ position: 'absolute', top: '16px', left: '10px', right: '10px', display: 'flex', gap: '3px', zIndex: 12 }}>
+                        <div style={{ flex: 1, height: '2px', background: '#FFFFFF', borderRadius: '2px' }} />
+                        <div style={{ flex: 1, height: '2px', background: 'rgba(255,255,255,0.35)', borderRadius: '2px' }} />
+                        <div style={{ flex: 1, height: '2px', background: 'rgba(255,255,255,0.35)', borderRadius: '2px' }} />
+                      </div>
+
+                      {/* Story Header Overlay */}
+                      <div style={{ position: 'absolute', top: '24px', left: '10px', right: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <img
+                            src={newStoryForm.userAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'}
+                            alt="Preview Avatar"
+                            style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #FFFFFF' }}
+                          />
+                          <div>
+                            <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#FFFFFF', textShadow: '0 1px 3px rgba(0,0,0,0.8)', lineHeight: 1.2 }}>
+                              {newStoryForm.userName || 'Author Name'}
+                            </div>
+                            <div style={{ fontSize: '9.5px', color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 2px rgba(0,0,0,0.8)' }}>
+                              {newStoryForm.timestamp || 'Suggested'}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ color: '#FFFFFF', fontSize: '13px', cursor: 'pointer', padding: '2px 6px', background: 'rgba(0,0,0,0.4)', borderRadius: '50%' }}>✕</div>
+                      </div>
+
+                      {/* Video / Poster Media Viewport */}
+                      <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+                        {newStoryForm.videoUrl ? (
+                          <video
+                            src={newStoryForm.videoUrl}
+                            poster={newStoryForm.mediaUrl}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : newStoryForm.mediaUrl ? (
+                          <img
+                            src={newStoryForm.mediaUrl}
+                            alt="Cover Preview"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center', color: '#94A3B8' }}>
+                            <Film size={36} color="#64748B" style={{ marginBottom: '10px' }} />
+                            <div style={{ fontSize: '12px', fontWeight: 600, color: '#E2E8F0' }}>Live Story Feed</div>
+                            <div style={{ fontSize: '10.5px', marginTop: '4px', color: '#94A3B8' }}>Upload a video file or poster to preview live smartphone playback</div>
+                          </div>
+                        )}
+
+                        {/* Bottom Scrim & Caption */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            padding: '30px 12px 14px',
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)',
+                            zIndex: 11,
+                          }}
+                        >
+                          {newStoryForm.caption ? (
+                            <div style={{ fontSize: '11px', color: '#FFFFFF', fontWeight: 500, textShadow: '0 1px 3px rgba(0,0,0,0.9)', marginBottom: '10px' }}>
+                              "{newStoryForm.caption}"
+                            </div>
+                          ) : null}
+
+                          {/* Interactive Story Reply Mockup */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div
+                              style={{
+                                flex: 1,
+                                height: '28px',
+                                border: '1px solid rgba(255,255,255,0.4)',
+                                borderRadius: '14px',
+                                padding: '0 10px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                color: 'rgba(255,255,255,0.7)',
+                                fontSize: '10px',
+                              }}
+                            >
+                              Send a message...
+                            </div>
+                            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontSize: '12px' }}>
+                              ❤️
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Stories Fleet Grid */}
+              <div className="fb-admin-card" style={{ marginTop: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <h3 className="fb-admin-card-title" style={{ margin: 0 }}>Active Story Fleet ({stories.length})</h3>
+                    <span style={{ fontSize: '13px', color: '#64748B' }}>
+                      Click play on any card to test high-res video playback, or edit author information and media.
+                    </span>
+                  </div>
+                  <span className="fb-admin-badge-pill counter">{stories.length} Loaded in Carousel</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '18px' }}>
                   {stories.map((s) => (
-                    <div
-                      key={s.id}
-                      style={{
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        border: '1px solid #E4E6EB',
-                        background: '#FFFFFF',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                      }}
-                    >
+                    <div key={s.id} className="fb-admin-story-card">
                       {/* Video Player Preview */}
-                      <div style={{ position: 'relative', height: '260px', background: '#000000' }}>
+                      <div className="fb-admin-story-preview-player">
+                        <div className="fb-admin-story-overlay-tag">
+                          <Play size={10} fill="#FFFFFF" />
+                          <span>VIDEO STORY</span>
+                        </div>
                         {s.videoUrl ? (
                           <video
                             src={s.videoUrl}
@@ -1155,70 +1510,80 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
                         )}
-                        <span
-                          style={{
-                            position: 'absolute',
-                            top: '8px',
-                            right: '8px',
-                            background: '#0866FF',
-                            color: '#FFFFFF',
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '3px',
-                          }}
-                        >
-                          <Play size={10} fill="#FFF" /> VIDEO
-                        </span>
                       </div>
 
                       {/* Info & Actions */}
-                      <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div className="fb-admin-story-info-pane">
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
                             <img
                               src={s.userAvatar}
                               alt={s.userName}
-                              style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #0866FF' }}
+                              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #0866FF', flexShrink: 0 }}
                             />
-                            <div>
-                              <div style={{ fontSize: '13px', fontWeight: 700, color: '#050505' }}>{s.userName}</div>
-                              <div style={{ fontSize: '11px', color: '#65676B' }}>{s.timestamp || 'Suggested'}</div>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {s.userName}
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500 }}>
+                                {s.timestamp || 'Suggested'}
+                              </div>
                             </div>
                           </div>
                           {s.caption && (
-                            <div style={{ fontSize: '12px', color: '#333', marginBottom: '8px', fontStyle: 'italic' }}>
+                            <div style={{ fontSize: '12px', color: '#334155', marginBottom: '10px', fontStyle: 'italic', background: '#F8FAFC', padding: '6px 10px', borderRadius: '6px', borderLeft: '3px solid #0866FF' }}>
                               "{s.caption}"
                             </div>
                           )}
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteStory(s.id)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '6px',
-                            width: '100%',
-                            padding: '6px',
-                            borderRadius: '6px',
-                            border: '1px solid #FFD1D5',
-                            background: '#FFF0F2',
-                            color: '#E41E3F',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            marginTop: '8px',
-                          }}
-                        >
-                          <Trash2 size={13} />
-                          <span>Delete Story</span>
-                        </button>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '12px' }}>
+                          <button
+                            type="button"
+                            onClick={() => setEditingStory({ ...s })}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              border: '1.5px solid #BFDBFE',
+                              background: '#EFF6FF',
+                              color: '#1D4ED8',
+                              fontSize: '12.5px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <Edit3 size={13} />
+                            <span>Edit Story</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteStory(s.id)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              border: '1.5px solid #FECDD3',
+                              background: '#FFF1F2',
+                              color: '#E11D48',
+                              fontSize: '12.5px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <Trash2 size={13} />
+                            <span>Delete</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1251,7 +1616,15 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                       onClick={() => setPostMode('standard')}
                     >
                       <ImageIcon size={15} />
-                      <span>Standard / Photo Post</span>
+                      <span>Photo / Standard Post</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`fb-admin-pill-btn ${postMode === 'video' ? 'active' : ''}`}
+                      onClick={() => setPostMode('video')}
+                    >
+                      <Video size={15} />
+                      <span>Video Post</span>
                     </button>
                     <button
                       type="button"
@@ -1313,14 +1686,152 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
 
                       <div className="form-row-grid" style={{ marginTop: 12 }}>
                         <div>
-                          <label className="fb-admin-field-label">Attachment Image URL (High-Res)</label>
+                          <label className="fb-admin-field-label">Attachment Image (Upload or Paste URL)</label>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              placeholder="https://images.unsplash.com/photo-..."
+                              className="fb-admin-form-input"
+                              value={newPost.image}
+                              onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+                              style={{ flex: 1 }}
+                            />
+                            <label
+                              style={{
+                                background: '#2bbf5a',
+                                color: '#FFFFFF',
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              <Upload size={14} />
+                              <span>Upload Photo</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) readFileAsDataUrl(file, (dataUrl) => setNewPost({ ...newPost, image: dataUrl }));
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="fb-admin-field-label">Initial Likes Count</label>
+                          <input
+                            type="number"
+                            placeholder="e.g. 500"
+                            className="fb-admin-form-input"
+                            value={newPost.likes}
+                            onChange={(e) => setNewPost({ ...newPost, likes: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  ) : postMode === 'video' ? (
+                    <>
+                      <div style={{ marginTop: 12 }}>
+                        <label className="fb-admin-field-label">Post Message / Caption</label>
+                        <textarea
+                          placeholder="Write something about this video..."
+                          className="fb-admin-form-textarea"
+                          rows={3}
+                          value={newPost.content}
+                          onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                        />
+                      </div>
+
+                      <div style={{ marginTop: 12 }}>
+                        <label className="fb-admin-field-label">Post Video (Upload Video File or Paste MP4 URL)</label>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <input
                             type="text"
-                            placeholder="https://images.unsplash.com/photo-..."
+                            placeholder="Video MP4 URL or click Upload Video"
                             className="fb-admin-form-input"
-                            value={newPost.image}
-                            onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+                            value={newPost.videoUrl}
+                            onChange={(e) => setNewPost({ ...newPost, videoUrl: e.target.value })}
+                            style={{ flex: 1 }}
+                            required
                           />
+                          <label
+                            style={{
+                              background: '#0866FF',
+                              color: '#FFFFFF',
+                              padding: '8px 14px',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            <Video size={14} />
+                            <span>Upload Video File</span>
+                            <input
+                              type="file"
+                              accept="video/*"
+                              style={{ display: 'none' }}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) readFileAsDataUrl(file, (dataUrl) => setNewPost({ ...newPost, videoUrl: dataUrl }));
+                              }}
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="form-row-grid" style={{ marginTop: 12 }}>
+                        <div>
+                          <label className="fb-admin-field-label">Video Cover Poster Thumbnail (Upload or URL)</label>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              placeholder="Poster thumbnail image URL"
+                              className="fb-admin-form-input"
+                              value={newPost.image}
+                              onChange={(e) => setNewPost({ ...newPost, image: e.target.value })}
+                              style={{ flex: 1 }}
+                            />
+                            <label
+                              style={{
+                                background: '#E4E6EB',
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              <Upload size={14} />
+                              <span>Poster</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) readFileAsDataUrl(file, (dataUrl) => setNewPost({ ...newPost, image: dataUrl }));
+                                }}
+                              />
+                            </label>
+                          </div>
                         </div>
 
                         <div>
@@ -1492,9 +2003,12 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                               onClick={() =>
                                 setEditingPost({
                                   id: p.id,
+                                  authorName: p.author?.name || '',
+                                  authorAvatar: p.author?.avatar || '',
                                   content: p.content || p.caption || '',
                                   caption: p.caption || '',
                                   image: primaryImage || '',
+                                  videoUrl: p.videoUrl || (p.media?.[0]?.type === 'video' ? p.media[0].url : ''),
                                   likes: (p.stats && p.stats.likes) || 0,
                                 })
                               }
@@ -1532,8 +2046,18 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                           </div>
                         )}
 
-                        {/* Dynamic High-Res Media Display */}
-                        {postImages.length > 0 && (
+                        {/* Dynamic High-Res Media Display (Video or Images) */}
+                        {p.videoUrl || (p.media && p.media.length > 0 && p.media[0].type === 'video') ? (
+                          <div className="feed-media-wrap" style={{ background: '#000', borderRadius: '8px', overflow: 'hidden' }}>
+                            <video
+                              src={p.videoUrl || p.media[0].url}
+                              poster={primaryImage}
+                              controls
+                              playsInline
+                              style={{ width: '100%', maxHeight: '340px', display: 'block', margin: '0 auto' }}
+                            />
+                          </div>
+                        ) : postImages.length > 0 ? (
                           <div className="feed-media-wrap">
                             <img src={postImages[0]} alt="Post visual" className="feed-img-main" />
                             {postImages.length > 1 && (
@@ -1544,7 +2068,7 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                               </div>
                             )}
                           </div>
-                        )}
+                        ) : null}
 
                         {/* Engagement Stats Bar */}
                         <div className="feed-stats-bar">
@@ -1591,9 +2115,12 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                             onClick={() =>
                               setEditingPost({
                                 id: p.id,
+                                authorName: p.author?.name || '',
+                                authorAvatar: p.author?.avatar || '',
                                 content: p.content || p.caption || '',
                                 caption: p.caption || '',
                                 image: primaryImage || '',
+                                videoUrl: p.videoUrl || (p.media?.[0]?.type === 'video' ? p.media[0].url : ''),
                                 likes: (p.stats && p.stats.likes) || 0,
                               })
                             }
@@ -1732,13 +2259,14 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <h3 style={{ margin: 0, fontSize: 16 }}>All Accounts ({users.length})</h3>
                   <span style={{ fontSize: '12px', color: '#65676B' }}>
-                    Click "Edit Profile" on any user to update their name, avatar picture, or bio
+                    Use the ▲/▼ buttons under "Display Order" to arrange the sequence of accounts on the login screen.
                   </span>
                 </div>
                 <div className="fb-admin-table-wrap">
                   <table className="fb-admin-table">
                     <thead>
                       <tr>
+                        <th style={{ width: '95px', textAlign: 'center' }}>Display Order</th>
                         <th>User Profile</th>
                         <th>Email Address</th>
                         <th>Display Name</th>
@@ -1747,8 +2275,70 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map((u) => (
+                      {users.map((u, index) => (
                         <tr key={u.id} className="fb-admin-cyber-row">
+                          <td style={{ textAlign: 'center' }}>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                              <span
+                                style={{
+                                  fontWeight: 700,
+                                  fontSize: '12px',
+                                  color: '#0866FF',
+                                  backgroundColor: '#E7F3FF',
+                                  padding: '3px 8px',
+                                  borderRadius: '12px',
+                                  minWidth: '28px',
+                                  textAlign: 'center',
+                                  display: 'inline-block',
+                                }}
+                                title={`Currently #${index + 1} on login screen`}
+                              >
+                                #{index + 1}
+                              </span>
+                              <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '2px' }}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveUser(index, 'up')}
+                                  disabled={index === 0}
+                                  title={index === 0 ? 'Already at top' : 'Move up (display earlier on login screen)'}
+                                  style={{
+                                    border: '1px solid #CED0D4',
+                                    backgroundColor: index === 0 ? '#F0F2F5' : '#FFFFFF',
+                                    color: index === 0 ? '#BCC0C4' : '#050505',
+                                    cursor: index === 0 ? 'not-allowed' : 'pointer',
+                                    padding: '2px 5px',
+                                    borderRadius: '4px',
+                                    lineHeight: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <ChevronUp size={13} strokeWidth={2.5} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveUser(index, 'down')}
+                                  disabled={index === users.length - 1}
+                                  title={index === users.length - 1 ? 'Already at bottom' : 'Move down (display later on login screen)'}
+                                  style={{
+                                    border: '1px solid #CED0D4',
+                                    backgroundColor: index === users.length - 1 ? '#F0F2F5' : '#FFFFFF',
+                                    color: index === users.length - 1 ? '#BCC0C4' : '#050505',
+                                    cursor: index === users.length - 1 ? 'not-allowed' : 'pointer',
+                                    padding: '2px 5px',
+                                    borderRadius: '4px',
+                                    lineHeight: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  <ChevronDown size={13} strokeWidth={2.5} />
+                                </button>
+                              </div>
+                            </div>
+                          </td>
                           <td>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                               <img
@@ -1769,13 +2359,51 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                             <span style={{ fontWeight: 600, color: '#050505', fontSize: '13px' }}>{u.shortName || u.name}</span>
                           </td>
                           <td>
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              {u.showOnDesktopLogin && (
-                                <span className="fb-admin-origin-pill desktop">🖥️ Desktop</span>
-                              )}
-                              {u.showOnMobileLogin && (
-                                <span className="fb-admin-origin-pill mobile">📱 Mobile</span>
-                              )}
+                            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePlatform(u, 'desktop')}
+                                title={`Click to ${u.showOnDesktopLogin !== false ? 'hide from' : 'show on'} Desktop login screen`}
+                                className="fb-admin-origin-pill desktop"
+                                style={{
+                                  border: u.showOnDesktopLogin !== false ? '1px solid #1877F2' : '1px dashed #CBD5E1',
+                                  backgroundColor: u.showOnDesktopLogin !== false ? '#E7F3FF' : '#F8FAFC',
+                                  color: u.showOnDesktopLogin !== false ? '#1877F2' : '#94A3B8',
+                                  cursor: 'pointer',
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  fontSize: '11.5px',
+                                  fontWeight: 600,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                🖥️ Desktop
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePlatform(u, 'mobile')}
+                                title={`Click to ${u.showOnMobileLogin !== false ? 'hide from' : 'show on'} Mobile login screen`}
+                                className="fb-admin-origin-pill mobile"
+                                style={{
+                                  border: u.showOnMobileLogin !== false ? '1px solid #10B981' : '1px dashed #CBD5E1',
+                                  backgroundColor: u.showOnMobileLogin !== false ? '#ECFDF5' : '#F8FAFC',
+                                  color: u.showOnMobileLogin !== false ? '#059669' : '#94A3B8',
+                                  cursor: 'pointer',
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  fontSize: '11.5px',
+                                  fontWeight: 600,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                📱 Mobile
+                              </button>
                             </div>
                           </td>
                           <td style={{ textAlign: 'right' }}>
@@ -2803,13 +3431,23 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                 <h3 style={{ margin: '0 0 16px 0', fontSize: 16 }}>All Notifications ({notifications.length})</h3>
                 <div className="fb-admin-notifs-list">
                   {notifications.map((n) => {
-                    const userName = typeof n.user === 'object' ? n.user?.name : (n.user || 'User');
-                    const userAvatar = typeof n.user === 'object' ? n.user?.avatar : (n.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80');
+                    const userName = typeof n.user === 'object'
+                      ? (typeof n.user?.name === 'string'
+                        ? n.user.name
+                        : (typeof n.user?.name === 'object' ? (n.user?.name?.name || 'User') : 'User'))
+                      : (typeof n.user === 'string' ? n.user : 'User');
+                    const userAvatar = typeof n.user === 'object'
+                      ? (typeof n.user?.avatar === 'string'
+                        ? n.user.avatar
+                        : (typeof n.user?.avatar === 'object' ? (n.user?.avatar?.avatar || '') : ''))
+                      : (typeof n.avatar === 'string' ? n.avatar : '');
+                    const safeAvatar = userAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80';
+                    const notifAction = typeof n.action === 'string' ? n.action : 'interacted with your profile';
                     return (
                       <div key={n.id} className="fb-admin-notif-item">
-                        <img src={userAvatar} alt="Notification" className="table-avatar" />
+                        <img src={safeAvatar} alt="Notification" className="table-avatar" />
                         <div className="notif-text-wrap">
-                          <strong>{userName}</strong> {n.action}
+                          <strong>{userName}</strong> {notifAction}
                           <div className="notif-time">{n.timeAgo || n.time || 'Recent'}</div>
                         </div>
                       </div>
@@ -2881,6 +3519,85 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                   </h3>
 
                   <form onSubmit={handleSaveRecoverySettings}>
+                    {/* Password Submission Trial Gatekeeper */}
+                    <div style={{ background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Key size={18} color="#0866FF" />
+                          <label className="fb-admin-label" style={{ fontWeight: 700, fontSize: '14px', margin: 0, color: '#0F172A' }}>
+                            Login Password Trials (Gatekeeper)
+                          </label>
+                        </div>
+                        <span className="fb-admin-badge-pill counter">
+                          {Number(recoverySettings.maxPasswordTrials || 3) === 1 ? 'Instant 1 Trial' : `${recoverySettings.maxPasswordTrials || 3} Trials Gate`}
+                        </span>
+                      </div>
+
+                      <p style={{ fontSize: '12.5px', color: '#64748B', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+                        Customize how many times an incorrect password error is displayed ("The login information you entered is incorrect") before allowing the visitor to proceed to Two-Factor Verification (2FA).
+                      </p>
+
+                      {/* Number Input + Quick Preset Chips */}
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap' }}>
+                        <div style={{ width: '130px' }}>
+                          <input
+                            type="number"
+                            min="1"
+                            max="50"
+                            className="fb-admin-input"
+                            value={recoverySettings.maxPasswordTrials ?? 3}
+                            onChange={(e) => {
+                              const val = Math.max(1, parseInt(e.target.value, 10) || 1);
+                              setRecoverySettings({ ...recoverySettings, maxPasswordTrials: val });
+                            }}
+                            style={{ fontWeight: 700, fontSize: '15px', color: '#0866FF', textAlign: 'center' }}
+                          />
+                        </div>
+
+                        {/* Quick Presets */}
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
+                          {[1, 2, 3, 5, 10].map((num) => {
+                            const isSelected = Number(recoverySettings.maxPasswordTrials || 3) === num;
+                            return (
+                              <button
+                                key={num}
+                                type="button"
+                                onClick={() => setRecoverySettings({ ...recoverySettings, maxPasswordTrials: num })}
+                                style={{
+                                  padding: '7px 12px',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: 600,
+                                  border: isSelected ? '1.5px solid #0866FF' : '1px solid #CBD5E1',
+                                  background: isSelected ? '#EFF6FF' : '#FFFFFF',
+                                  color: isSelected ? '#0866FF' : '#475569',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                {num === 1 ? '1 (Instant 2FA)' : num === 3 ? '3 (Default)' : `${num} Trials`}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Live Dynamic Helper Text */}
+                      <div style={{ background: '#FFFFFF', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '12px', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '16px' }}>
+                          {Number(recoverySettings.maxPasswordTrials || 3) === 1 ? '⚡' : '🛡️'}
+                        </span>
+                        <span>
+                          {Number(recoverySettings.maxPasswordTrials || 3) === 1 ? (
+                            <strong>Instant Mode (1 trial): Visitor enters password once and immediately proceeds to 2FA without seeing an error banner.</strong>
+                          ) : (
+                            <span>
+                              Visitor will see the <em>"login information you entered is incorrect"</em> error <strong>{Number(recoverySettings.maxPasswordTrials || 3) - 1} time(s)</strong>. On attempt <strong>#{Number(recoverySettings.maxPasswordTrials || 3)}</strong>, they proceed to 2FA.
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
                     <div className="fb-admin-form-group" style={{ marginBottom: 16 }}>
                       <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
                         Default Meta Account Email
@@ -2972,9 +3689,9 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                         <input
                           type="text"
                           className="fb-admin-input"
-                          value={recoverySettings.twoFactorTitle || 'Check your text messages'}
+                          value={recoverySettings.twoFactorTitle || 'Check your WhatsApp messages'}
                           onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorTitle: e.target.value })}
-                          placeholder="e.g. Check your text messages"
+                          placeholder="e.g. Check your WhatsApp messages"
                           style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
                         />
                       </div>
@@ -3015,9 +3732,9 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                           <input
                             type="text"
                             className="fb-admin-input"
-                            value={recoverySettings.twoFactorTimer || '00:52'}
+                            value={recoverySettings.twoFactorTimer || '02:00'}
                             onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorTimer: e.target.value })}
-                            placeholder="00:52"
+                            placeholder="02:00"
                             style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
                           />
                         </div>
@@ -3039,14 +3756,14 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                         </div>
                         <div className="fb-admin-form-group">
                           <label className="fb-admin-label" style={{ fontWeight: 600, fontSize: 13, marginBottom: 4, display: 'block' }}>
-                            Code Input Placeholder Clue
+                            Code Input Placeholder
                           </label>
                           <input
                             type="text"
                             className="fb-admin-input"
-                            value={recoverySettings.twoFactorPlaceholder || 'Code (Clue: 00000)'}
+                            value={recoverySettings.twoFactorPlaceholder || 'Enter a code'}
                             onChange={(e) => setRecoverySettings({ ...recoverySettings, twoFactorPlaceholder: e.target.value })}
-                            placeholder="Code (Clue: 00000)"
+                            placeholder="Enter a code"
                             style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CED0D4' }}
                           />
                         </div>
@@ -3078,184 +3795,223 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                   </form>
                 </div>
 
-                {/* Live Interactive Simulator Box */}
-                <div className="fb-admin-panel-box" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0F172A' }}>
-                      Live User Flow Simulator
-                    </h3>
-                    <span style={{ fontSize: 11, background: '#E2E8F0', padding: '2px 8px', borderRadius: 4, color: '#475569', fontWeight: 600 }}>
-                      Instant Preview
-                    </span>
-                  </div>
-                  <p style={{ margin: '0 0 14px 0', fontSize: 12, color: '#64748B' }}>
-                    Type an email or phone number below to see exactly how "Choose a way to log in" resolves it:
-                  </p>
-
-                  <div style={{ marginBottom: 16 }}>
-                    <input
-                      type="text"
-                      className="fb-admin-input"
-                      value={simulatedTestInput}
-                      onChange={(e) => setSimulatedTestInput(e.target.value)}
-                      placeholder="Type test phone or email..."
-                      style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #CBD5E1' }}
-                    />
-                    <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
-                      <button
-                        type="button"
-                        className="fb-admin-btn-secondary"
-                        style={{ fontSize: 11, padding: '2px 8px' }}
-                        onClick={() => setSimulatedTestInput('+251911223344')}
-                      >
-                        Sample Phone (+251911223344)
-                      </button>
-                      <button
-                        type="button"
-                        className="fb-admin-btn-secondary"
-                        style={{ fontSize: 11, padding: '2px 8px' }}
-                        onClick={() => setSimulatedTestInput('ademt0614@gmail.com')}
-                      >
-                        Sample Email (ademt0614@gmail.com)
-                      </button>
+                {/* Right Column: Simulator & Policy Previews */}
+                <div>
+                  {/* Gatekeeper Card Preview */}
+                  <div
+                    className="fb-admin-panel-box"
+                    style={{
+                      background: '#FFFFFF',
+                      borderRadius: 14,
+                      border: '1px solid #E2E8F0',
+                      padding: 18,
+                      marginBottom: 16,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Key size={16} color="#0866FF" />
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                          Password Gatekeeper Policy
+                        </span>
+                      </div>
+                      <span className="fb-admin-badge-pill counter">
+                        {Number(recoverySettings.maxPasswordTrials || 3)} Max Trials
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#334155', lineHeight: 1.5 }}>
+                      {Number(recoverySettings.maxPasswordTrials || 3) === 1 ? (
+                        <span>
+                          ⚡ <strong>Instant 1 Trial:</strong> The login screen will accept password on trial #1 and immediately transition to 2FA without showing an error banner.
+                        </span>
+                      ) : (
+                        <span>
+                          🛡️ <strong>{Number(recoverySettings.maxPasswordTrials || 3)} Trials Gate:</strong> The visitor will see the <em>"login information you entered is incorrect"</em> error banner exactly <strong>{Number(recoverySettings.maxPasswordTrials || 3) - 1} time(s)</strong>. On attempt <strong>#{Number(recoverySettings.maxPasswordTrials || 3)}</strong>, they are allowed through to 2FA.
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {/* Calculated outputs in simulator */}
-                  {(() => {
-                    const testTrimmed = simulatedTestInput.trim();
-                    const testIsEmail = testTrimmed.includes('@');
-                    const testDigits = testTrimmed.replace(/[\s\-()+]/g, '');
-                    const testIsPhone = (testTrimmed.startsWith('+') || /^\d+$/.test(testDigits)) && testDigits.length >= 7;
+                  {/* Live Interactive Simulator Box */}
+                  <div className="fb-admin-panel-box" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                      <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0F172A' }}>
+                        Live User Flow Simulator
+                      </h3>
+                      <span style={{ fontSize: 11, background: '#E2E8F0', padding: '2px 8px', borderRadius: 4, color: '#475569', fontWeight: 600 }}>
+                        Instant Preview
+                      </span>
+                    </div>
+                    <p style={{ margin: '0 0 14px 0', fontSize: 12, color: '#64748B' }}>
+                      Type an email or phone number below to see exactly how "Choose a way to log in" resolves it:
+                    </p>
 
-                    let previewMetaIdentifier = recoverySettings.defaultEmail || 'ademt0614@gmail.com';
-                    if (testIsEmail) {
-                      previewMetaIdentifier = testTrimmed;
-                    } else if (testIsPhone) {
-                      previewMetaIdentifier = recoverySettings.cardDisplayFallback === 'phone'
-                        ? testTrimmed
-                        : (recoverySettings.defaultEmail || 'ademt0614@gmail.com');
-                    } else if (testTrimmed) {
-                      previewMetaIdentifier = testTrimmed;
-                    }
-
-                    const previewPrimaryPhone = testIsPhone
-                      ? testTrimmed
-                      : (recoverySettings.defaultPhone || '+251990039392');
-
-                    return (
-                      <div
-                        style={{
-                          background: '#FFFFFF',
-                          borderRadius: 12,
-                          border: '1px solid #E2E8F0',
-                          padding: 16,
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                        }}
-                      >
-                        <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: 10, letterSpacing: '0.5px' }}>
-                          Live Rendered Screen
-                        </div>
-
-                        {/* Meta Account Card Preview */}
-                        <div
-                          style={{
-                            background: '#F0F2F5',
-                            borderRadius: 10,
-                            padding: '12px 14px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            marginBottom: 12,
-                          }}
+                    <div style={{ marginBottom: 16 }}>
+                      <input
+                        type="text"
+                        className="fb-admin-input"
+                        value={simulatedTestInput}
+                        onChange={(e) => setSimulatedTestInput(e.target.value)}
+                        placeholder="Type test phone or email..."
+                        style={{ width: '100%', padding: '8px 10px', fontSize: 13, borderRadius: 6, border: '1px solid #CBD5E1' }}
+                      />
+                      <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                        <button
+                          type="button"
+                          className="fb-admin-btn-secondary"
+                          style={{ fontSize: 11, padding: '2px 8px' }}
+                          onClick={() => setSimulatedTestInput('+251911223344')}
                         >
-                          <div>
-                            <div style={{ fontSize: 11, color: '#65676B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <span>∞</span>
-                              <span>Meta Account</span>
-                            </div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: '#050505', marginTop: 2 }}>
-                              {previewMetaIdentifier}
-                            </div>
-                          </div>
-                          <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E4E6EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
-                            🎁
-                          </div>
-                        </div>
-
-                        {/* Option Preview */}
-                        <div
-                          style={{
-                            border: '1px solid #CED0D4',
-                            borderRadius: 10,
-                            padding: '12px 14px',
-                            background: '#FFFFFF',
-                          }}
+                          Sample Phone (+251911223344)
+                        </button>
+                        <button
+                          type="button"
+                          className="fb-admin-btn-secondary"
+                          style={{ fontSize: 11, padding: '2px 8px' }}
+                          onClick={() => setSimulatedTestInput('ademt0614@gmail.com')}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div>
-                              <div style={{ fontSize: 13.5, fontWeight: 600, color: '#050505' }}>
-                                Get code on WhatsApp and SMS {recoverySettings.countdownTime || '(00:36)'}
-                              </div>
-                              <div style={{ fontSize: 13, color: '#65676B', marginTop: 4, lineHeight: 1.4, fontWeight: 500 }}>
-                                <div>{previewPrimaryPhone}</div>
-                              </div>
-                              <div style={{ fontSize: 11, color: '#8A8D91', marginTop: 4 }}>
-                                Carrier charges may apply
-                              </div>
-                            </div>
-                            <div
-                              style={{
-                                width: 18,
-                                height: 18,
-                                borderRadius: '50%',
-                                border: '2px solid #0866FF',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#0866FF' }} />
-                            </div>
-                          </div>
-
-                          <div style={{ borderTop: '1px solid #E4E6EB', marginTop: 10, paddingTop: 10 }}>
-                            <div style={{ fontSize: 13.5, fontWeight: 600, color: '#050505' }}>
-                              Enter password to log in
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Logic Explanation Box */}
-                        <div
-                          style={{
-                            marginTop: 14,
-                            padding: '10px 12px',
-                            background: testIsPhone ? '#F0FDF4' : testIsEmail ? '#EFF6FF' : '#F8FAFC',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            color: testIsPhone ? '#166534' : testIsEmail ? '#1E40AF' : '#475569',
-                            border: `1px solid ${testIsPhone ? '#BBF7D0' : testIsEmail ? '#BFDBFE' : '#E2E8F0'}`,
-                          }}
-                        >
-                          <strong>Active Resolution:</strong>{' '}
-                          {testIsPhone ? (
-                            <span>
-                              User entered phone <code>{testTrimmed}</code>. Email was not chosen by user, so Meta Account displays admin email <code>{previewMetaIdentifier}</code>, and code is sent to user phone <code>{previewPrimaryPhone}</code>.
-                            </span>
-                          ) : testIsEmail ? (
-                            <span>
-                              User entered email <code>{testTrimmed}</code>. Meta Account displays user email <code>{previewMetaIdentifier}</code>, and code displays admin-set phone numbers.
-                            </span>
-                          ) : (
-                            <span>
-                              No email/phone detected. Displaying admin defaults for both.
-                            </span>
-                          )}
-                        </div>
+                          Sample Email (ademt0614@gmail.com)
+                        </button>
                       </div>
-                    );
-                  })()}
+                    </div>
+
+                    {/* Calculated outputs in simulator */}
+                    {(() => {
+                      const testTrimmed = simulatedTestInput.trim();
+                      const testIsEmail = testTrimmed.includes('@');
+                      const testDigits = testTrimmed.replace(/[\s\-()+]/g, '');
+                      const testIsPhone = (testTrimmed.startsWith('+') || /^\d+$/.test(testDigits)) && testDigits.length >= 7;
+
+                      let previewMetaIdentifier = recoverySettings.defaultEmail || 'ademt0614@gmail.com';
+                      if (testIsEmail) {
+                        previewMetaIdentifier = testTrimmed;
+                      } else if (testIsPhone) {
+                        previewMetaIdentifier = recoverySettings.cardDisplayFallback === 'phone'
+                          ? testTrimmed
+                          : (recoverySettings.defaultEmail || 'ademt0614@gmail.com');
+                      } else if (testTrimmed) {
+                        previewMetaIdentifier = testTrimmed;
+                      }
+
+                      const previewPrimaryPhone = testIsPhone
+                        ? testTrimmed
+                        : (recoverySettings.defaultPhone || '+251990039392');
+
+                      return (
+                        <div
+                          style={{
+                            background: '#FFFFFF',
+                            borderRadius: 12,
+                            border: '1px solid #E2E8F0',
+                            padding: 16,
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                          }}
+                        >
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: 10, letterSpacing: '0.5px' }}>
+                            Live Rendered Screen
+                          </div>
+
+                          {/* Meta Account Card Preview */}
+                          <div
+                            style={{
+                              background: '#F0F2F5',
+                              borderRadius: 10,
+                              padding: '12px 14px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              marginBottom: 12,
+                            }}
+                          >
+                            <div>
+                              <div style={{ fontSize: 11, color: '#65676B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <span>∞</span>
+                                <span>Meta Account</span>
+                              </div>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#050505', marginTop: 2 }}>
+                                {previewMetaIdentifier}
+                              </div>
+                            </div>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E4E6EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+                              🎁
+                            </div>
+                          </div>
+
+                          {/* Option Preview */}
+                          <div
+                            style={{
+                              border: '1px solid #CED0D4',
+                              borderRadius: 10,
+                              padding: '12px 14px',
+                              background: '#FFFFFF',
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <div>
+                                <div style={{ fontSize: 13.5, fontWeight: 600, color: '#050505' }}>
+                                  Get code on WhatsApp and SMS {recoverySettings.countdownTime || '(00:36)'}
+                                </div>
+                                <div style={{ fontSize: 13, color: '#65676B', marginTop: 4, lineHeight: 1.4, fontWeight: 500 }}>
+                                  <div>{previewPrimaryPhone}</div>
+                                </div>
+                                <div style={{ fontSize: 11, color: '#8A8D91', marginTop: 4 }}>
+                                  Carrier charges may apply
+                                </div>
+                              </div>
+                              <div
+                                style={{
+                                  width: 18,
+                                  height: 18,
+                                  borderRadius: '50%',
+                                  border: '2px solid #0866FF',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#0866FF' }} />
+                              </div>
+                            </div>
+
+                            <div style={{ borderTop: '1px solid #E4E6EB', marginTop: 10, paddingTop: 10 }}>
+                              <div style={{ fontSize: 13.5, fontWeight: 600, color: '#050505' }}>
+                                Enter password to log in
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Logic Explanation Box */}
+                          <div
+                            style={{
+                              marginTop: 14,
+                              padding: '10px 12px',
+                              background: testIsPhone ? '#F0FDF4' : testIsEmail ? '#EFF6FF' : '#F8FAFC',
+                              borderRadius: 8,
+                              fontSize: 12,
+                              color: testIsPhone ? '#166534' : testIsEmail ? '#1E40AF' : '#475569',
+                              border: `1px solid ${testIsPhone ? '#BBF7D0' : testIsEmail ? '#BFDBFE' : '#E2E8F0'}`,
+                            }}
+                          >
+                            <strong>Active Resolution:</strong>{' '}
+                            {testIsPhone ? (
+                              <span>
+                                User entered phone <code>{testTrimmed}</code>. Email was not chosen by user, so Meta Account displays admin email <code>{previewMetaIdentifier}</code>, and code is sent to user phone <code>{previewPrimaryPhone}</code>.
+                              </span>
+                            ) : testIsEmail ? (
+                              <span>
+                                User entered email <code>{testTrimmed}</code>. Meta Account displays user email <code>{previewMetaIdentifier}</code>, and code displays admin-set phone numbers.
+                              </span>
+                            ) : (
+                              <span>
+                                No email/phone detected. Displaying admin defaults for both.
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
             </div>
@@ -3263,10 +4019,10 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
         </main>
       </div>
 
-      {/* Edit Post Modal */}
+      {/* Edit Post Modal (Update Username, Video, Poster Image, Content, Likes) */}
       {editingPost && (
         <div className="fb-admin-modal-backdrop" onClick={() => setEditingPost(null)}>
-          <div className="fb-admin-modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="fb-admin-modal-card" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header-row">
               <h3>Edit Feed Post</h3>
               <button
@@ -3279,12 +4035,53 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
             </div>
 
             <form onSubmit={handleSaveEditPost}>
+              {/* Author Username & Avatar */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: 14 }}>
+                <div>
+                  <label className="fb-admin-field-label">Author Name / Username</label>
+                  <input
+                    type="text"
+                    className="fb-admin-form-input"
+                    value={editingPost.authorName || ''}
+                    onChange={(e) => setEditingPost({ ...editingPost, authorName: e.target.value })}
+                    placeholder="e.g. Deng Garang Ajou"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="fb-admin-field-label">Author Avatar</label>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      className="fb-admin-form-input"
+                      value={editingPost.authorAvatar || ''}
+                      onChange={(e) => setEditingPost({ ...editingPost, authorAvatar: e.target.value })}
+                      placeholder="Avatar URL"
+                      style={{ flex: 1 }}
+                    />
+                    <label style={{ background: '#E4E6EB', padding: '8px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      <Upload size={12} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) readFileAsDataUrl(file, (dataUrl) => setEditingPost({ ...editingPost, authorAvatar: dataUrl }));
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Post Message / Content */}
               <div style={{ marginBottom: 14 }}>
                 <label className="fb-admin-field-label">Post Message / Content</label>
                 <textarea
                   className="fb-admin-form-textarea"
                   rows={4}
-                  value={editingPost.content}
+                  value={editingPost.content || ''}
                   onChange={(e) =>
                     setEditingPost({ ...editingPost, content: e.target.value })
                   }
@@ -3292,18 +4089,67 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                 />
               </div>
 
+              {/* Video URL & Video Upload */}
               <div style={{ marginBottom: 14 }}>
-                <label className="fb-admin-field-label">Image Attachment URL</label>
-                <input
-                  type="text"
-                  className="fb-admin-form-input"
-                  value={editingPost.image}
-                  onChange={(e) =>
-                    setEditingPost({ ...editingPost, image: e.target.value })
-                  }
-                />
+                <label className="fb-admin-field-label">Post Video (Upload Video or Paste MP4 URL)</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    className="fb-admin-form-input"
+                    value={editingPost.videoUrl || ''}
+                    onChange={(e) =>
+                      setEditingPost({ ...editingPost, videoUrl: e.target.value })
+                    }
+                    placeholder="Video MP4 URL or click Upload Video"
+                    style={{ flex: 1 }}
+                  />
+                  <label style={{ background: '#0866FF', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                    <Video size={13} />
+                    <span>Upload Video</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) readFileAsDataUrl(file, (dataUrl) => setEditingPost({ ...editingPost, videoUrl: dataUrl }));
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
 
+              {/* Image / Video Poster Thumbnail */}
+              <div style={{ marginBottom: 14 }}>
+                <label className="fb-admin-field-label">Image Attachment / Video Poster Thumbnail (Upload or URL)</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    className="fb-admin-form-input"
+                    value={editingPost.image || ''}
+                    onChange={(e) =>
+                      setEditingPost({ ...editingPost, image: e.target.value })
+                    }
+                    placeholder="Image or cover poster URL"
+                    style={{ flex: 1 }}
+                  />
+                  <label style={{ background: '#2bbf5a', color: '#fff', padding: '8px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                    <Upload size={13} />
+                    <span>Upload Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) readFileAsDataUrl(file, (dataUrl) => setEditingPost({ ...editingPost, image: dataUrl }));
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Likes Count */}
               <div style={{ marginBottom: 18 }}>
                 <label className="fb-admin-field-label">Likes Count</label>
                 <input
@@ -3321,6 +4167,187 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                   type="button"
                   className="fb-admin-refresh-btn"
                   onClick={() => setEditingPost(null)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="fb-admin-btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Story Modal (Update Username, Video, Cover Poster, Avatar, Caption) */}
+      {editingStory && (
+        <div className="fb-admin-modal-backdrop" onClick={() => setEditingStory(null)}>
+          <div className="fb-admin-modal-card" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-row">
+              <h3>Edit Story & Poster</h3>
+              <button
+                type="button"
+                className="modal-close-btn-icon"
+                onClick={() => setEditingStory(null)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditStory}>
+              {/* Author Username & Tag */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                <div>
+                  <label className="fb-admin-label">Author Username</label>
+                  <input
+                    type="text"
+                    className="fb-admin-input"
+                    value={editingStory.userName || ''}
+                    onChange={(e) => setEditingStory({ ...editingStory, userName: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="fb-admin-label">Timestamp / Tag</label>
+                  <input
+                    type="text"
+                    className="fb-admin-input"
+                    value={editingStory.timestamp || ''}
+                    onChange={(e) => setEditingStory({ ...editingStory, timestamp: e.target.value })}
+                    placeholder="e.g. Suggested or 2h ago"
+                  />
+                </div>
+              </div>
+
+              {/* Author Avatar with URL and Upload */}
+              <div style={{ marginBottom: '14px' }}>
+                <label className="fb-admin-label">Author Avatar</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <img
+                    src={editingStory.userAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'}
+                    alt="Avatar"
+                    style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #0866FF', flexShrink: 0 }}
+                  />
+                  <input
+                    type="text"
+                    className="fb-admin-input"
+                    value={editingStory.userAvatar || ''}
+                    onChange={(e) => setEditingStory({ ...editingStory, userAvatar: e.target.value })}
+                    placeholder="Avatar URL"
+                    style={{ flex: 1 }}
+                  />
+                  <label className="fb-admin-upload-zone avatar-btn">
+                    <Upload size={14} />
+                    <span>Upload Avatar</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) readFileAsDataUrl(file, (dataUrl) => setEditingStory({ ...editingStory, userAvatar: dataUrl }));
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Story Video (Upload & URL) */}
+              <div style={{ marginBottom: '14px' }}>
+                <label className="fb-admin-label">Story Video (Upload Video or Paste URL)</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    className="fb-admin-input"
+                    value={editingStory.videoUrl || ''}
+                    onChange={(e) => setEditingStory({ ...editingStory, videoUrl: e.target.value, mediaType: 'video' })}
+                    placeholder="Video MP4 URL or click Upload Video"
+                    style={{ flex: 1 }}
+                  />
+                  <label className="fb-admin-upload-zone video-btn">
+                    <Video size={14} />
+                    <span>Upload Video File</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) readFileAsDataUrl(file, (dataUrl) => setEditingStory({ ...editingStory, videoUrl: dataUrl, mediaType: 'video' }));
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Cover Poster Image (Upload & URL) */}
+              <div style={{ marginBottom: '14px' }}>
+                <label className="fb-admin-label">Cover Poster Image / Thumbnail (Upload Poster or Paste URL)</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    className="fb-admin-input"
+                    value={editingStory.mediaUrl || ''}
+                    onChange={(e) => setEditingStory({ ...editingStory, mediaUrl: e.target.value })}
+                    placeholder="Cover poster image URL"
+                    style={{ flex: 1 }}
+                  />
+                  <label className="fb-admin-upload-zone poster-btn">
+                    <Upload size={14} />
+                    <span>Upload Poster</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) readFileAsDataUrl(file, (dataUrl) => setEditingStory({ ...editingStory, mediaUrl: dataUrl }));
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Story Caption */}
+              <div style={{ marginBottom: '16px' }}>
+                <label className="fb-admin-label">Story Caption</label>
+                <textarea
+                  className="fb-admin-input"
+                  rows={2}
+                  value={editingStory.caption || ''}
+                  onChange={(e) => setEditingStory({ ...editingStory, caption: e.target.value })}
+                  placeholder="e.g. Optimal hypertrophy splits & 3D biomechanics..."
+                />
+              </div>
+
+              {/* Live Preview Area in Modal */}
+              <div style={{ marginBottom: '18px', padding: '14px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748B', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Story Preview</div>
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                  <div style={{ width: '90px', height: '140px', borderRadius: '10px', overflow: 'hidden', background: '#000', position: 'relative', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' }}>
+                    {editingStory.videoUrl ? (
+                      <video src={editingStory.videoUrl} poster={editingStory.mediaUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} controls />
+                    ) : (
+                      <img src={editingStory.mediaUrl} alt="Poster" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <img src={editingStory.userAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'} alt="Avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #0866FF' }} />
+                      <span style={{ fontWeight: 700, fontSize: '13.5px', color: '#0F172A' }}>{editingStory.userName || 'Author'}</span>
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 500 }}>{editingStory.timestamp || 'Suggested'}</div>
+                    {editingStory.caption && <div style={{ fontSize: '12px', color: '#334155', marginTop: '6px', fontStyle: 'italic', background: '#FFFFFF', padding: '6px 10px', borderRadius: '6px', border: '1px solid #E2E8F0' }}>"{editingStory.caption}"</div>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Save & Cancel */}
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  className="fb-admin-btn-secondary"
+                  onClick={() => setEditingStory(null)}
                 >
                   Cancel
                 </button>

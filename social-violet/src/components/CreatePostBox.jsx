@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function CreatePostBox({ onOpenModal, isLoading = false }) {
   const { currentUser } = useAuth();
-  const firstName = currentUser?.shortName || currentUser?.name?.split(' ')[0] || 'Berta';
+  const firstName = currentUser?.name?.trim().split(/\s+/)[0] || currentUser?.shortName || 'Deng';
 
   return (
     <>
@@ -82,7 +82,7 @@ export default function CreatePostBox({ onOpenModal, isLoading = false }) {
             onClick={() => onOpenModal('standard')}
           >
             <span className="fb-mobile-composer-text">
-              What's on your mind?
+              What's on your mind, {firstName}?
             </span>
           </div>
 
