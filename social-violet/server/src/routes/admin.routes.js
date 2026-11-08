@@ -135,6 +135,7 @@ router.post('/posts', (req, res) => {
     }
   }
 
+  const customStats = req.body.stats || {};
   const newPost = storage.createPost({
     author,
     content,
@@ -142,10 +143,10 @@ router.post('/posts', (req, res) => {
     media: media || [],
     backgroundCard: backgroundCard || null,
     stats: {
-      likes: parseInt(likes, 10) || 0,
-      comments: Array.isArray(comments) ? comments.length : 0,
-      shares: 0,
-      reactionBreakdown: { like: parseInt(likes, 10) || 0 },
+      likes: customStats.likes ?? (parseInt(likes, 10) || 0),
+      comments: customStats.comments ?? (Array.isArray(comments) ? comments.length : (parseInt(comments, 10) || 0)),
+      shares: customStats.shares ?? (parseInt(req.body.shares, 10) || 0),
+      reactionBreakdown: customStats.reactionBreakdown || { like: parseInt(likes, 10) || 0 },
     },
     comments: comments || [],
   });

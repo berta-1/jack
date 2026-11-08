@@ -312,36 +312,33 @@ export default function PostCard({ post, onUpdateReaction, onSharePost }) {
             <span>{formatFacebookCount(post.stats?.likes ?? 0)}</span>
           </button>
 
-          {/* Comment Button (Non-functional as requested: does not work) */}
-          <button
-            type="button"
-            className="fb-post-action-count-btn"
-            onClick={(e) => {
-              e.preventDefault();
-              // Comments disabled as requested
-            }}
+          {/* Comment Count Stat (Displays only the number as requested, non-clickable) */}
+          <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '7px',
-              background: 'none',
-              border: 'none',
               padding: '4px 6px',
-              borderRadius: '6px',
-              cursor: 'pointer',
               fontSize: '13.5px',
               fontWeight: 600,
               color: '#050505',
+              userSelect: 'none',
             }}
             title="Comments"
           >
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#050505" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
             </svg>
-            <span>{formatFacebookCount(post.comments ? post.comments.length : (post.stats?.comments ?? 0))}</span>
-          </button>
+            <span>
+              {formatFacebookCount(
+                (post.stats && typeof post.stats.comments === 'number')
+                  ? post.stats.comments
+                  : (Array.isArray(post.comments) && post.comments.length > 0 ? post.comments.length : 0)
+              )}
+            </span>
+          </div>
 
-          {/* Share Button (Works: increases share count on click) */}
+          {/* Share Button (Works: increments share count on click) */}
           <button
             type="button"
             className="fb-post-action-count-btn"
@@ -362,9 +359,9 @@ export default function PostCard({ post, onUpdateReaction, onSharePost }) {
             }}
             title="Share"
           >
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={justShared ? '#0866FF' : '#050505'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 12v-1a7 7 0 0 1 7-7h6" />
-              <polyline points="14 1 20 7 14 13" />
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={justShared ? '#0866FF' : '#050505'} strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 18c0-5.5 4-10 11-10h3.5" />
+              <polyline points="14 3.5 19 8 14 12.5" />
             </svg>
             <span>{formatFacebookCount(post.stats?.shares ?? 0)}</span>
           </button>

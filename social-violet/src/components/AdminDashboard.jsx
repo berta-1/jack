@@ -312,6 +312,8 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
     colorCardColor: '#D71444',
     colorCardText: '',
     likes: 250,
+    comments: 24,
+    shares: 12,
   });
 
   // Color card palette options
@@ -574,8 +576,8 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       media: mediaList,
       stats: {
         likes: parseInt(newPost.likes, 10) || 0,
-        comments: 0,
-        shares: 0,
+        comments: parseInt(newPost.comments, 10) || 0,
+        shares: parseInt(newPost.shares, 10) || 0,
         reactionBreakdown: {
           like: parseInt(newPost.likes, 10) || 0,
         },
@@ -604,6 +606,8 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
       colorCardColor: '#D71444',
       colorCardText: '',
       likes: 250,
+      comments: 24,
+      shares: 12,
     });
     showNotificationToast('Post published dynamically to feed!');
   };
@@ -687,6 +691,8 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
         stats: {
           ...p.stats,
           likes: parseInt(editingPost.likes, 10) || 0,
+          comments: parseInt(editingPost.comments, 10) || 0,
+          shares: parseInt(editingPost.shares, 10) || 0,
         },
       };
     });
@@ -1834,15 +1840,37 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                           </div>
                         </div>
 
-                        <div>
-                          <label className="fb-admin-field-label">Initial Likes Count</label>
-                          <input
-                            type="number"
-                            placeholder="e.g. 500"
-                            className="fb-admin-form-input"
-                            value={newPost.likes}
-                            onChange={(e) => setNewPost({ ...newPost, likes: e.target.value })}
-                          />
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
+                          <div>
+                            <label className="fb-admin-field-label">Initial Likes Count</label>
+                            <input
+                              type="number"
+                              placeholder="e.g. 500"
+                              className="fb-admin-form-input"
+                              value={newPost.likes}
+                              onChange={(e) => setNewPost({ ...newPost, likes: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="fb-admin-field-label">Initial Comments Count</label>
+                            <input
+                              type="number"
+                              placeholder="e.g. 24"
+                              className="fb-admin-form-input"
+                              value={newPost.comments}
+                              onChange={(e) => setNewPost({ ...newPost, comments: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="fb-admin-field-label">Initial Shares Count</label>
+                            <input
+                              type="number"
+                              placeholder="e.g. 12"
+                              className="fb-admin-form-input"
+                              value={newPost.shares}
+                              onChange={(e) => setNewPost({ ...newPost, shares: e.target.value })}
+                            />
+                          </div>
                         </div>
                       </div>
                     </>
@@ -1881,16 +1909,37 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                         </div>
                       </div>
 
-                      <div style={{ marginTop: 12 }}>
-                        <label className="fb-admin-field-label">Initial Likes Count</label>
-                        <input
-                          type="number"
-                          placeholder="e.g. 1000"
-                          className="fb-admin-form-input"
-                          value={newPost.likes}
-                          onChange={(e) => setNewPost({ ...newPost, likes: e.target.value })}
-                          style={{ maxWidth: 200 }}
-                        />
+                      <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
+                        <div>
+                          <label className="fb-admin-field-label">Initial Likes Count</label>
+                          <input
+                            type="number"
+                            placeholder="e.g. 1000"
+                            className="fb-admin-form-input"
+                            value={newPost.likes}
+                            onChange={(e) => setNewPost({ ...newPost, likes: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <label className="fb-admin-field-label">Initial Comments Count</label>
+                          <input
+                            type="number"
+                            placeholder="e.g. 50"
+                            className="fb-admin-form-input"
+                            value={newPost.comments}
+                            onChange={(e) => setNewPost({ ...newPost, comments: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <label className="fb-admin-field-label">Initial Shares Count</label>
+                          <input
+                            type="number"
+                            placeholder="e.g. 25"
+                            className="fb-admin-form-input"
+                            value={newPost.shares}
+                            onChange={(e) => setNewPost({ ...newPost, shares: e.target.value })}
+                          />
+                        </div>
                       </div>
                     </>
                   )}
@@ -2081,9 +2130,9 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                           </div>
 
                           <div className="stats-comments">
-                            <span>{p.comments ? p.comments.length : (p.stats && p.stats.comments) || 0} comments</span>
+                            <span>{((p.stats && typeof p.stats.comments === 'number') ? p.stats.comments : (Array.isArray(p.comments) && p.comments.length > 0 ? p.comments.length : 0)).toLocaleString()} comments</span>
                             <span>·</span>
-                            <span>{(p.stats && p.stats.shares) || 0} shares</span>
+                            <span>{((p.stats && p.stats.shares) || 0).toLocaleString()} shares</span>
                           </div>
                         </div>
 
@@ -2121,7 +2170,9 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                                 caption: p.caption || '',
                                 image: primaryImage || '',
                                 videoUrl: p.videoUrl || (p.media?.[0]?.type === 'video' ? p.media[0].url : ''),
-                                likes: (p.stats && p.stats.likes) || 0,
+                                likes: (p.stats && p.stats.likes) ?? 0,
+                                comments: (p.stats && typeof p.stats.comments === 'number') ? p.stats.comments : (Array.isArray(p.comments) ? p.comments.length : 0),
+                                shares: (p.stats && p.stats.shares) ?? 0,
                               })
                             }
                           >
@@ -4149,17 +4200,41 @@ export default function AdminDashboard({ onExit, activeSubTab }) {
                 </div>
               </div>
 
-              {/* Likes Count */}
-              <div style={{ marginBottom: 18 }}>
-                <label className="fb-admin-field-label">Likes Count</label>
-                <input
-                  type="number"
-                  className="fb-admin-form-input"
-                  value={editingPost.likes}
-                  onChange={(e) =>
-                    setEditingPost({ ...editingPost, likes: e.target.value })
-                  }
-                />
+              {/* Stats: Likes, Comments, Shares */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', marginBottom: 18 }}>
+                <div>
+                  <label className="fb-admin-field-label">Likes Count</label>
+                  <input
+                    type="number"
+                    className="fb-admin-form-input"
+                    value={editingPost.likes ?? 0}
+                    onChange={(e) =>
+                      setEditingPost({ ...editingPost, likes: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="fb-admin-field-label">Comments Count</label>
+                  <input
+                    type="number"
+                    className="fb-admin-form-input"
+                    value={editingPost.comments ?? 0}
+                    onChange={(e) =>
+                      setEditingPost({ ...editingPost, comments: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="fb-admin-field-label">Shares Count</label>
+                  <input
+                    type="number"
+                    className="fb-admin-form-input"
+                    value={editingPost.shares ?? 0}
+                    onChange={(e) =>
+                      setEditingPost({ ...editingPost, shares: e.target.value })
+                    }
+                  />
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
